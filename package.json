@@ -3,7 +3,7 @@
   "name": "rules-engine",
   "amdName": "RulesEngine",
   "version": "1.0.0",
-  "description": "Rules editor library",
+  "description": "Rules engine library",
   "source": "src/index.js",
   "main": "dist/rules-engine.js",
   "exports": "./dist/rules-engine.modern.js",
