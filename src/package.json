@@ -1,0 +1,19 @@
+{
+  "private": true,
+  "name": "rule-engine",
+  "version": "0.0.0",
+  "description": "An expert system sdk in Javascript",
+  "homepage": "",
+  "repository": "rules-editor",
+  "author": "Abah <tonyarmyabah@gmail.com> (https://www.ampani.com)",
+  "contributors": [
+    "Abah <tonyarmyabah@gmail.com>"
+  ],
+  "license": "MIT",
+  "keywords": [],
+  "main": "index.js",
+  "jsnext:main": "index.esm.js",
+  "dependencies": {
+    "@babel/runtime": "^7.11.2"
+  }
+}

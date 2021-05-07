@@ -1,0 +1,33 @@
+{
+  "private": true,
+  "name": "rules-engine",
+  "amdName": "RulesEngine",
+  "version": "1.0.0",
+  "description": "Rules editor library",
+  "source": "src/index.js",
+  "main": "dist/rules-engine.js",
+  "exports": "./dist/rules-engine.modern.js",
+  "module": "dist/rules-engine.esm.js",
+  "unpkg": "dist/rules-engine.umd.js",
+  "files": [
+    "dist",
+    "lib"
+  ],
+  "keywords": [
+    "expert",
+    "system"
+  ],
+  "homepage": "",
+  "repository": "",
+  "author": "Tony Abah <tonyarmyabah@gmail.com> (https://www.ampani.com)",
+  "license": "ISC",
+  "scripts": {
+    "build": "microbundle --name RulesEngine -o dist -f umd,modern,cjs --dist",
+    "build:dev": "microbundle --name RulesEngine -o lib --no-compress --dist",
+    "dev": "microbundle -f umd watch",
+    "serve": "serve"
+  },
+  "devDependencies": {
+    "microbundle": "^0.13.0"
+  }
+}
