@@ -22,9 +22,9 @@
   "author": "Tony Abah <tonyarmyabah@gmail.com> (https://www.ampani.com)",
   "license": "ISC",
   "scripts": {
-    "build": "microbundle --name RulesEngine -o dist -f umd,modern,cjs --dist",
+    "build": "microbundle --name RulesEngine -o dist -f umd --no-compress --dist",
     "build:dev": "microbundle --name RulesEngine -o lib --no-compress --dist",
-    "dev": "microbundle -f umd watch",
+    "dev": "microbundle -f umd --no-compress watch",
     "serve": "serve"
   },
   "devDependencies": {

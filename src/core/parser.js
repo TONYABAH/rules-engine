@@ -1,222 +1,17 @@
 /* jshint esversion:8 */
 
 import {
-  YES, NO, TRUE, FALSE, RULE, ELSE, ELSEIF, THEN, AND, OR, IF, CF,
+  YES, NO, TRUE, FALSE, ELSE, ELSEIF, AND, OR, IF, RULE, THEN, /* CF, MOD, */
   PROMPT, QUESTION, DIGIT, MENU, NUM, MIN, MAX, ARRAY, ATTR, CONST, FUNC,
   ATTRIBUTE, TITLE, SUMMARY, GOAL, LINE, ERROR, EOF, LPAREN, RPAREN, TIMES,
-  COMMA, GT, LT, EQ, TEXT, NOT, IN, EX, IS, REM, COMMENT, SPACE, MOD, LBRACKET, CARRET,
+  COMMA, GT, LT, EQ, TEXT, NOT, IN, EX, IS, REM, COMMENT, SPACE, LBRACKET, CARRET,
 } from './token-constants'
 import CustomEvent from './events'
 import keywords from './keywords'
 import Lexer from './Lexer'
 import { MATH_CONSTS, MATH_FUNCS } from './regex'
+import ParseToken from './parse-token'
 
-const ParseToken = function (self) {
-  // let self.prev = null
-  return {
-    rule () {
-      if (self.prev === null || self.prev === MENU || self.prev === THEN || self.prev === ELSE || self.prev === AND) {
-        self.prev = RULE
-        const r = self.scanRule()
-        self.emit('rule', [r, self.row], this)
-        return true
-      }
-    },
-    if () {
-      if (self.prev === RULE) {
-        self.prev = IF
-        const [left, right, op] = self.scanPremise()
-        self.emit('condition', [IF, left, right, self.row, op], this)
-        return true
-      }
-    },
-    or () {
-      if (self.prev === IF || self.prev === ELSEIF || self.prev === OR || self.prev === AND) {
-        self.prev = OR
-        const [left, right, op] = self.scanPremise()
-        self.emit('premise', [OR, left, right, self.row, op], this)
-        return true
-      }
-    },
-    and () {
-      if (self.prev === IF || self.prev === ELSEIF || self.prev === THEN || self.prev === ELSE || self.prev === AND) {
-
-        if (self.prev === THEN) {
-          const [name, right] = self.scanInference()
-          self.emit('inference', [name, right, false, self.row], this)
-        } else if (self.prev === ELSE) {
-          const [name, right] = self.scanInference()
-          self.emit('inference', [name, right, false, self.row], this)
-        } else {
-          const [left, right, op] = self.scanPremise()
-          self.emit('premise', [AND, left, right, self.row, op], this)
-        }
-        self.prev = AND
-        return true
-      }
-    },
-    then () {
-      if (self.prev === IF || self.prev === ELSEIF || self.prev === OR || self.prev === AND) {
-        self.prev = THEN
-        // console.log( self.pos, self.prev, self.row )
-        const [name, right] = self.scanInference()
-        self.emit('inference', [name, right, false, self.row], this)
-        return true
-      }
-    },
-    elseif () {
-      if (self.prev === THEN || self.prev === AND || self.prev === ELSE) {
-        self.prev = IF
-        const [left, right, op] = self.scanPremise()
-        self.emit('condition', [ELSEIF, left, right, self.row, op], this)
-        return true
-      }
-    },
-    else () {
-      if (self.prev === THEN || self.prev === AND) {
-        self.prev = ELSE
-        const [name, right] = self.scanInference()
-        self.emit('inference', [name, right, true, self.row], this)
-        return true
-      }
-    },
-    prompt () {
-      if (self.prev === null || self.prev === MENU || self.prev === THEN || self.prev === ELSE) {
-        self.prev = PROMPT
-        const p = self.scanPrompt()
-        self.emit('prompt', [p, self.row], this)
-        return true
-      }
-    },
-    question () {
-      if (self.prev === PROMPT) {
-        self.prev = QUESTION
-        const q = self.scanQuestion()
-        self.emit('question', [q, self.row], this)
-        return true
-      }
-    },
-    menu () {
-      if (self.prev === QUESTION) {
-        self.prev = MENU
-        const m = self.scanMenu()
-        self.emit('menu', [m, self.row], this)
-        return this
-      }
-    },
-    digit () {
-      if (self.prev === QUESTION) {
-        self.prev = MENU
-        self.scanDigit()
-        self.emit('digit', [self.row], this)
-        return true
-      }
-    },
-    text () {
-      if (self.prev === QUESTION) {
-        self.prev = MENU
-        self.scanText()
-        self.emit('text', [self.row], this)
-        return true
-      }
-    },
-    yes () {
-      if (self.prev === QUESTION) {
-        self.prev = MENU
-        self.scanYesNo()
-        self.emit('yes-no', [self.row], this)
-        return true
-      }
-    },
-    true () {
-      if (self.prev === QUESTION) {
-        self.prev = MENU
-        self.scanTrueFalse()
-        self.emit('true-false', [self.row], this)
-        return true
-      }
-    },
-    min () {
-      if (self.prev === MENU) {
-        const min = self.scanMin()
-        self.pos--
-        if (min) {
-          self.emit('min', [min, self.row], this)
-        }
-        return true
-      }
-    },
-    max () {
-      if (self.prev === MENU) {
-        const max = self.scanMax()
-        self.pos--
-        if (max) {
-          self.emit('max', [max, self.row], this)
-        }
-        return true
-      }
-    },
-    cf () {
-      if (self.prev === MENU) {
-        self.emit('cf', [self.row], this)
-        return true
-      }
-    },
-    mod () {
-      if (self.prev === MENU) {
-        self.emit('cf', [self.row], this)
-        return true
-      }
-    },
-    attribute () {
-      const attribute = self.scanAttribute()
-      self.emit('attribute', [attribute, self.row], this)
-      return true
-    },
-    goal () {
-      if (self.prev === null || self.prev === MENU || self.prev === THEN || self.prev === ELSE) {
-        const goal = self.scanGoal()
-        self.emit('goal', [goal, self.row], this)
-        return true
-      }
-    },
-    array () {
-      if (self.prev === null || self.prev === MENU || self.prev === THEN || self.prev === ELSE) {
-        const array = self.scanArray()
-        self.emit('array', [array, self.row], this)
-        return true
-      }
-    },
-    title () {
-      if (self.prev === null) {
-        const title = self.scanTitle()
-        self.emit('title', [title, self.row], this)
-        return true
-      }
-    },
-    summary () {
-      if (self.prev === null) {
-        const summary = self.scanSummary()
-        self.emit('summary', [summary, self.row], this)
-        return true
-      }
-    },
-    line () {
-      // New line \n
-      self.emit('line', [self.row], this)
-      return true
-    },
-    eof () {
-      // End of file
-      self.emit('eof', [self.row], this)
-      return true
-    },
-    error () {
-      self.error('Unknown character or token: ' + token.value, token)
-      return true
-    }
-  }
-}
 /**
  * Laguage grammar parser. Parser is language neutral, 
  * it does not know in which language the rules are written
@@ -402,47 +197,54 @@ export default class Parser extends CustomEvent {
       }
     }
   }
-  scanRule () {
+  readToEndOfLine () {
     const tokens = []
-    let token = null// this.eat('RULE');
-    while ((token = this.tokens[this.pos]) && token.type !== LINE && token.type !== EOF) {
-      tokens.push(token.value)
+    let peek = null
+    do {
+      peek = this.peek()
+      let token = this.tokens[this.pos]
+      tokens.push(token)
       this.advance()
+    } while (peek && peek.type !== LINE && peek.type !== EOF)
+
+    const text = tokens.map(t => t.value)
+    if (!text || text.length === 0) {
+      return null
     }
-    const text = tokens.join(' ')
-    const result = `${text}`
-    return result
+    return text.join(' ')
+  }
+  scanRule () {
+    const text = this.scanDefinition(RULE)
+    if (!text || text.length === 0) {
+      return this.error('Rule should have description')
+    }
+    return text
   }
   scanDefinition (type, name) {
-    this.eat(type)
-    const tokens = []
-    let token = this.devour()
-    if (!token) {
-      return this.error('definition should have texts', token)
-    }
-    do {
-      tokens.push(token.value)
-      this.advance()
-      token = this.devour()
-    } while (token && (token.type !== LINE))
-
-    if (tokens.length === 0) {
-      return this.error(name + ' definition should have texts', token)
-    }
-    return tokens.join(' ')
+    // const token = this.peek(type)
+    // let token = this.devour()
+    return this.readToEndOfLine()
   }
   scanTitle () {
-    const title = this.scanDefinition(TITLE, keywords.TITLE)
-
-    return title
+    const text = this.scanDefinition(TITLE, keywords.TITLE)
+    if (!text || text.length === 0) {
+      return this.error('Title should have description')
+    }
+    return text
   }
   scanSummary () {
-    const sum = this.scanDefinition(SUMMARY, keywords.SUMMARY)
-    return sum
+    const text = this.scanDefinition(SUMMARY, keywords.SUMMARY)
+    if (!text || text.length === 0) {
+      return this.error('Summary should have description')
+    }
+    return text
   }
   scanQuestion () {
-    const ques = this.scanDefinition(QUESTION, keywords.QUESTION)
-    return ques
+    const text = this.scanDefinition(QUESTION, keywords.QUESTION)
+    if (!text || text.length === 0) {
+      return this.error('Question should have a statement')
+    }
+    return text
   }
   scanAttribute () {
     // then attribute equal expression
@@ -504,22 +306,21 @@ export default class Parser extends CustomEvent {
   }
   scanGoal () {
     this.eat(GOAL)
-    const g = this.eat(ATTR)
-    if (!g) {
+    const text = this.scanDefinition(GOAL)
+    if (!text || text.length === 0) {
       return this.error('Goal definition should have texts')
     }
-
-    return g.value
+    return text
   }
   scanPrompt () {
-    this.eat(PROMPT)
-    const prompt = this.eat(ATTR)
-    if (!prompt) {
+    // this.eat(PROMPT)
+    const prompt = this.scanDefinition(PROMPT) // this.eat(ATTR)
+    if (!prompt || prompt.length === 0) {
       return this.error('Prompt definition should have texts')
     }
-    this.prompts[prompt.value.toLocaleLowerCase()] = prompt.value
-
-    return prompt.value
+    this.prompts[prompt.toLowerCase()] = prompt
+    
+    return prompt
   }
   scanMenu () {
     this.eat(MENU)
@@ -595,7 +396,7 @@ export default class Parser extends CustomEvent {
     this.advance()
     const name = this.leftAttribute()
     let right = null
-    let nextToken = this.devour()
+    let nextToken = this.taste()
     let comparator = nextToken
     if (!comparator) {
       return this.error('Expected expression but found end of line')
@@ -627,12 +428,13 @@ export default class Parser extends CustomEvent {
       _right.type = TRUE
       _right.value = this.keywords[TRUE]
     }
-    return [name, right || [_right]]
+    if (!right) right = [_right]
+    return {name, right}
   }
   scanPremise () {
     this.advance()
     const left = this.leftNode()
-    let nextToken = this.devour()
+    let nextToken = this.taste()
     let comparator = nextToken
     if (!comparator) {
       return this.error('Expected expression but found end of line')
@@ -641,7 +443,7 @@ export default class Parser extends CustomEvent {
     let comp = null
     let right = []
 
-    switch (this.devour().type) {
+    switch (this.taste().type) {
       case EQ:
       case GT:
       case LT:
@@ -687,7 +489,8 @@ export default class Parser extends CustomEvent {
       _right.value = this.keywords[TRUE]
       right = [_right]
     }
-    return [left, right, comp || EQ]
+    if (!comp) comp = EQ
+    return { left, right, comp }
   }
 
   peek () {
@@ -706,7 +509,7 @@ export default class Parser extends CustomEvent {
     return this.tokens[trace_pos]
 
   }
-  devour () {
+  taste () {
     const token = this.tokens[this.pos]
     return token
   }
@@ -716,10 +519,10 @@ export default class Parser extends CustomEvent {
       this.advance()
       return token
     }
-    return this.error('Expected ' + type + ' but found ' + JSON.stringify(token))
+    return this.error('Expected ' + type + ' but found ' + token.type)
   }
   advance () {
-    this.pos += 1
+    this.pos++
   }
   rightNode () {
     const result = []
@@ -866,7 +669,61 @@ export default class Parser extends CustomEvent {
     this.errors.push(i)
     this.emit('info', i, this)
   }
-
+  isKeyword (word, index) {
+    const prev = index > 0 ? this.tokens[index - 1]: {}
+    const history = index > 1 ? this.tokens[index - 2] : null
+    switch (word) {
+      case ELSE:
+      case ELSEIF:
+      case AND:
+      case OR:
+      case IF:
+      case RULE:
+      case THEN:
+      case PROMPT:
+      case QUESTION:
+      case DIGIT:
+      case MENU:
+      case NUM:
+      case ARRAY:
+      case ATTRIBUTE:
+      case TITLE:
+      case SUMMARY:
+      case GOAL:
+      case YES:
+      case TRUE:
+        if (prev.type === LINE) {
+          return true
+        }
+        return false
+      case NO:
+        if (prev.type === YES) {
+          return true
+        } else if (prev.type === COMMA) {      
+          if (history && history.type === YES) return true
+        }
+        return false
+      case FALSE:
+        if (prev.type === TRUE) {
+          return true
+        } else if (prev.type === COMMA) {
+          if (history && history.type === TRUE) return true
+        }
+        return false
+      case MIN:
+        if (prev.type === LINE) return true
+        return false
+      case MAX:
+        if (prev.type === LINE) {
+          return true
+        } else if (prev.type === COMMA) {
+          if(history && history.type === MIN) return true
+        }
+        return false
+      default:
+        return true
+    }
+  }
   filterKeywords () {
     let tokens = []
     for (let i = 0; i < this.tokens.length; i++) {
@@ -875,11 +732,14 @@ export default class Parser extends CustomEvent {
         //let found = this.keyValues.findIndex(v => v.toUpperCase() === token.value.toUpperCase())
         let key = this.keyMap.find(k => this.keywords[k].toUpperCase() === token.value.toUpperCase())
         if (key) {
-          let tk = Object.assign({}, token)
-          tk.type = key
-          tokens.push(tk)
-
-          continue
+          const isKeyword = this.isKeyword(key, i)
+          if (isKeyword) {
+            let tk = Object.assign({}, token)
+            tk.type = key
+            tk.value = tk.value.toUpperCase()
+            tokens.push(tk)
+            continue // skip pushing default Token below
+          }
         }
       }
       tokens.push(token)
@@ -989,12 +849,10 @@ export default class Parser extends CustomEvent {
         finalTokens.push(rparen)
         i++
         i++
-
       } else {
         finalTokens.push(current)
       }
     }
-    // console.log( finalTokens )
     this.tokens = finalTokens
   }
   filterComment () {
@@ -1015,10 +873,12 @@ export default class Parser extends CustomEvent {
     this.tokens = tokens.filter(token => token.type !== SPACE && token.type !== REM)
     this.applyMaths()
     this.transform()
-
-    // this.tokens.forEach( (token) => {
+    this.prev = null
+    this.lastToken = null
+  
     for (this.pos = 0; this.pos < this.tokens.length; this.pos++) {
       const token = this.tokens[this.pos]
+      this.lastToken = this.tokens[this.pos > 0 ? this.pos - 1 : 0]
       this.row = token.row
       this.col = token.column
       const type = token.type
@@ -1026,20 +886,16 @@ export default class Parser extends CustomEvent {
       if (type === REM || type === COMMENT) {
         continue
       }
+
       const action = this.parseToken[type.toLowerCase()]
-      try {
-        if (action) {
-          // call the method to parse token
-          const result = action() // this.parseToken[type.toLowerCase()]()
-          if (!result) {
-            this.error('Invalid token or keyword: ' + token.value, token)
-          }
-        } else {
-          this.error('Invalid token or keyword: ' + token.value, token)
+      if (action) {
+        // call the method to parse token
+        const result = this.parseToken[type.toLowerCase()](token)
+        if (!result) {
+          this.error('Invalid keyword: ' + token.value)
         }
-      } catch (e) {
-        console.log(e)
-        throw e
+      } else {
+        this.error('Invalid token or keyword: ' + token.value, token)
       }
     }
     this.checkVarableDeclarations()

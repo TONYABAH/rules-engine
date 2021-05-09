@@ -5,7 +5,6 @@ import {
   TIMES, MINUS, PLUS, DIV, MOD, STRING, REM, NUM, COMMENT, LBRACKET, RBRACKET, CARRET,
 } from './token-constants'
 import { Numeric} from './regex'
-// import keywords from './resources/keywords/index'
 import { Token } from './symbols'
 
 /**
@@ -15,9 +14,6 @@ import { Token } from './symbols'
 export default class Tokenizer {
   constructor ( lang ) {
     this.init()
-    //this.keywords = keywords[lang.toLowerCase()]
-    //this.keyMap = Object.keys( this.keywords )
-    //this.keyValues = Object.values( this.keywords )
   }
   get SpecialCharacters () {
     return [
