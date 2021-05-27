@@ -1,0 +1,74 @@
+Language en
+Title Hair loss diagnosis
+Summary Diagnose hair loss issues in adults
+
+Goal DIAGNOSIS
+Goal Prescription
+Goal Action
+
+Rule 1 Hair falling off
+if small patches of hair falling is true
+then hair falling is true
+else hair falling is false
+
+Rule 2 Infection//rule xpr
+if hair falling is true//if xpr
+and patches symptoms include red skin//and xpr
+or patches symptoms include itchy skin//or xpr
+or patches symptoms include oily skin//or xpr
+then DIAGNOSIS is ringworm//then xpr
+and action is See your doctor//and xpr
+elseif hair falling is true //else xpr
+and small bald areas seen is yes//and xpr
+then DIAGNOSIS is Alopecia Areata//then xpr 
+and infection suspected is true
+and action is See your doctor//and xpr
+else infection suspected is false//and xpr
+
+Rule 4 baldness
+if infection suspected is not true
+and your sex is man 
+and gradual hair loss is true
+and relatives have similar hair loss is true
+then Diagnosis is MALE PATTERN BALDNESS
+and action is COSMETIC TREATMENT
+else follicle suspected is true
+
+Rule 5 Follicle damage
+if not infection suspected is true
+and hair damage suspected is true
+and patient used chemicals is true
+or patient worn tight braids is true
+or patient used camirows is true
+then Diagnosis is Follicle damage
+and action is STOP using this treatment or styles
+else cancer suspected is true
+
+Rule 6 New Treatment
+if cancer suspected is true
+and being treated for cancer is true
+or taking new medicines is true
+then Diagnosis is CANCER
+else deficiency disease is true
+
+Prompt patches symptoms
+Question Which of the following symptoms do you observe?
+Menu (Red skin, Itchy skin, Oily skin) Min 1 Max 3
+
+Prompt small patches of hair falling
+Question You have small patches of hair falling?
+Menu (true, false) Min 1
+
+
+Prompt small bald areas seen
+Question Do you see small bald areas in the patches?
+Menu (Yes, No) Max 1
+
+Prompt your sex
+Question What are you?
+Menu (Man, Woman)Max 1 Min 1
+
+
+
+
+

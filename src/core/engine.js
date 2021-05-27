@@ -29,7 +29,7 @@ export default class Engine extends Translator {
   }
 
   raiseScriptError (e) {
-    
+    console.log(e)
     const message = this.translate(keys.ScriptError).data
     // translateKey(ErrorKeys.ScriptError, this.knowledgebase.language)
     throw new ScriptError(message, keys.ScriptError, e)
@@ -110,7 +110,9 @@ export default class Engine extends Translator {
           conditionIndex
         ]
         conditionIndex++
+      
         const result = this.testPremises()
+        
         if (Boolean(result) === true) {
           const result = this.fireRule(this.knowledgebase.currentCondition.Inferences)
           if(result) return result
@@ -148,7 +150,7 @@ export default class Engine extends Translator {
       if (this.paused) return false
       const rightNodes = this.mapNodes(Premise.Right)
       if (this.paused) return false
-
+      // console.log(leftNodes, rightNodes)
       const left = this.solve(leftNodes) || ""
       const right = Premise.Right.length > 0 ? this.solve(rightNodes) : true
 
@@ -479,6 +481,7 @@ export default class Engine extends Translator {
     try {
       // if (kb) this.setKnowledgebase(kb)
       let data = this.setAttribute(input)
+      // console.log(data)
       return data
     } catch (e) {
       return this.raiseScriptError(e)

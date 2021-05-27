@@ -1,18 +1,22 @@
 import {
-  /*YES, NO, TRUE, FALSE, RULE, ELSE, ELSEIF, THEN, AND, OR, IF, CF, PROMPT, QUESTION, COMMENT,
-  MIN, MAX, ARRAY, ATTRIBUTE, TITLE, SUMMARY, GOAL, TEXT, NOT, IN, EX, IS, DIGIT, MENU, */
+  YES, NO, TRUE, FALSE, RULE, ELSE, ELSEIF, THEN, AND, OR, IF, CF, PROMPT, QUESTION,
+  MIN, MAX, ARRAY, ATTRIBUTE, TITLE, SUMMARY, GOAL, TEXT, NOT, IN, EX, IS, DIGIT, MENU,
   ATTR, LINE, ERROR, EOF, LPAREN, RPAREN, COMMA, GT, LT, EQ, SPACE,
   TIMES, MINUS, PLUS, DIV, MOD, STRING, REM, NUM, COMMENT, LBRACKET, RBRACKET, CARRET,
 } from './token-constants'
+// import * as Types from './token-constants'
 import { Numeric} from './regex'
 import { Token } from './symbols'
-
+// import Keywords from './keywords'
 /**
  * Text tokenizer Lexer
  * @param {String} lang 
  */
 export default class Tokenizer {
-  constructor ( lang ) {
+  constructor () {
+    // this.language = language
+    // this.Types = []
+    // this.Keywords = Keywords[language]
     this.init()
   }
   get SpecialCharacters () {
@@ -39,6 +43,7 @@ export default class Tokenizer {
   init () {
     this.row = 0
     this.col = 0
+
   }
   tokenizeWord ( input, current ) {
     let consumedChars = 0

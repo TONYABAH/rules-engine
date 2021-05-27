@@ -8,7 +8,7 @@ import {
 } from './token-constants'
 import CustomEvent from './events'
 import keywords from './keywords'
-import Lexer from './Lexer'
+import Lexer from './lexer'
 import { MATH_CONSTS, MATH_FUNCS } from './regex'
 import ParseToken from './parse-token'
 
@@ -26,13 +26,12 @@ export default class Parser extends CustomEvent {
     this.keywords = keywords[language.toLowerCase()]
     this.keyMap = Object.keys(this.keywords)
     this.keyValues = Object.values(this.keywords)
-    this.tokens = []
+    this.tokens = null
     this.prev = null
+    this.errors = null
+    this.data = null
     this.parseToken = ParseToken(this)
     // this.init()
-  }
-  get Errors () {
-    return this.errors
   }
   get Event () {
     return super.prototype
@@ -46,6 +45,7 @@ export default class Parser extends CustomEvent {
     this.inferences = []
     this.knowledgebase = null
     this.data = null
+    this.tokens = []
   }
   matchCloseParenthesis (tokens, startIndex) {
     let $return = -1
@@ -221,8 +221,8 @@ export default class Parser extends CustomEvent {
     return text
   }
   scanDefinition (type, name) {
-    // const token = this.peek(type)
-    // let token = this.devour()
+    let token = this.peek(type)
+    if (token) this.eat(type)
     return this.readToEndOfLine()
   }
   scanTitle () {
@@ -313,13 +313,13 @@ export default class Parser extends CustomEvent {
     return text
   }
   scanPrompt () {
-    // this.eat(PROMPT)
+    this.eat(PROMPT)
     const prompt = this.scanDefinition(PROMPT) // this.eat(ATTR)
     if (!prompt || prompt.length === 0) {
       return this.error('Prompt definition should have texts')
     }
     this.prompts[prompt.toLowerCase()] = prompt
-    
+
     return prompt
   }
   scanMenu () {
@@ -329,9 +329,8 @@ export default class Parser extends CustomEvent {
     if (!lparen) {
       return this.error('Expected (')
     }
-    let token
-    while ((token = this.tokens[this.pos]) &&
-      token.type !== RPAREN && token.type !== LINE && token.type !== EOF) {
+    let token = this.tokens[this.pos]
+    while (token && token.type !== RPAREN && token.type !== LINE && token.type !== EOF) {
       if (!token || (token.type !== NUM && token.type !== ATTR &&
         token.type !== YES && token.type !== NO &&
         token.type !== TRUE && token.type !== FALSE
@@ -339,31 +338,31 @@ export default class Parser extends CustomEvent {
         return this.error('Expected number or Attribute')
       }
       tokens.push(token)
-      if (this.peek().type === RPAREN) {
+      if (this.peek() && this.peek().type === RPAREN) {
         this.advance()
         break
       }
       this.advance()
       this.eat(COMMA)
+      token = this.tokens[this.pos]
     }
     const menu = tokens.map((m) => m.value)
     return menu
   }
   scanYesNo () {
-    let next = this.peek()
+    // let next = this.peek()
     this.eat(YES)
-    if (next && next.type === COMMA) {
-      this.eat(COMMA)
-    }
+    // if (next && next.type === COMMA) {
+    this.eat(COMMA)
+    // }
     this.eat(NO)
   }
   scanTrueFalse () {
-    let next = this.peek()
+    // let next = this.peek()
     this.eat(TRUE)
-
-    if (next && next.type === COMMA) {
-      this.eat(COMMA)
-    }
+    // if (next && next.type === COMMA) {
+    this.eat(COMMA)
+    // }
     this.eat(FALSE)
   }
   scanDigit () {
@@ -383,18 +382,19 @@ export default class Parser extends CustomEvent {
     return max
   }
 
-  /*scanCF () {
-    if ( this.peek() && this.peek().type  ===  this.CF ) {
+  scanCF () {
+    if (this.peek() && this.peek().type === this.CF) {
       this.advance()
-      // cf = true;
+      cf = true
     }
-    if ( this.peek() && this.peek().type !== LINE ) {
-      this.error( 'Expected end of line but found ' + this.peek().value )
+    if (this.peek() && this.peek().type !== LINE) {
+      this.error('Expected end of line but found ' + this.peek().value)
     }
-  }*/
+  }
   scanInference () {
     this.advance()
     const name = this.leftAttribute()
+    // console.log(name)
     let right = null
     let nextToken = this.taste()
     let comparator = nextToken
@@ -412,9 +412,9 @@ export default class Parser extends CustomEvent {
         this.advance()
         right = this.rightNode()
         if (comparator) {
-          if (right.type === EOF) {
+          if (right && right[0].type === EOF) {
             return this.error('Expected expression but found end of file', right)
-          } else if (right.type === LINE) {
+          } else if (right && right[0].type === LINE) {
             return this.error('Expected expression but found new line', right)
           }
           this.matchParenthesis(right)
@@ -429,7 +429,7 @@ export default class Parser extends CustomEvent {
       _right.value = this.keywords[TRUE]
     }
     if (!right) right = [_right]
-    return {name, right}
+    return { name, right }
   }
   scanPremise () {
     this.advance()
@@ -443,7 +443,7 @@ export default class Parser extends CustomEvent {
     let comp = null
     let right = []
 
-    switch (this.taste().type) {
+    switch (comparator.type) {
       case EQ:
       case GT:
       case LT:
@@ -456,9 +456,9 @@ export default class Parser extends CustomEvent {
         right = this.rightNode()
         this.matchParenthesis(right)
         if (comparator) {
-          if (right.type === EOF) {
+          if (right && right[0].type === EOF) {
             return this.error('Expected expression but found end of file', right)
-          } else if (right.type === LINE) {
+          } else if (right && right[0].type === LINE) {
             return this.error('Expected expression but found new line', right)
           }
           this.matchParenthesis(right)
@@ -472,9 +472,9 @@ export default class Parser extends CustomEvent {
         comparator = null
     }
 
-    if (left.length == 0) {
-      this.error('Expected expression but found end of line')
-    }
+    // if (left.length == 0) {
+    // this.error('Expected expression but found end of line')
+    // }
     left.forEach((token) => {
       if (token.type === ATTR) {
         if (!(this.attributes[token.value.toLocaleLowerCase()])) {
@@ -515,11 +515,15 @@ export default class Parser extends CustomEvent {
   }
   eat (type) {
     const token = this.tokens[this.pos]
-    if (token && (token.type === type)) {
-      this.advance()
-      return token
+    if (token) {
+      if (token.type === type) {
+        this.advance()
+        return token
+      } else {
+        return this.error('Expected ' + type + ' but found ' + token.type)
+      }
     }
-    return this.error('Expected ' + type + ' but found ' + token.type)
+    return this.error('Expected ' + type + ' but found end of line')
   }
   advance () {
     this.pos++
@@ -527,6 +531,7 @@ export default class Parser extends CustomEvent {
   rightNode () {
     const result = []
     let token = this.tokens[this.pos]
+
     while (token && (token.type !== LINE && token.type !== EOF)) {
       switch (token.type) {
         case EQ:
@@ -585,7 +590,6 @@ export default class Parser extends CustomEvent {
       return this.error('Expected attribute')
     }
     this.inferences[token.value.toLocaleLowerCase()] = token
-
     return token // may never be reached
   }
   comparator () {
@@ -622,6 +626,7 @@ export default class Parser extends CustomEvent {
       const a = this.attributes[k]
       if (!(this.inferences[k] || this.prompts[k])) {
         this.warn('No input prompt for attribute ' + k, a)
+        // console.log(this.inferences, this.prompts)
       }
     })
   }
@@ -669,17 +674,16 @@ export default class Parser extends CustomEvent {
     this.errors.push(i)
     this.emit('info', i, this)
   }
-  isKeyword (word, index) {
-    const prev = index > 0 ? this.tokens[index - 1]: {}
-    const history = index > 1 ? this.tokens[index - 2] : null
+  isKeyword (word, index, tokens) {
+    const token = index > 0 ? tokens[index - 1]:null
+    const prev = token ? token.type : null
+    const history = index > 1 ? tokens[index - 2].type : null
     switch (word) {
-      case ELSE:
-      case ELSEIF:
       case AND:
-      case OR:
-      case IF:
-      case RULE:
       case THEN:
+      case ELSE:
+      case OR:
+      case RULE:
       case PROMPT:
       case QUESTION:
       case DIGIT:
@@ -690,34 +694,46 @@ export default class Parser extends CustomEvent {
       case TITLE:
       case SUMMARY:
       case GOAL:
+        if (prev === LINE) {
+          return true
+        }
+        return false
       case YES:
       case TRUE:
-        if (prev.type === LINE) {
+        if (prev === LINE || prev === EQ || prev === IS) {
           return true
         }
         return false
       case NO:
-        if (prev.type === YES) {
+        if (prev === EQ || prev === IS) {
           return true
-        } else if (prev.type === COMMA) {      
-          if (history && history.type === YES) return true
+        } else if (prev === COMMA && history === YES) {
+          return true
         }
         return false
       case FALSE:
-        if (prev.type === TRUE) {
+        if (prev === EQ || prev === IS) {
           return true
-        } else if (prev.type === COMMA) {
-          if (history && history.type === TRUE) return true
+        } else if (prev === COMMA && history === TRUE) {
+          return true
         }
         return false
       case MIN:
-        if (prev.type === LINE) return true
+        if (prev  === LINE) return true
         return false
       case MAX:
-        if (prev.type === LINE) {
+        if (prev === LINE) {
           return true
-        } else if (prev.type === COMMA) {
-          if(history && history.type === MIN) return true
+        }
+        return false
+      case IF:
+        if (prev === LINE || prev === ELSE) {
+          return true
+        }
+        return false
+      case ELSEIF:
+        if (prev === LINE) {
+          return true
         }
         return false
       default:
@@ -726,25 +742,38 @@ export default class Parser extends CustomEvent {
   }
   filterKeywords () {
     let tokens = []
+    let prevToken = null
     for (let i = 0; i < this.tokens.length; i++) {
       let token = this.tokens[i]
       if (token.type === ATTR) {
         //let found = this.keyValues.findIndex(v => v.toUpperCase() === token.value.toUpperCase())
         let key = this.keyMap.find(k => this.keywords[k].toUpperCase() === token.value.toUpperCase())
         if (key) {
-          const isKeyword = this.isKeyword(key, i)
+          const isKeyword = this.isKeyword(key, i, tokens)
           if (isKeyword) {
             let tk = Object.assign({}, token)
             tk.type = key
-            tk.value = tk.value.toUpperCase()
+            if (prevToken && prevToken.type === ELSE && key === IF) {
+              tokens[i - 1].value += ' ' + tk.value
+              tokens[i - 1].type = ELSEIF
+              prevToken = token
+              tokens.push(null)
+              continue
+            } else {
+              token = tk
+            }
             tokens.push(tk)
-            continue // skip pushing default Token below
+            continue
           }
         }
       }
       tokens.push(token)
+      prevToken = token
+      // history.unshift(Object.assign({}, token))
+      // if (history.length > 2) history.pop()
     }
     this.tokens = tokens
+    // console.log(tokens)
   }
 
   transform () {
@@ -875,19 +904,20 @@ export default class Parser extends CustomEvent {
     this.transform()
     this.prev = null
     this.lastToken = null
-  
+
     for (this.pos = 0; this.pos < this.tokens.length; this.pos++) {
       const token = this.tokens[this.pos]
       this.lastToken = this.tokens[this.pos > 0 ? this.pos - 1 : 0]
       this.row = token.row
       this.col = token.column
       const type = token.type
-    
+
       if (type === REM || type === COMMENT) {
         continue
       }
 
       const action = this.parseToken[type.toLowerCase()]
+     
       if (action) {
         // call the method to parse token
         const result = this.parseToken[type.toLowerCase()](token)
@@ -895,11 +925,13 @@ export default class Parser extends CustomEvent {
           this.error('Invalid keyword: ' + token.value)
         }
       } else {
+        
         this.error('Invalid token or keyword: ' + token.value, token)
       }
     }
     this.checkVarableDeclarations()
     this.emit('done', { errors: this.errors, tokens: this.tokens })
+    // console.log(this)
     return this.tokens
   }
 }

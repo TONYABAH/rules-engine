@@ -1,0 +1,24 @@
+Language en
+Title Animal Identification System
+Summary Animal identification expert system
+
+Attribute wild animals = http://localhost:8080/Rules/kb/wild.kbf
+Attribute domestic animals = http://localhost:8080/Rules/kb/domestic.kbf
+Attribute aquatic animals = http://localhost:8080/Rules/kb/aquatic.kbf
+Attribute animals of captivity= http://localhost:8080/kb/Rules/zoo.kbf
+
+Rule 1 Habitat
+If Habitat = Home
+Then load = domestic animals
+
+Elseif Habitat is Zoo
+Then load = animals of captivity
+
+Elseif Habitat is Water
+Then load = aquatic animals
+
+Else load = wild animals
+
+Prompt Habitat
+Question Where does the animal live?
+Menu (Home, Zoo, Bush, Water)

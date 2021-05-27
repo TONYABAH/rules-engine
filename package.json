@@ -22,12 +22,13 @@
   "author": "Tony Abah <tonyarmyabah@gmail.com> (https://www.ampani.com)",
   "license": "ISC",
   "scripts": {
-    "build": "microbundle --name RulesEngine -o dist -f umd --no-compress --dist",
-    "build:dev": "microbundle --name RulesEngine -o lib --no-compress --dist",
-    "dev": "microbundle -f umd --no-compress watch",
-    "serve": "serve"
+    "build": "microbundle --name RulesEngine -o dist --no-compress watch --dist",
+    "build:dev": "microbundle --name RulesEngine -f umd -o dist --no-compress watch",
+    "dev": "microbundle --name RulesEngine -f modern -o dist --no-compress watch",
+    "serve": " browser-sync start --server --serveStatic dist --index demo/index.html -w -f app,demo,src"
   },
   "devDependencies": {
     "microbundle": "^0.13.0"
-  }
+  },
+  "dependencies": {}
 }

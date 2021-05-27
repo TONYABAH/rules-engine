@@ -11,16 +11,20 @@ class Rules extends Translator {
     super(language)
     this.language = language
     this.validator = new Validator(language)
+    this.parser = new Parser(language)
+    this.errors = null
   }
-  raiseValidationError (code) {
-    return Rules.raiseValidationError(code)
+  get Errors () {
+    this.errors
   }
+ 
   parse (codes) {
-    const parser = new Parser(this.language)
-    return parser.compile(codes)
+    // const parser = new Parser(this.language)
+    return this.parser.compile(codes)
   }
   compile (codes) {
     let data = this.parse(codes)
+    this.errors = this.parser.errors
     return data
   }
   repeat (data) {
@@ -64,7 +68,7 @@ class Rules extends Translator {
   choice (input, prompt) {
     return choice(input, prompt, this.language)
   }
-  static raiseValidationError (code) {
+  raiseValidationError (code) {
     const message = this.t(code)
     const err = new ValidationError(message, code)
     return err

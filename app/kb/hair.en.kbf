@@ -1,0 +1,103 @@
+Language en
+Title Hair loss diagnosis
+Summary Diagnose hair loss issues in adults
+
+Goal diagnosis
+Goal action
+Goal advice
+//[鈽呫儵銉炽偔銉炽偘鈽呫儵銉炽偔銉炽偘]
+
+Attribute web result =http://localhost:8084/NetBeansProjects/webresources/resources/number|xml|root/numbers/number
+Attribute diagnosis1 =http://localhost:8084/NetBeansProjects/webresources/resources/diagnosis|xml|root/disease
+Attribute kburl = http://localhost:8080/Rules/hair.txt
+
+Rule 1 Hair falling off
+if small patches of hair falling = true
+then hair falling = true
+else hair falling = false
+
+Rule 3 Infection
+if hair falling = true
+and small bald areas seen = yes
+then diagnosis = Alopecia Areata
+and infection is true
+and action = See your doctor
+
+Rule 7 Infection
+if hair falling is true 
+and patches symptoms include oily skin 
+or eye color is red
+then load = kburl
+
+Rule 4 Cosmetics
+if hair falling and your sex is man 
+and gradual hair loss is false 
+and relatives have similar hair loss is true
+then diagnosis is MALE PATTERN BALDNESS
+and action is COSMETIC TREATMENT
+else follicle suspected is true
+
+Rule 5 Follicle damage
+if hair falling is true 
+and infection is false 
+and patient used chemicals = true 
+or patient worn tight braids = true 
+or patient used camirows =true
+then diagnosis is Follicle damage
+and action is STOP using this treatment or styles
+
+Rule 6 New Medicines
+if hair falling is true
+and taking new medicines is true
+then diagnosis is 'Cancer'
+else diagnosis is deficiency disease
+and action is See your nutritionist
+
+Prompt patient used chemicals
+Question Do you use chemicals on your hair?
+Menu (true, false) Max 1 Min 1
+
+Prompt patches symptoms
+Question Which of the following symptoms do you observe?
+Menu (Red skin, Itchy skin, Oily skin, None) Min 1
+cf
+
+Prompt small patches of hair falling
+Question Do you observe small patches of hair falling?
+Menu (true,false) Max 1 Min 1 
+//cf
+
+Prompt small bald areas seen
+Question Do you see small bald areas in the patches?
+Menu (yes, no) Max 1
+
+Prompt patient worn tight braids
+Question Do you wear tight braids?
+Menu (true, false) Max 1
+
+Prompt patient used camirows
+Question Do you use Camirows?
+Menu (true, false) Max 1
+cf
+
+Prompt taking new medicines
+Question Are you taking new medicines?
+Menu (true, false) Max 1
+
+Prompt your sex
+Question What are you?
+Menu (Man, Woman) Max 1 Min 1
+
+Prompt eye color
+Question What is the color of the  eye?
+Menu (Red, Blue, Black, Yellow, Green) Max 1
+
+Prompt gradual hair loss
+Question Do you experience gradual hair loss?
+Menu (true, false) Max 1 Min 1
+
+Prompt relatives have similar hair loss
+
+Question Do your relatives have gradual hair loss?
+Menu (true, false) Max 1 Min 1
+

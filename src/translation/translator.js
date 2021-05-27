@@ -14,7 +14,7 @@ class Translator {
       return k === code
     })
     if (key) {
-      return locale[k]
+      return locale[key]
     }
     return null
   }
@@ -57,6 +57,11 @@ class Translator {
     const code = Object.keys(this.source)[index]
     return this.translate(code)
   }
+  /**
+   * 
+   * @param {String} code Error code to translate
+   * @returns Translator object
+   */
   t (code) {
     return this.translate(code)
   }

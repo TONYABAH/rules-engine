@@ -1,0 +1,94 @@
+Langue fr
+//Langue Français
+Titre Diagnostic de perte de cheveux
+Résumé Diagnostiquer les problèmes de perte de cheveux chez les adultes
+
+Règle 1 Cheveux tombant
+Si de petites taches de cheveux tombent
+Alors les cheveux tombent est vrai :cf 90
+Autre les cheveux tombent est faux :cf 85
+
+Règle 2 Infection
+Si les cheveux tombent
+Et les symptômes des patchs incluent la peau rouge
+Ou les symptômes des patchs incluent la démangeaison cutanée
+Ou les symptômes des patchs incluent la peau grasse
+Alors le diagnostic est la teigne
+Et l'action est Voir votre docteur
+
+Règle 3 Infection
+Si les cheveux tombent
+Et les petites zones chauves vu est oui
+Alors le diagnostic est Alopecia Areata
+Et l'action est Voir votre médecin
+
+Règle 4 Cosmétiques
+Si votre sexe est homme
+Et perte de cheveux progressive
+Et les parents ont la perte de cheveux similaire
+Alors le diagnostic est MALE PATTERN BALDNESS
+Et l'action est TRAITEMENT COSMETIQUE
+Autre follicule suspecté
+
+Règle 5 Dommage du follicule
+Si l'infection suspectée n'est pas vrai
+Et des cheveux tombant
+Et les produits chimiques utilisés par les patients
+Ou le patient a porté des tresses serrées
+Ou patient utilisé camirows
+Alors le diagnostic est Follicule dommages
+Et l'action est STOP en utilisant ce traitement ou des styles
+
+Règle 6 Nouveaux médicaments
+Si vous prenez de nouveaux médicaments
+Alors le diagnostic est 'Cancer'
+Autre le diagnostic est la maladie de carence
+Et l'action est Voir votre nutritionniste
+
+rapide les symptômes des patchs
+Question Quels sont les symptômes suivants que vous observez?
+Menu (la peau rouge, la démangeaison cutanée, la peau grasse, Aucune) Minimum 1
+Cf
+
+rapide de petites taches de cheveux tombent
+//Question Observez-vous de petites taches de cheveux tombant?
+Question Observez vous de petites taches de cheveux tombant?
+Menu (vrai, faux) Maximu 1 Minimum 1
+//Cf
+
+rapide les petites zones chauves vu
+//Question Voyez-vous de petites zones chauves dans les patchs?
+Question Voyez vous de petites zones chauves dans les patchs?
+Menu (vrai, faux) Maximu 1
+
+rapide Tresses serrées rapidement utilisées par le patient
+Question Vous portez des tresses serrées?
+Menu (vrai, faux) Maximu 1
+
+rapide Le patient rapide utilisé camirows
+//Question Utilisez-vous Camirows?
+Question Utilisez vous Camirows?
+Menu (vrai, faux) Maximu 1
+Cf
+
+rapide Prendre de nouveaux médicaments
+//Question Est-ce que vous prenez de nouveaux médicaments?
+Question Est ce que vous prenez de nouveaux médicaments?
+Menu (vrai, faux) Maximu 1
+
+rapide votre sexe
+//Question Qu'êtes-vous?
+Question Qu'êtes vous?
+Menu (Homme, Femme) Maximu 1 Minimum 1
+
+rapide les parents ont la perte de cheveux similaire
+Question Est ce que votre parents ont la perte de cheveux similaire?
+Menu (vrai, faux) Maximu 1
+
+rapide perte de cheveux progressive
+Question Est ce que vous et perte de cheveux progressive?
+Menu (vrai, faux) Maximu 1
+
+
+objectif le diagnostic
+objectif l'action

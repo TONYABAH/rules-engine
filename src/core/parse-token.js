@@ -57,13 +57,13 @@ const ParseToken = function (self) {
       ) {
         self.prev = AND
         if (self.prev === THEN) {
-          const p = self.scanPremise()
+          const p = self.scanInference()
           if (!p) return
           const { name, right } = p
           self.emit('inference', [name, right, false, self.row], this)
           return true
         } else if (self.prev === ELSE) {
-          const p = self.scanPremise()
+          const p = self.scanInference()
           if (!p) return
           const { name, right } = p
           self.emit('inference', [name, right, false, self.row], this)
@@ -77,7 +77,8 @@ const ParseToken = function (self) {
         }
       }
     },
-    then () {
+    then (token) {
+      // console.log(self.prev, token)
       if (
         self.prev === IF ||
         self.prev === ELSEIF ||
@@ -85,19 +86,20 @@ const ParseToken = function (self) {
         self.prev === AND
       ) {
         self.prev = THEN
-        const p = self.scanPremise()
+        const p = self.scanInference()
         if (!p) return false
         const { name, right } = p
         self.emit('inference', [name, right, false, self.row], this)
         return true
       }
     },
-    elseif () {
+    elseif (token) {
       if (self.prev === THEN ||
         self.prev === AND ||
         self.prev === ELSE
       ) {
-        self.prev = IF
+        self.prev = ELSEIF
+        // console.log(token)
         const p = self.scanPremise()
         if (!p) return
         const { left, right, op } = p
@@ -108,7 +110,7 @@ const ParseToken = function (self) {
     else () {
       if (self.prev === THEN || self.prev === AND) {
         self.prev = ELSE
-        const f = self.scanPremise()
+        const f = self.scanInference()
         if (!f) return
         const { name, right } = f
         self.emit('inference', [name, right, true, self.row], this)

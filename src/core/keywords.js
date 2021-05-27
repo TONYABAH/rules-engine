@@ -30,6 +30,8 @@ export const en = {
   FALSE: 'false',
   MIN: 'min',
   MAX: 'max',
+  YES: 'yes',
+  NO: 'no',
   // FOLD_SETTING:			fold.en,
   // PROMPT_SETTING:		prompt.en
 }
@@ -66,6 +68,8 @@ export const fr = {
   FALSE: 'faux',
   MIN: 'min',
   MAX: 'max',
+  YES: 'oui',
+  NO: 'pas',
   // FOLD_SETTING:			fold.fr,
   // PROMPT_SETTING:		prompt.fr
 }

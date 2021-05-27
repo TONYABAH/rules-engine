@@ -1,6 +1,6 @@
 import keywords from './keywords'
 //import Constants from './constants'
-import {YN, TF, ATTR, NUMBER,MENU, TEXT } from './token-constants'
+import {YN, TF, ATTR, NUMBER, MENU, TEXT, YES, NO } from './token-constants'
 import Prompt from './prompt'
 import Attribute from './attribute'
 import Inference from './inference'
@@ -193,7 +193,7 @@ export default class Knowledgebase {
   addTrueFalse () {
     // let menus = values;
     this.ActivePrompt.Menu = []
-    let index = 1
+    let index = 0
     const values = [true, false]
     values.forEach( ( value ) => {
       const menu = new Menu(
@@ -212,8 +212,8 @@ export default class Knowledgebase {
   addYesNo () {
     // let menus = values;
     this.ActivePrompt.Menu = []
-    let index = 1
-    const values = [true, false]
+    let index = 0
+    const values = [this.keywords[YES], this.keywords[NO]]
     values.forEach( ( value ) => {
       const menu = new Menu(
         index, // index

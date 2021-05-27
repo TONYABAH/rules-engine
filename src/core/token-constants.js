@@ -1,9 +1,9 @@
 // These definitions are internally used to store tokens
 // they should not affect language of production rules
-export const REM='REM'
-export const COMMENT='COMMENT' 
+export const REM ='REM'
+export const COMMENT = 'COMMENT' 
 export const TITLE  ='TITLE'
-export const SUMMARY='SUMMARY'
+export const SUMMARY ='SUMMARY'
 export const ATTRIBUTE ='ATTRIBUTE'
 export const ARRAY  ='ARRAY'
 export const ATTR   ='ATTR'

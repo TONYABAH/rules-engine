@@ -118,6 +118,7 @@ export default class Builder {
   factor () {
     // factor { NUM | LPAREN expr RPAREN//
     const token = this.current_token
+   
     if ( token.type === PLUS ) {
       this.eat( PLUS )
       const node = new UnaryOp( token, this.factor() )

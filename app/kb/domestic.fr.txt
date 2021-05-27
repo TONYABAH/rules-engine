@@ -1,0 +1,82 @@
+// Langue fr
+Titre Système d'identification des animaux
+Résumé Système expert d'identification des animaux
+
+objetif le nom de l'animal
+
+Règle 1 Animaux
+Si l'animal utilisé comme animal de compagnie est oui
+Puis l'animal de compagnie est vrai
+autre l'animal de compagnie est faux
+
+Règle 2 Chat ou chien identifié
+si l'animal de compagnie est vrai
+et le nombre de pieds = 4
+et animal utilisé pour la chasse = oui
+puis le nom de l'animal est Chien
+elseif l'animal de compagnie est vrai
+et le nombre de pieds = 4
+puis le nom de l'animal est Chat
+elseif l'animal de compagnie est vrai
+et le nombre de pieds = 2
+puis le nom de l'animal est Dove
+
+Règle 3 Oiseaux identifiés
+Si l'animal de compagnie est faux
+et le nombre de pieds est 2
+puis les oiseaux identifiés est vrai
+autre les oiseaux identifiés est faux
+
+Règle 4 Canard identifié
+Si les oiseaux identifiés est vrai
+et les animaux vautrés est oui
+puis le nom de l'animal est canard
+Elseif le nombre de pieds est 4
+et les animaux vautrés est oui
+puis nom de l'animal = Cochon
+Elseif le nombre de pieds est 4
+puis le nom de l'animal est chèvre
+autre nom d'animal est 'Non connu'
+
+elseif les oiseaux identifiés est vrai
+et les plumes d'oiseaux propagation comme le ventilateur est oui
+puis nom de l'animal = Paon
+elseif les oiseaux identifiés est vrai
+et l'oiseau ne peut pas voler est oui
+puis nom de l'animal = Fowl
+elseif les oiseaux identifiés est vrai
+puis nom de l'animal = Turquie
+
+contribution le Nombre de pieds
+Question Combien de pieds a l'animal?
+// Menu (4, 2) Max 1
+Numéro min 2 max 4
+
+contribution l'animal utilisé comme animal de compagnie
+Question L'animal un animal de compagnie?
+//Menu (Oui, Non) Max 1
+Text
+
+contribution Animal utilisé pour la chasse
+Question L'animal est utilisé pour la chasse?
+Menu (Oui, Non) Max 1
+//Texte
+%
+
+contribution les animaux vautrés
+Question L'animal se vautre dans la boue?
+Menu (Oui, Non) Max 1
+//Texte
+
+contribution Rapide oiseau répandre des plumes comme un éventail
+Question L'oiseau étend les plumes de la queue comme un éventail?
+Menu (Oui, Non) Max 1 Min 1
+//Texte
+
+contribution Oiseau rapide ne peut pas voler
+Question Bird ne peut pas voler?
+//Texte
+Menu (Oui, Non) Min 1 Max 1
+
+
+

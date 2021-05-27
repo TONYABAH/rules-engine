@@ -48,7 +48,8 @@ export class SyntaxError extends CustomError {
 }
 
 export class ScriptError extends Error {
-  constructor (message, e) {
+  constructor (message, key, e) {
+    // console.log(key, e)
     super(message)
     this.name = 'ScriptError'
     this.code = 'SystemError'

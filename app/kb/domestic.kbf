@@ -1,0 +1,80 @@
+//Language en 
+Title Animal Identification System
+Summary Animal identification expert system
+
+Goal animal name
+
+Rule 1 Birds Identified
+If number of feet is 2
+Then birds identified
+else birds identified is false
+
+Rule 2 Pets
+If animal used as pet
+Then pet
+else pet is false
+
+Rule 3 Cat or Dog Identified
+if pet is true 
+and number of feet = 4 
+and animal used for hunting
+then animal name is Dog
+
+else if pet 
+and number of feet = 4
+then animal name is Cat
+
+else if pet 
+and number of feet = 2
+then animal name is Dove
+
+Rule 4 Duck Identified
+If birds identified 
+and animal wallows
+then animal name is Duck
+
+Rule 5 Peacock Identified
+if birds identified is true 
+and bird spread feathers like fan
+then animal name = Peacock
+else if birds identified is true 
+and bird cannot fly
+then animal name = Fowl
+else if birds identified 
+then animal name = Turkey
+
+Rule 6 Mammals
+if number of feet is 4 
+and animal wallows
+then animal name = Pig
+Else if number of feet is 4
+Then animal name is Goat
+Else animal name is 'Not known'
+
+//Prompts
+Prompt number of feet
+Question How many feet does the animal have?
+Min 2 Max 4
+//%
+
+Prompt animal used as pet
+Question The animal a pet?
+Yes, No
+
+Prompt animal used for hunting
+Question The animal is used for hunting?
+True, False
+%
+
+Prompt animal wallows 
+Question The animal wallows in the mud?
+True, False
+
+Prompt bird spread feathers like fan
+Question The bird spread tail feathers like fan?
+True, False
+
+Prompt bird cannot fly
+Question Bird cannot fly?
+True, False
+
