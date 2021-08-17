@@ -3,7 +3,6 @@ const ErrorKeys = {
   ScriptError: "ScriptError", //0
   // Network errors 1 - 9
   NetworkError: 'NetworkError', //1
-
   // Security Errors 10 - 19
   TokenRequired: "TokenRequired", //10
   TokenExpired: "TokenExpired", //11
@@ -13,7 +12,6 @@ const ErrorKeys = {
   CredentialsInvalid: "CredentialsInvalid", //15
   UserNotFound: "UserNotFound", //16
   AccessDenied: "AccessDenied", //17
-
   // Validation Errors 20 - 40
   InvalidSelection: "InvalidSelection", //20
   NoSelection: "NoSelection", //21 
@@ -29,7 +27,6 @@ const ErrorKeys = {
   PromptNotFound: "PromptNotFound", //31
   KnowledgebaseNotFound: "KnowledgebaseNotFound", //32 
   SessionExpired: "SessionExpired", //33
-
   // Syntax Errors
   UnknownToken: 'UnknownToken',
   NoCloseParenthesis: 'NoCloseParenthesis',

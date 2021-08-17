@@ -1,17 +1,17 @@
 /* jshint esversion:8*/
-import { ValidationError } from './custom-errors'
-import { keys, Translator } from '../translation'
+import CustomErrors from './custom-errors'
+// import { ValidationError } from './custom-errors'
+import keys from '../translation/keys'
 
-export default class Validator extends Translator {
-  constructor (language = 'en') {
-    super(language)
+export default class Validator {
+  constructor (language, translator) {
     this.language = language
+    this.translator = translator
   }
 
   raiseValidationError (key) {
-    const message = this.t(key).data
-    // translateKey(key, this.language)
-    return new ValidationError(message, key)
+    // const message = this.to(key, this.language)
+    return CustomErrors(this.translator, this.language).ValidationError(key)
   }
 
   validateCF (input, prompt) {

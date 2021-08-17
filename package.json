@@ -6,12 +6,10 @@
   "description": "Rules engine library",
   "source": "src/index.js",
   "main": "dist/rules-engine.js",
-  "exports": "./dist/rules-engine.modern.js",
-  "module": "dist/rules-engine.esm.js",
+  "exports": "./src/index.js",
   "unpkg": "dist/rules-engine.umd.js",
   "files": [
-    "dist",
-    "lib"
+    "dist"
   ],
   "keywords": [
     "expert",
@@ -22,10 +20,9 @@
   "author": "Tony Abah <tonyarmyabah@gmail.com> (https://www.ampani.com)",
   "license": "ISC",
   "scripts": {
-    "build": "microbundle --name RulesEngine -o dist --no-compress watch --dist",
-    "build:dev": "microbundle --name RulesEngine -f umd -o dist --no-compress watch",
-    "dev": "microbundle --name RulesEngine -f modern -o dist --no-compress watch",
-    "serve": " browser-sync start --server --serveStatic dist --index demo/index.html -w -f app,demo,src"
+    "build": "microbundle --name RulesEngine -o dist --no-compress watch",
+    "dev": "microbundle --name RulesEngine -o dist --no-compress --watch",
+    "serve": " browser-sync start --server --serveStatic dist --index demo/index.html -w -f app,demo,dist"
   },
   "devDependencies": {
     "microbundle": "^0.13.0"

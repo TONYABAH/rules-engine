@@ -6,10 +6,12 @@ export default class ParserFactory {
 
   static create ({ lang, mode } = defaults ) {
     switch ( mode ) {
-      case 'res':
+      case '.res':
         return new ResParser(lang)
-      default:
+      case '.kbf':
         return new Parser(lang)
+      default:
+       throw new Error('No parser for current mode: ' + mode)
     }
   }
   static getInstance () {

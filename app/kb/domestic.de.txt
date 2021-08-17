@@ -1,0 +1,80 @@
+// Sprache de
+Titel Tieridentifikationssystem
+Zusammenfassung Expertensystem zur Tieridentifikation
+
+Name des Zieltiers
+
+Regel 1 identifizierte Vögel
+Wenn Wenn die Anzahl der Füße 2 
+Dann Vögel identifiziert
+sonst identifizierte Vögel sind falsch
+
+Regel 2 Haustiere
+Wenn das Tier als Haustier verwendet wird
+Dann pet
+sonst ist Haustier falsch
+
+Regel 3 Katze oder Hund identifiziert
+wenn pet wahr ist
+und Anzahl der Füße = 4
+und Tier zur Jagd verwendet
+dann ist der Tiername Hund
+
+sonst wenn pet
+und Anzahl der Füße = 4
+dann ist der Tiername Cat
+
+sonst wenn pet
+und Anzahl der Füße = 2
+dann ist der Tiername Taube
+
+Regel 4 Ente identifiziert
+Wenn Vögel identifiziert wurden
+und Tier wälzt sich
+dann ist der Tiername Duck
+
+Regel 5 Pfau identifiziert
+wenn die identifizierten Vögel wahr sind
+und Vögel verbreiten Federn wie Fächer
+dann Tiername = Pfau
+sonst, wenn die identifizierten Vögel wahr sind
+und Vogel kann nicht fliegen
+dann Tiername = Geflügel
+sonst wenn vögel identifiziert
+dann Tiername = Türkei
+
+Regel 6 Säugetiere
+wenn die Anzahl der Füße 4 . beträgt
+und Tier wälzt sich
+dann Tiername = Schwein
+Sonst, wenn die Anzahl der Fuß 4 . beträgt
+Dann ist der Tiername Ziege
+Anderer Tiername ist "Nicht bekannt"
+
+//Aufforderungen
+Prompt Anzahl der Füße
+Frage Wie viele Füße hat das Tier?
+Menü (8, 6, 4, 2)
+Min 1 Max 4
+//%
+
+Prompt Tier als Haustier verwendet
+Frage Das Tier ein Haustier?
+Wahr falsch
+
+Aufforderungstier, das für die Jagd verwendet wird
+Frage Das Tier wird zur Jagd verwendet?
+Wahr falsch
+%
+
+Prompt wälzt sich das Tier
+Frage Das Tier suhlt sich im Schlamm?
+Wahr falsch
+
+Prompt breitet der Vogel Federn wie ein Fächer aus
+Frage Der Vogel breitet Schwanzfedern wie Fächer aus?
+Wahr falsch
+
+Prompt Vogel kann nicht fliegen
+Frage Vogel kann nicht fliegen?
+Wahr falsch

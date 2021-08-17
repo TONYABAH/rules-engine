@@ -7,23 +7,28 @@ Goal animal name
 Rule 1 Birds Identified
 If number of feet = 2
 Then birds is identified
-else birds is identified = false
+
+Rule 2 Pets
+If animal used as pet
+Then pet
+else pet is false
 
 Rule 3 Cat or Dog Identified
-if number of feet = 4 
-and animal is a pet 
+if animal is a pet 
+and number of feet = 4 
 and animal is used for hunting
 then animal name = Dog
 
-else if number of feet = 4
-and animal is a pet 
+else if animal is a pet 
+and number of feet = 4
 then animal name = Cat
-else if number of feet = 2
-and animal is a pet 
+
+else if animal is a pet 
+and number of feet = 2
 then animal name = Dove
 
 Rule 4 Duck Identified
-If birds is identified
+If birds is identified 
 and animal wallows in mud
 then animal name = Duck
 
@@ -48,13 +53,12 @@ Else animal name = 'Not known'
 //Prompts
 Prompt number of feet
 Question How many feet does the animal have?
-Digit
 Min 2 Max 4
 //%
 
-Prompt animal is a pet
+Prompt animal is used as a pet
 Question The animal a pet?
-true, false
+Yes, No
 
 Prompt animal is used for hunting
 Question The animal is used for hunting?
@@ -72,3 +76,4 @@ True, False
 Prompt the bird cannot fly
 Question Bird cannot fly?
 True, False
+

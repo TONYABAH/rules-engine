@@ -1,17 +1,15 @@
 /* jshint esversion:8 */
-
+import CustomEvent from './events'
+import Lexer from './lexer'
+import { MATH_CONSTS, MATH_FUNCS } from './regex'
+import ParseToken from './parse-token'
 import {
   YES, NO, TRUE, FALSE, ELSE, ELSEIF, AND, OR, IF, RULE, THEN, /* CF, MOD, */
   PROMPT, QUESTION, DIGIT, MENU, NUM, MIN, MAX, ARRAY, ATTR, CONST, FUNC,
   ATTRIBUTE, TITLE, SUMMARY, GOAL, LINE, ERROR, EOF, LPAREN, RPAREN, TIMES,
   COMMA, GT, LT, EQ, TEXT, NOT, IN, EX, IS, REM, COMMENT, SPACE, LBRACKET, CARRET,
+  EXCLUDE,
 } from './token-constants'
-import CustomEvent from './events'
-import keywords from './keywords'
-import Lexer from './lexer'
-import { MATH_CONSTS, MATH_FUNCS } from './regex'
-import ParseToken from './parse-token'
-
 /**
  * Laguage grammar parser. Parser is language neutral, 
  * it does not know in which language the rules are written
@@ -20,15 +18,16 @@ export default class Parser extends CustomEvent {
   /**
     * Constructor 
     */
-  constructor (language = 'en') {
+  constructor (language, languageModule) {
     super()
     this.language = language
-    this.keywords = keywords[language.toLowerCase()]
+    // this.languageModule = languageModule
+    this.keywords = languageModule.keywords // languageModule.keywords // keywords[language.toLowerCase()]
     this.keyMap = Object.keys(this.keywords)
     this.keyValues = Object.values(this.keywords)
     this.tokens = null
     this.prev = null
-    this.errors = null
+    this.errors = []
     this.data = null
     this.parseToken = ParseToken(this)
     // this.init()
@@ -36,6 +35,7 @@ export default class Parser extends CustomEvent {
   get Event () {
     return super.prototype
   }
+
   init () {
     this.row = 0
     this.col = 0
@@ -226,21 +226,21 @@ export default class Parser extends CustomEvent {
     return this.readToEndOfLine()
   }
   scanTitle () {
-    const text = this.scanDefinition(TITLE, keywords.TITLE)
+    const text = this.scanDefinition(TITLE, this.keywords.TITLE)
     if (!text || text.length === 0) {
       return this.error('Title should have description')
     }
     return text
   }
   scanSummary () {
-    const text = this.scanDefinition(SUMMARY, keywords.SUMMARY)
+    const text = this.scanDefinition(SUMMARY, this.keywords.SUMMARY)
     if (!text || text.length === 0) {
       return this.error('Summary should have description')
     }
     return text
   }
   scanQuestion () {
-    const text = this.scanDefinition(QUESTION, keywords.QUESTION)
+    const text = this.scanDefinition(QUESTION, this.keywords.QUESTION)
     if (!text || text.length === 0) {
       return this.error('Question should have a statement')
     }
@@ -305,7 +305,7 @@ export default class Parser extends CustomEvent {
     return [node, tokens, ARRAY]
   }
   scanGoal () {
-    this.eat(GOAL)
+    // this.eat(GOAL)
     const text = this.scanDefinition(GOAL)
     if (!text || text.length === 0) {
       return this.error('Goal definition should have texts')
@@ -313,7 +313,7 @@ export default class Parser extends CustomEvent {
     return text
   }
   scanPrompt () {
-    this.eat(PROMPT)
+    // this.eat(PROMPT)
     const prompt = this.scanDefinition(PROMPT) // this.eat(ATTR)
     if (!prompt || prompt.length === 0) {
       return this.error('Prompt definition should have texts')
@@ -394,7 +394,6 @@ export default class Parser extends CustomEvent {
   scanInference () {
     this.advance()
     const name = this.leftAttribute()
-    // console.log(name)
     let right = null
     let nextToken = this.taste()
     let comparator = nextToken
@@ -490,7 +489,7 @@ export default class Parser extends CustomEvent {
       right = [_right]
     }
     if (!comp) comp = EQ
-    return { left, right, comp }
+    return { left, right, op:comp }
   }
 
   peek () {
@@ -645,7 +644,7 @@ export default class Parser extends CustomEvent {
     const e = {
       type: 'error', // "error"|"warning"|"info"
       row: token ? token.row : this.row, // row index
-      column: token ? token.col : this.col, // character index on line
+      column: token ? token.column : this.col, // character index on line
       text: msg, // Error message
       raw: token, // "Missing semicolon"
     }
@@ -653,16 +652,6 @@ export default class Parser extends CustomEvent {
     this.errors.push(e)
     this.emit('error', e, this)
   }
-  /* raiseError (token) {
-    // let translated =  Translator(this.language).translate(arguments);
-    this.errors.push({
-      type: 'error', // "error"|"warning"|"info"
-      row: token.row, // row index
-      column: token.column, // character index on line
-      text: token.value, // Error message
-      raw: token.value, // "Missing semicolon"
-    })
-  } */
   info (msg, token) {
     const i = {
       type: 'info', // "error"|"warning"|"info"
@@ -675,7 +664,7 @@ export default class Parser extends CustomEvent {
     this.emit('info', i, this)
   }
   isKeyword (word, index, tokens) {
-    const token = index > 0 ? tokens[index - 1]:null
+    const token = index > 0 ? tokens[index - 1] : null
     const prev = token ? token.type : null
     const history = index > 1 ? tokens[index - 2].type : null
     switch (word) {
@@ -719,7 +708,7 @@ export default class Parser extends CustomEvent {
         }
         return false
       case MIN:
-        if (prev  === LINE) return true
+        if (prev === LINE) return true
         return false
       case MAX:
         if (prev === LINE) {
@@ -747,7 +736,7 @@ export default class Parser extends CustomEvent {
       let token = this.tokens[i]
       if (token.type === ATTR) {
         //let found = this.keyValues.findIndex(v => v.toUpperCase() === token.value.toUpperCase())
-        let key = this.keyMap.find(k => this.keywords[k].toUpperCase() === token.value.toUpperCase())
+        let key = this.keyMap.find(k => this.keywords[k].toUpperCase && (this.keywords[k].toUpperCase() === token.value.toUpperCase()))
         if (key) {
           const isKeyword = this.isKeyword(key, i, tokens)
           if (isKeyword) {
@@ -892,46 +881,60 @@ export default class Parser extends CustomEvent {
      * Recursively go through tokens and emmit events using implementation of
      * Finite State Machine (FST)
      * @param {JSON} tokens 
-     * @returns {String} errors if any including warning and info
+     * @returns { Promise<Object> } errors if any including warning and info
      */
-  parse (text) {
-    this.init()
-    this.pos = 0
-    let tokenizer = new Lexer(this.language)
-    let tokens = tokenizer.tokenize(text)
-    this.tokens = tokens.filter(token => token.type !== SPACE && token.type !== REM)
-    this.applyMaths()
-    this.transform()
-    this.prev = null
-    this.lastToken = null
+  async parse (text) {
+   
+    return new Promise(async (resolve, reject) => {
+      this.init()
+      this.pos = 0
+      let tokenizer = new Lexer()
+      let tokens = await tokenizer.tokenize(text)
+      setTimeout(() => {
+        this.tokens = tokens.filter(token => token.type !== SPACE && token.type !== REM)
+        this.applyMaths()
+        this.transform()
+        this.prev = null
+        this.lastToken = null
 
-    for (this.pos = 0; this.pos < this.tokens.length; this.pos++) {
-      const token = this.tokens[this.pos]
-      this.lastToken = this.tokens[this.pos > 0 ? this.pos - 1 : 0]
-      this.row = token.row
-      this.col = token.column
-      const type = token.type
+        for (this.pos = 0; this.pos < this.tokens.length; this.pos++) {
+          const token = this.tokens[this.pos]
+          this.lastToken = this.tokens[this.pos > 0 ? this.pos - 1 : 0]
+          this.row = token.row
+          this.col = token.column
+          const type = token.type
 
-      if (type === REM || type === COMMENT) {
-        continue
-      }
+          if (type === REM || type === COMMENT) {
+            continue
+          }
 
-      const action = this.parseToken[type.toLowerCase()]
-     
-      if (action) {
-        // call the method to parse token
-        const result = this.parseToken[type.toLowerCase()](token)
-        if (!result) {
-          this.error('Invalid keyword: ' + token.value)
+          const action = this.parseToken[type.toLowerCase()]
+         
+          if (action) {
+            // call the method to parse token
+            const result = this.parseToken[type.toLowerCase()](token)
+            
+            if (!result) {
+              this.error('Invalid keyword: ' + token.value)
+            }
+          } else {
+
+            this.error('Invalid token or keyword: ' + token.value, token)
+          }
         }
-      } else {
-        
-        this.error('Invalid token or keyword: ' + token.value, token)
-      }
-    }
-    this.checkVarableDeclarations()
-    this.emit('done', { errors: this.errors, tokens: this.tokens })
-    // console.log(this)
-    return this.tokens
+        this.checkVarableDeclarations()
+        // this.emit('data', { errors: this.errors, data: this.tokens })
+        this.emit('done', { errors: this.errors, data: this.tokens })
+        if (this.errors.length > 0) {
+          // console.log(this.tokens, this.errors, this.keywords)
+          resolve(this.errors)
+          // 
+        }
+        else {
+          resolve([])
+        }
+      }, 100)
+
+    })
   }
 }

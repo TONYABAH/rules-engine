@@ -8,76 +8,70 @@
     <script>
       // var count = 0
         const data = `
-// Language en
+        //Language en 
 Title Animal Identification System
 Summary Animal identification expert system
 
 Goal animal name
 
 Rule 1 Birds Identified
-If number of feet is 2
-Then birds identified
-else birds identified is false
-
-Rule 2 Pets
-If animal used as pet is yes
-Then pet is true
-else pet is false
+If number of feet = 2
+Then birds is identified
+else bird is identified = false
 
 Rule 3 Cat or Dog Identified
-if pet is true
-and number of feet = 4
-and animal used for hunting
-then animal name is Dog
+if number of feet = 4 
+and animal is a pet 
+and animal is used for hunting
+then animal name = Dog
 
-else if pet is true
-and number of feet = 4
-then animal name is Cat
-
-else if pet is true
-and number of feet = 2
-then animal name is Dove
+else if number of feet = 4
+and animal is a pet 
+then animal name = Cat
+else if number of feet = 2
+and animal is a pet 
+then animal name = Dove
 
 Rule 4 Duck Identified
-If birds identified
-and animal wallows
-then animal name is Duck
+If birds is identified
+and animal wallows in mud
+then animal name = Duck
 
 Rule 5 Peacock Identified
-if birds identified is true
+if birds is identified
 and bird spread feathers like fan
 then animal name = Peacock
-else if birds identified is true
-and bird cannot fly
+else if birds is identified
+and the bird cannot fly
 then animal name = Fowl
-else if birds identified
+else if birds is identified 
 then animal name = Turkey
 
 Rule 6 Mammals
-if number of feet is 4
-and animal wallows
+if number of feet = 4 
+and animal wallows in mud
 then animal name = Pig
-Else if number of feet is 4
-Then animal name is Goat
-Else animal name is 'Not known'
+Else if number of feet = 4
+Then animal name = Goat
+Else animal name = 'Not known'
 
 //Prompts
 Prompt number of feet
 Question How many feet does the animal have?
 Digit
-Min 2 
-Max 4
+Min 2 Max 4
+//%
 
-Prompt animal used as pet
+Prompt animal is a pet
 Question The animal a pet?
-Yes, No
+true, false
 
-Prompt animal used for hunting
+Prompt animal is used for hunting
 Question The animal is used for hunting?
 True, False
 %
 
-Prompt animal wallows
+Prompt animal wallows in mud 
 Question The animal wallows in the mud?
 True, False
 
@@ -85,25 +79,12 @@ Prompt bird spread feathers like fan
 Question The bird spread tail feathers like fan?
 True, False
 
-Prompt bird cannot fly
+Prompt the bird cannot fly
 Question Bird cannot fly?
 True, False
 `
     </script>
-    <script type='module'>
-      import { Ux } from '../dist/rules-engine.modern.js'
-      const ux = new Ux('app')
-      ux.Theme = 'indigo'
-      // const data = localStorage.getItem('@console-data') || ''
-      // console.log(data)
-      ux.run(data)
-      window.addEventListener('beforeunload', function (e) {
-        // localStorage.removeItem('@console-data')
-        // e.preventDefault()
-        // e.returnValue = '';
-        // delete e['returnValue'];
-      })
-    </script>
+    <script type='module' src="./console.js" />
   </head>
   <body>
     <noscript>

@@ -1,48 +1,42 @@
 /* jshint esversion:8*/
-import Validator from "./validator"
-import { ValidationError, ScriptError } from './custom-errors'
-// import Constants from "./constants"
+// import Validator from "./validator"
+// import { ValidationError, ScriptError } from './custom-errors'
+import CustomErrors from './custom-errors'
+// import ErrorKeys from '../translation/keys'
 import { MENU, MUL, AVE, SUM, MAX, MIN } from './token-constants'
-import promptSettings from "./prompt-res"
-import keywords from "./keywords"
 import Builder from "./treebuilder"
 import Interpreter from "./interpreter"
 import { normalize } from './prompt'
 import choice from './choice'
-import { keys, Translator } from '../translation'
+import keys from '../translation/keys'
 
-export default class Engine extends Translator {
+export default class Engine {
   
-  constructor (kb) {
-    super()
+  constructor (kb, translator, validator) {
     if (!kb) throw new ReferenceError('kb is undefined')
     this.paused = false
     this.CFSettings = null
-    this.keywords = null
     this.done = false
     this.knowledgebase = kb
-    this.CFSettings = promptSettings[kb.language.toLowerCase()]
-    this.keywords = keywords[kb.language.toLowerCase()]
-    this.validator = new Validator(kb.language)
-    this.target = kb.language
-    // this.setKnowledgebase(kb)
+    // console.log(kb.keywords)
+    this.keywords = kb.languageModule.keywords // keywords[kb.language.toLowerCase()]
+    this.CFSettings = kb.languageModule.prompts // kb[kb.language.toLowerCase()].prompts // promptSettings[kb.language.toLowerCase()]
+    // this.validator = new Validator(translator, kb.language)
+    this.translator = translator
+    this.validator = validator
   }
 
   raiseScriptError (e) {
     console.log(e)
-    const message = this.translate(keys.ScriptError).data
-    // translateKey(ErrorKeys.ScriptError, this.knowledgebase.language)
-    throw new ScriptError(message, keys.ScriptError, e)
+    return CustomErrors(this.translator, this.knowledgebase.language).ScriptError(keys.ScriptError, e)
   }
   raisePromptNotFoundError () {
-    const message = this.t(keys.PromptNotFound).data
-    // translateKey(ErrorKeys.PromptNotFound, this.knowledgebase.language)
-    return new ValidationError(message, keys.PromptNotFound)
+    // const message = this.t(keys.PromptNotFound).data
+    return CustomErrors(this.translator, this.knowledgebase.language).ValidationError(keys.PromptNotFound)
   }
   raiseSessionExpiredError () {
-    const message = this.t(keys.SessionExpired).data
-    // translateKey(ErrorKeys.SessionExpired, this.knowledgebase.language)
-    return new ValidationError(message, keys.SessionExpired)
+    // const message = this.t(keys.SessionExpired).data
+    return CustomErrors(this.translator, this.knowledgebase.language).ValidationError(keys.SessionExpired)
   }
   getEventData (code, message) {
     return {
@@ -163,10 +157,8 @@ export default class Engine extends Translator {
         let kbCF = this.knowledgebase.CF || 100
         this.knowledgebase.CF = this.calculateCF(kbCF, cf, mode)
       }
-
       testResult = this.compare(left, right, Premise.Comparator)
     }
-
     return testResult
   }
   solveAttribute (value, inference) {
@@ -382,11 +374,11 @@ export default class Engine extends Translator {
       return this.raiseSessionExpiredError()
     }
     const validateResult = this.validator.validate ( value, this.knowledgebase.currentPrompt )
-    if (validateResult instanceof ValidationError) {
+    if (validateResult && validateResult.name === 'ValidationError') {
       return validateResult 
     }
     let computedValue = choice(value, this.knowledgebase.currentPrompt, this.knowledgebase.language)
-    if (computedValue instanceof ValidationError) {
+    if (computedValue && computedValue.name === 'ValidationError') {
       return computedValue
     }
     if (computedValue) {
@@ -503,8 +495,9 @@ export default class Engine extends Translator {
   setKnowledgebase (kb) {
     this.knowledgebase = kb
     // this.knowledgebase.promptIndex = 1
-    this.CFSettings = promptSettings[this.knowledgebase.language.toLowerCase()]
-    this.keywords = keywords[this.knowledgebase.language.toLowerCase()]
+    this.CFSettings = kb.keywords.prompts // promptSettings[this.knowledgebase.language.toLowerCase()]
+    this.keywords = kb.keywords.keywords // keywords[kb.language.toLowerCase()]
+    // this.validator = new Validator(kb.language)
   }
 }
 

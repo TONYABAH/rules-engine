@@ -180,7 +180,7 @@ const ParseToken = function (self) {
     min () {
       if (self.prev === MENU) {
         const min = self.scanMin()
-        self.pos--
+        // self.pos--
         if (min) {
           self.emit('min', [min, self.row], this)
         }
@@ -190,7 +190,7 @@ const ParseToken = function (self) {
     max () {
       if (self.prev === MENU) {
         const max = self.scanMax()
-        self.pos--
+        // self.pos--
         if (max) {
           self.emit('max', [max, self.row], this)
         }
@@ -265,7 +265,7 @@ const ParseToken = function (self) {
       self.emit('eof', [self.row], this)
       return true
     },
-    error () {
+    error (token) {
       self.error('Unknown character or token: ' + token.value, token)
       return true
     }

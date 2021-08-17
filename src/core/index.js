@@ -1,5 +1,5 @@
 import Parser from './parser'
-import ResParser from './res-parser'
+// import ResParser from './res-parser'
 import Keywords from './keywords'
 import Compiler from './compiler'
 import Validator from './validator'
@@ -20,7 +20,7 @@ import CustomErrors, {
 export {
   Engine,
   Parser,
-  ResParser,
+  // ResParser,
   Compiler,
   Validator,
   Keywords,

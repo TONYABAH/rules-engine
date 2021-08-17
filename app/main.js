@@ -1,10 +1,5 @@
 
-/* function run (data) {
-  // localStorage.setItem('console-data', data)
-  const winOptions = 'resizable=yes,scrollbars=yes, left=0,bottom=0,width=960,height=450'
-  const win = window.open('app/console.html', 'console', winOptions)
-  win.postMessage('Hello world', 'http://127.0.0.1')
-} */
+const winOptions = 'resizable=yes,scrollbars=yes, left=0,bottom=0,width=960,height=450'
 
 window.addEventListener('load', (e) => {
   // localStorage.removeItem('@console-data')
@@ -32,8 +27,7 @@ function debounce (func, wait, immediate) {
   }
 }
 function run () {
-  // localStorage.setItem('@console-data', data)
-  const winOptions = 'resizable=yes,scrollbars=yes, left=0,bottom=0,width=960,height=450'
-  const win = window.open('app/console.html', 'console', winOptions)
+  const win = window.open('/app/console.html#en', 'console', winOptions)
+  // const win = window.open('/app/ux.html', 'console', winOptions)
   // win.postMessage('Hello world', 'http://127.0.0.1')
 }

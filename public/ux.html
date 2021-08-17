@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">Q
+    <title></title>
+    <style>
+    .pr-copy, 
+    .pr-print {
+      cursor: pointer;
+      padding: 2px 0;
+      margin-left: 8px;
+      margin-bottom: 4px;
+      height: 22px;
+      margin-right: 4px;
+      background: white;
+      border-radius: 5px 5px 5px 5px;
+    }
+    .pr-toggle {
+       cursor: pointer;
+    }
+    .pr-copy {
+        padding-right: 0px;
+        padding-left: 4px;
+     }
+     .pr-print {
+        padding-left: 4px;
+        padding-right: 4px;
+     }
+    .pr-parent {
+        border: 0;
+        min-width: 240px;
+        padding: 2px;
+        transition: background 1.8s;
+    }
+    .pr-container {
+        position:absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        overflow: hidden;
+        border: 1px solid none;
+        color: white;
+        background: #222;
+    }
+    .pr-banner, 
+    .pr-banner {
+        height: 1.8rem;
+        font-weight: 400;
+        margin-bottom:0;
+        padding-top: 2px;
+        font-variant: small-caps;
+    }
+    .pr-toolbar {
+        position: relative;
+        display: flex;
+        align-items: center;
+        letter-spacing: 1.4px;
+        font-size: 14px;
+        align-items: center;
+        height: 100%;
+        width: 160px;
+        text-align: right;
+        float: right;
+        border-radius:50px;
+        padding-left: 1rem;
+        padding-right: 17px;
+        padding-top: 1px;
+        opacity: 0;
+        justify-content: flex-end;
+    }
+    .pr-banner:hover > .pr-toolbar {
+        transition: all 0.7s;
+        opacity: 100%;
+    }
+    .pr-display {
+        position: absolute;
+        overflow: auto;
+        padding: 4px;
+        top: 36px;
+        bottom: 36px;
+        left: 0;
+        right: 0;
+        background: #111;
+        border-top: 1px solid transparent;
+        border-bottom: 1px solid transparent;
+        font-size: 16px;
+        letter-spacing: 1.2px;
+        color: cadetblue;
+        text-shadow: none;
+    }
+    .pr-display ul {list-style-type:none; border-bottom:0px solid #555;}
+    .pr-dispaly ol {border-bottom:0px solid #555; list-style:upper-latin;}
+    .pr-display .pr-margin-bottom {border-bottom: 1px solid cadetblue;margin-bottom:5px; padding:5px}
+    .pr-input-panel {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 4px;
+        padding-top: 0;
+        padding-left: 7px;
+        height: 32px;
+    }
+    .pr-input-buttons {
+      display:inline-block;
+      font-weight:bold;
+      margin-bottom: 2px;
+      font-size: 1.4em;
+    }
+    .pr-text-input-container {
+      padding: 0;
+      background: transparent;
+      border: none;
+    }
+    .pr-text-input {
+        width: auto;
+        max-width: 80px;
+        outline: none;
+        background: slateblue;
+        color: white;
+        font-size: 18px;
+        height: 100%;
+        width: 100%;
+        border: none;
+    }
+    .pr-link-btn {
+        padding: 4px 4px 4px 4px;
+        text-decoration: none;
+        margin: 1px;
+        border-radius: px 2px 2px;
+    }
+    .pr-char {
+        font-size: 1em;
+        font-weight: bold;
+        color: white;
+    }
+    .pr-margin-bottom {
+       border-bottom: 1px solid transparent;
+       padding-top: 6px;
+       margin-bottom: 8px;
+    }
+    .gold .pr-container {
+        background: blanchedalmond;
+        color: green;
+    }
+
+    .gold .pr-char, .gold .pr-banner {
+      color: green;
+    }
+    .blue .pr-container {
+      background: navy;
+    }
+    .indigo .pr-container {
+      background: slateblue;
+    } 
+    .green .pr-container {
+      background: lightgreen;
+    }
+    .red .pr-container {
+      background: #b00000;
+    }
+    .orange .pr-container {
+      background: orange;
+    }
+    .light .pr-container {
+      background: #eee;
+      color: blue;
+    }
+    .light .pr-char, .light .pr-banner {
+      color: blue;
+    }
+    </style>
+    <script type='module'>
+      import { Ux } from '../src/ux.js'
+      const ux = new Ux('console')
+      const data = localStorage.getItem('console-data')
+      function run(data){
+        ux.Text = data
+        ux.run(data)
+      }
+      run(data)
+    </script>
+  </head>
+
+  <body>
+    <noscript>
+      <strong>We're sorry but this app doesn't work properly without JavaScript enabled. Please enable it to
+        continue.</strong>
+    </noscript>
+    <div id="console">
+      <div id='console-container' class='pr-container'>
+        <div id='console-banner' class='pr-banner'>
+          <span class="pr-banner-title">Rules Interface</span>
+          <div id='console-toolbar' class='pr-toolbar'></div>
+        </div>
+        <div id='console-display' class='pr-display'></div>
+        <div id='console-btpanel' class='pr-input-panel'>
+          <span class='pr-text-input-container'>
+            <input id='console-input' class='pr-text-input' type='text' />
+          </span>
+          <span class='pr-input-buttons'>
+            <a href='javascript:void(0)' title='Send' class='pr-link-btn'><span class='pr-char'>&check;</span></a>
+            <a href='javascript:void(0)' title='Why ask?' class='pr-link-btn'><span class='pr-char'>&quest;</span></a>
+            <a href='javascript:void(0)' title='Explain' class='pr-link-btn'><span class='pr-char'>&excl;</span></a>
+            <a href='javascript:void(0)' title='Disconnect' class='pr-link-btn'><span class='pr-char'>&times;</span></a>
+            <a href='javascript:void(0)' title='Repeat' class='pr-link-btn'><span class='pr-char'
+                style="font-size:1.5rem">&#8227;</span>
+            </a>
+          </span>
+        </div>
+      </div>
+    </div>
+    <!-- built files will be auto injected -->
+  </body>
+
+</html>

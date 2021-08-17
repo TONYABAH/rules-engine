@@ -1,5 +1,5 @@
-import keywords from './keywords'
-//import Constants from './constants'
+// import keywords from './keywords'
+// import Constants from './constants'
 import {YN, TF, ATTR, NUMBER, MENU, TEXT, YES, NO } from './token-constants'
 import Prompt from './prompt'
 import Attribute from './attribute'
@@ -9,26 +9,20 @@ import Condition from './condition'
 import Expression from './expression'
 import Menu from './menu'
 import Rule from './rule'
-// import { Const } from './symbols'
 
 export default class Knowledgebase {
   /**
    * Constructor
    * @param {String} language User language [en, fr, es, nl, de, po, ru]
    */
-  constructor ( parser ) {
-    this.language = parser.language || 'en'
-    this.keywords = keywords[this.language]
-    this.parser = parser
+  constructor (compiler) {
+    this.language = compiler.language
+    this.keywords = compiler.languageModule.keywords
+    // console.log(compiler.languageModule.keywords)
+    this.compiler = compiler
     this.title = ''
     this.summary = ''
     this.delimiter = ' '
-    // this.line = 1
-    // this.ruleIndex = 0
-    // this.prompt = null
-    // this.rule = null
-    // this.condition = null
-    // this.infer = null
     this.activePrompt = null
     this.arrays = {}
     this.objects = {}
@@ -40,9 +34,15 @@ export default class Knowledgebase {
     this.rules = []
     this.subscriptions = []
     this.attachListeners()
+    // this.line = 1
+    // this.ruleIndex = 0
+    // this.prompt = null
+    // this.rule = null
+    // this.condition = null
+    // this.infer = null
   }
   subscribe ( topic, listener ) {
-    let subscription = this.parser.on( topic, listener )
+    let subscription = this.compiler.on( topic, listener )
     this.subscriptions.push( subscription )
   }
   unsubscribe () {
@@ -86,7 +86,11 @@ export default class Knowledgebase {
     this.subscribe( 'title', ( data ) => this.setTitle( data[0], data[1] ) )
     this.subscribe( 'summary', ( data ) => this.setSummary( data[0], data[1] ) )
     this.subscribe( 'line', () => this.addNewLine() )
-    this.subscribe( 'done', () => this.unsubscribe() )
+    this.subscribe('done', () => {
+      this.unsubscribe()
+      // this.keywords = compiler.keywords
+      // console.log(this.Data)
+    })
     // event.on('eof',this.eof);
     // event.on('syntax-error',this.addText);
     // event.on('char-error',this.addText);
@@ -97,17 +101,14 @@ export default class Knowledgebase {
   get Data () {
     return {
       language: this.language,
-      keywords: this.keywords,
+      // keywords: this.keywords,
+      languageModule: this.compiler.languageModule,
       line: 0,
       promptIndex: 1,
       ruleIndex: 0,
       title: this.title,
       summary: this.summary,
       delimiter: this.delimiter,
-      // prompt: this.ActivePrompt,
-      // rule: this.rule,
-      // condition: this.condition,
-      // inference: this.infer,
       arrays: this.arrays,
       objects: this.objects,
       goals: this.goals,

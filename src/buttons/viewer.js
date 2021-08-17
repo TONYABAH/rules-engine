@@ -6,11 +6,11 @@ export default class Viewer {
    * @param {String} title Name of the script language: default is kbf
    */
   constructor (view, container, title) {
-    if (!view && !view.tagName && !document.getElementById(view)) {
+    if (!view || (!view.tagName && !document.getElementById(view))) {
       console.error('Invalid Document Viewer Id', view)
       return
     }
-    if (!container && !container.tagName && !document.getElementById(container)) {
+    if (!container || (!container.tagName && !document.getElementById(container))) {
       console.error('Invalid Container Element Id', contaianer)
       return
     }
@@ -19,7 +19,8 @@ export default class Viewer {
     this.id = null
     this.banner = null
     this.title = title
-    this.printButton = new PrintButton('white', this.div)
+    this.color = view.style.color || container.style.color || 'green'
+    this.printButton = new PrintButton(this.color, this.div)
     this.view()
   }
   get Text () {

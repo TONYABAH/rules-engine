@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">Q
+    <title></title>
+    <style>
+    .pr-copy, 
+    .pr-print {
+      cursor: pointer;
+      padding: 2px 0;
+      margin-left: 8px;
+      margin-bottom: 4px;
+      height: 22px;
+      margin-right: 4px;
+      background: white;
+      border-radius: 5px 5px 5px 5px;
+    }
+    .pr-toggle {
+       cursor: pointer;
+    }
+    .pr-copy {
+        padding-right: 0px;
+        padding-left: 4px;
+     }
+     .pr-print {
+        padding-left: 4px;
+        padding-right: 4px;
+     }
+    .pr-parent {
+        border: 0;
+        min-width: 240px;
+        padding: 2px;
+        transition: background 1.8s;
+    }
+    .pr-container {
+        position:absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        overflow: hidden;
+        border: 1px solid none;
+        color: white;
+        background: #222;
+    }
+    .pr-banner, 
+    .pr-banner {
+        height: 1.8rem;
+        font-weight: 400;
+        margin-bottom:0;
+        padding-top: 2px;
+        font-variant: small-caps;
+    }
+    .pr-toolbar {
+        position: relative;
+        display: flex;
+        align-items: center;
+        letter-spacing: 1.4px;
+        font-size: 14px;
+        align-items: center;
+        height: 100%;
+        width: 160px;
+        text-align: right;
+        float: right;
+        border-radius:50px;
+        padding-left: 1rem;
+        padding-right: 17px;
+        padding-top: 1px;
+        opacity: 0;
+        justify-content: flex-end;
+    }
+    .pr-banner:hover > .pr-toolbar {
+        transition: all 0.7s;
+        opacity: 100%;
+    }
+    .pr-display {
+        position: absolute;
+        overflow: auto;
+        padding: 4px;
+        top: 36px;
+        bottom: 36px;
+        left: 0;
+        right: 0;
+        background: #111;
+        border-top: 1px solid transparent;
+        border-bottom: 1px solid transparent;
+        font-size: 16px;
+        letter-spacing: 1.2px;
+        color: cadetblue;
+        text-shadow: none;
+    }
+    .pr-display ul {list-style-type:none; border-bottom:0px solid #555;}
+    .pr-dispaly ol {border-bottom:0px solid #555; list-style:upper-latin;}
+    .pr-display .pr-margin-bottom {border-bottom: 1px solid cadetblue;margin-bottom:5px; padding:5px}
+    .pr-input-panel {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 4px;
+        padding-top: 0;
+        padding-left: 7px;
+        height: 32px;
+    }
+    .pr-input-buttons {
+      display:inline-block;
+      font-weight:bold;
+      margin-bottom: 2px;
+      font-size: 1.4em;
+    }
+    .pr-text-input-container {
+      padding: 0;
+      background: transparent;
+      border: none;
+    }
+    .pr-text-input {
+        width: auto;
+        max-width: 80px;
+        outline: none;
+        background: slateblue;
+        color: white;
+        font-size: 18px;
+        height: 100%;
+        width: 100%;
+        border: none;
+    }
+    .pr-link-btn {
+        padding: 4px 4px 4px 4px;
+        text-decoration: none;
+        margin: 1px;
+        border-radius: px 2px 2px;
+    }
+    .pr-char {
+        font-size: 1em;
+        font-weight: bold;
+        color: white;
+    }
+    .pr-margin-bottom {
+       border-bottom: 1px solid transparent;
+       padding-top: 6px;
+       margin-bottom: 8px;
+    }
+    .gold .pr-container {
+        background: rgb(231, 177, 96);
+        color: green;
+    }
+
+    .gold .pr-char, .gold .pr-banner {
+      color: green;
+    }
+    .blue .pr-container {
+      background: rgb(65, 65, 199);
+    }
+    .indigo .pr-container {
+      background: slateblue;
+    } 
+    .green .pr-container {
+      background: rgb(2, 112, 2);
+    }
+    .red .pr-container {
+      background: #d30505;
+    }
+    .orange .pr-container {
+      background: rgb(224, 147, 4);
+    }
+    .light .pr-container {
+      background: rgb(245, 245, 245);
+      color: blue;
+    }
+    .light .pr-char, .light .pr-banner {
+      color: blue;
+    }
+    a {
+      color: white;
+      text-decoration: wavy;
+    }
+    </style>
+    <script >
+        const en = `
+        //Language en 
+Title Animal Identification System
+Summary Animal identification expert system
+
+Goal animal name
+
+Rule 1 Birds Identified
+If number of feet = 2
+Then birds is identified
+// else birds is identified = false
+
+Rule 3 Cat or Dog Identified
+if number of feet = 4 
+and animal is a pet 
+and animal is used for hunting
+then animal name = Dog
+
+else if number of feet = 4
+and animal is a pet 
+then animal name = Cat
+else if number of feet = 2
+and animal is a pet 
+then animal name = Dove
+
+Rule 4 Duck Identified
+If birds is identified
+and animal wallows in mud
+then animal name = Duck
+
+Rule 5 Peacock Identified
+if birds is identified
+and bird spread feathers like fan
+then animal name = Peacock
+else if birds is identified
+and the bird cannot fly
+then animal name = Fowl
+else if birds is identified 
+then animal name = Turkey
+
+Rule 6 Mammals
+if number of feet = 4 
+and animal wallows in mud
+then animal name = Pig
+Else if number of feet = 4
+Then animal name = Goat
+Else animal name = 'Not known'
+
+//Prompts
+Prompt number of feet
+Question How many feet does the animal have?
+Digit
+Min 2
+Max 4
+//%
+
+Prompt animal is a pet
+Question The animal a pet?
+true, false
+
+Prompt animal is used for hunting
+Question The animal is used for hunting?
+True, False
+%
+
+Prompt animal wallows in mud 
+Question The animal wallows in the mud?
+True, False
+
+Prompt bird spread feathers like fan
+Question The bird spread tail feathers like fan?
+True, False
+
+Prompt the bird cannot fly
+Question Bird cannot fly?
+True, False
+`
+        const de = `
+//Sprache de
+Titel Tieridentifikationssystem
+Zusammenfassung Expertensystem zur Tieridentifikation
+
+Zeil Tiername
+
+Regel 1 identifizierte Vögel
+Wenn Anzahl der Füße = 2
+Dann Vögel identifiziert
+sonst Vögel identifiziert = falsch
+
+Regel 2 Haustiere
+Wenn Tier als Haustier verwendet
+Dann Haustier
+sonst Haustier = false
+
+Regel 3 Katze oder Hund identifiziert
+wenn Haustier = wahr
+und Anzahl der Füße = 4
+und Tier zur Jagd verwendet
+dann Tiername = Hund
+
+sonst wenn Haustier
+und Anzahl der Füße = 4
+dann Tiername = Katze
+
+sonst wenn Haustier
+und Anzahl der Füße = 2
+dann Tiername = Taube
+
+Regel 4 Ente identifiziert
+Wenn Vögel identifiziert wurden
+und Tier wälzt sich
+dann Tiername = Ente
+
+Regel 5 Pfau identifiziert
+wenn Vögel identifiziert = wahr
+// und Vögel verbreiten Federn wie Fächer
+dann Tiername = Pfau
+sonst wenn Vögel identifiziert = wahr
+und Vogel kann nicht fliegen
+dann Tiername = Geflügel
+sonst wenn vögel identifiziert
+dann Tiername = Türkei
+
+Regel 6 Säugetiere
+wenn Anzahl der Füße = 4
+und Tier wälzt sich
+dann Tiername = Schwein
+Sonst wenn Anzahl der Füße = 4
+Dann Tiername = Ziege
+Sonst Tiername = 'Nicht bekannt'
+
+//Aufforderungen
+Prompt Anzahl der Füße
+Frage Wie viele Füße hat das Tier?
+Numero
+Min 2 
+Max 4
+//%
+
+Prompt Tier als Haustier verwendet
+Frage Das Tier ein Haustier?
+Ja, Nein
+
+Prompt Tier zur Jagd verwendet
+Frage Das Tier wird zur Jagd verwendet?
+Wahr, falsch
+%
+
+Prompt tier wälzt sich
+Frage Das Tier suhlt sich im Schlamm?
+Wahr, falsch
+
+Prompt vögel identifiziert wurden
+Frage Der Vogel breitet Schwanzfedern wie Fächer aus?
+Wahr, falsch
+
+Prompt Vogel kann nicht fliegen
+Frage Vogel kann nicht fliegen?
+Wahr, falsch
+`
+const fr = `
+// Langue fr
+Titre Système d'identification des animaux
+Résumé Système expert d'identification des animaux
+
+objetif le nom de l'animal
+
+Règle 1 Animaux
+Si l'animal utilisé comme animal de compagnie est oui
+Puis l'animal de compagnie est vrai
+autre l'animal de compagnie est faux
+
+Règle 2 Chat ou chien identifié
+si l'animal de compagnie est vrai
+et le nombre de pieds = 4
+et animal utilisé pour la chasse = oui
+puis le nom de l'animal est Chien
+elseif l'animal de compagnie est vrai
+et le nombre de pieds = 4
+puis le nom de l'animal est Chat
+elseif l'animal de compagnie est vrai
+et le nombre de pieds = 2
+puis le nom de l'animal est Dove
+
+Règle 3 Oiseaux identifiés
+Si l'animal de compagnie est faux
+et le nombre de pieds est 2
+puis les oiseaux identifiés est vrai
+autre les oiseaux identifiés est faux
+
+Règle 4 Canard identifié
+Si les oiseaux identifiés est vrai
+et les animaux vautrés est oui
+puis le nom de l'animal est canard
+Elseif le nombre de pieds est 4
+et les animaux vautrés est oui
+puis nom de l'animal = Cochon
+Elseif le nombre de pieds est 4
+puis le nom de l'animal est chèvre
+autre nom d'animal est 'Non connu'
+
+elseif les oiseaux identifiés est vrai
+// et les plumes d'oiseaux propagation comme le ventilateur est oui
+puis nom de l'animal = Paon
+elseif les oiseaux identifiés est vrai
+// et l'oiseau ne peut pas voler est oui
+puis nom de l'animal = Fowl
+elseif les oiseaux identifiés est vrai
+puis nom de l'animal = Turquie
+
+contribution le Nombre de pieds
+Question Combien de pieds a l'animal?
+// Menu (4, 2) Max 1
+Numéro
+Min 2 Max 4
+
+contribution l'animal utilisé comme animal de compagnie
+Question L'animal un animal de compagnie?
+Menu (Oui, Non) 
+// Texte
+
+contribution Animal utilisé pour la chasse
+Question L'animal est utilisé pour la chasse?
+Menu (Oui, Non) 
+//Texte
+%
+
+contribution les animaux vautrés
+Question L'animal se vautre dans la boue?
+Menu (Oui, Non)
+//Texte
+
+contribution Rapide oiseau répandre des plumes comme un éventail
+Question L'oiseau étend les plumes de la queue comme un éventail?
+Menu (Oui, Non) 
+//Texte
+
+contribution Oiseau rapide ne peut pas voler
+Question Bird ne peut pas voler?
+//Texte
+Menu (Oui, Non) 
+`
+    </script>
+    <script type='module'>
+      import { Ux } from '../dist/rules-engine.modern.js'
+      const language = window.location.hash.replace(/#/, '')
+      const ux = new Ux('console', { language })
+      ux.Theme = 'dark'
+      ux.Text = en
+      ux.repeat()
+    </script>
+  </head>
+
+  <body>
+    <noscript>
+      <strong>We're sorry but this app doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+    </noscript>
+    <div id="console">
+      <div id='console-container' class='pr-container'>
+        <div id='console-banner' class='pr-banner'>
+          <span class="pr-banner-title">Rules Interface</span>
+          <div id='console-toolbar' class='pr-toolbar'></div>
+        </div>
+        <div id='console-display' class='pr-display'></div>
+        <div id='console-btpanel' class='pr-input-panel'>
+          <span class='pr-text-input-container'>
+            <input id='console-input' class='pr-text-input' type='text' />
+          </span>
+          <span class='pr-input-buttons'>
+            <a href='javascript:void(0)' title='Send' class='pr-link-btn'><span class='pr-char'>&check;</span></a>
+            <a href='javascript:void(0)' title='Why ask?' class='pr-link-btn'><span class='pr-char'>&quest;</span></a>
+            <a href='javascript:void(0)' title='Explain' class='pr-link-btn'><span class='pr-char'>&excl;</span></a>
+            <a href='javascript:void(0)' title='Disconnect' class='pr-link-btn'><span class='pr-char'>&times;</span></a>
+            <a href='javascript:void(0)' title='Repeat' class='pr-link-btn'><span class='pr-char'
+                style="font-size:1.5rem">&#8227;</span>
+            </a>
+          </span>
+        </div>
+      </div>
+    </div>
+    <!-- built files will be auto injected -->
+  </body>
+
+</html>
