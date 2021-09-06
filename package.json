@@ -2,7 +2,7 @@
   "private": true,
   "name": "rules-engine",
   "amdName": "RulesEngine",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Rules engine library",
   "source": "src/index.js",
   "main": "dist/rules-engine.js",
