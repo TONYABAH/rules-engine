@@ -5,9 +5,9 @@ import {
   */
   ATTR, LINE, ERROR, EOF, LPAREN, RPAREN, COMMA, GT, LT, EQ, SPACE,
   TIMES, MINUS, PLUS, DIV, MOD, STRING, REM, NUM, COMMENT, LBRACKET, RBRACKET, CARRET,
-} from './token-constants'
-import { Numeric } from './regex'
-import { Token } from './symbols'
+} from './TokenConstants'
+import { Numeric } from './Regex'
+import { Token } from './Symbols'
 
 /**
  * Text tokenizer Lexer

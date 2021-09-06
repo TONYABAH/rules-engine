@@ -1,25 +1,26 @@
 /* jshint esversion:8 */
-import CustomEvent from './events'
-import Lexer from './lexer'
-import { MATH_CONSTS, MATH_FUNCS } from './regex'
-import ParseToken from './parse-token'
+// import CustomEvent from './CustomEvent'
+import pubsub from './EventPubSub'
+import Lexer from './DefaultLexer'
+import { MATH_CONSTS, MATH_FUNCS } from './Regex'
+import ParseToken from './DefaultTokenParser'
 import {
   YES, NO, TRUE, FALSE, ELSE, ELSEIF, AND, OR, IF, RULE, THEN, /* CF, MOD, */
   PROMPT, QUESTION, DIGIT, MENU, NUM, MIN, MAX, ARRAY, ATTR, CONST, FUNC,
   ATTRIBUTE, TITLE, SUMMARY, GOAL, LINE, ERROR, EOF, LPAREN, RPAREN, TIMES,
   COMMA, GT, LT, EQ, TEXT, NOT, IN, EX, IS, REM, COMMENT, SPACE, LBRACKET, CARRET,
   EXCLUDE,
-} from './token-constants'
+} from './TokenConstants'
 /**
  * Laguage grammar parser. Parser is language neutral, 
  * it does not know in which language the rules are written
  */
-export default class Parser extends CustomEvent {
+export default class Parser {
   /**
     * Constructor 
     */
   constructor (language, languageModule) {
-    super()
+    // super()
     this.language = language
     // this.languageModule = languageModule
     this.keywords = languageModule.keywords // languageModule.keywords // keywords[language.toLowerCase()]
@@ -28,14 +29,19 @@ export default class Parser extends CustomEvent {
     this.tokens = null
     this.prev = null
     this.errors = []
-    this.data = null
+    this.data = {}
     this.parseToken = ParseToken(this)
     // this.init()
   }
   get Event () {
     return super.prototype
   }
-
+  get Data (){
+    return this.data
+  }
+  get Error () {
+    return this.errors
+  }
   init () {
     this.row = 0
     this.col = 0
@@ -638,7 +644,7 @@ export default class Parser extends CustomEvent {
       raw: '', // "Missing semicolon"
     }
     this.errors.push(w)
-    this.emit('warning', w, this)
+    pubsub.publish('warning', w)
   }
   error (msg, token) {
     const e = {
@@ -650,7 +656,7 @@ export default class Parser extends CustomEvent {
     }
 
     this.errors.push(e)
-    this.emit('error', e, this)
+    pubsub.publish('error', e)
   }
   info (msg, token) {
     const i = {
@@ -661,7 +667,7 @@ export default class Parser extends CustomEvent {
       raw: token, // "Missing semicolon"
     }
     this.errors.push(i)
-    this.emit('info', i, this)
+    pubsub.publish('info', i)
   }
   isKeyword (word, index, tokens) {
     const token = index > 0 ? tokens[index - 1] : null
@@ -923,8 +929,8 @@ export default class Parser extends CustomEvent {
           }
         }
         this.checkVarableDeclarations()
-        // this.emit('data', { errors: this.errors, data: this.tokens })
-        this.emit('done', { errors: this.errors, data: this.tokens })
+        // pubsub.publish('data', { errors: this.errors, data: this.tokens })
+        pubsub.publish('done', { errors: this.errors, data: this.tokens })
         if (this.errors.length > 0) {
           // console.log(this.tokens, this.errors, this.keywords)
           resolve(this.errors)

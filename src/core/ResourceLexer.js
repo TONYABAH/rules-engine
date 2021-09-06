@@ -1,9 +1,9 @@
 // import CustomEvent from './events.js'
 // import { Token } from './symbols.js'
 import {
-  NUM, ATTR, LINE, EOF, LPAREN, RPAREN, EQ, REM, ERROR, SPACE,
-} from './token-constants'
-import { Token } from './symbols'
+  NUM, ATTR, LINE, EOF, LPAREN, RPAREN, EQ, REM, ERROR, SPACE, COLON,
+} from './TokenConstants'
+import { Token } from './Symbols'
 
 export default class Tokenizer {
   constructor () {
@@ -65,18 +65,23 @@ export default class Tokenizer {
     return [0, null]
   }
   tokenizeWord ( input, current ) {
-
     let consumedChars = 0
     let value = ''
     let count = current
     let char = input[current]
     //test for alphabetic sequence
     do {
-      value += char
-      consumedChars++
-      count++
-      char = input[count]
-    } while ( char && char !== '\n' && char !== ' ' )
+        value += char;
+        consumedChars++;
+        count++;
+        char = input[count];
+    } while (
+        char &&
+        char !== "\n" &&
+        char !== " " &&
+        char !== "=" &&
+        char !== ":"
+    );
 
     if ( consumedChars > 0 ) {
       let token = new Token( ATTR, value, this.row, this.col )
@@ -85,7 +90,7 @@ export default class Tokenizer {
     }
     return [0, null]
   }
-  tokenizeComment ( input, current ) {
+  tokenizeBlockCommentXXX ( input, current ) {
     if ( input[current + 1] === '*' ) {
       let value = ''
       let count = current
@@ -114,7 +119,7 @@ export default class Tokenizer {
     }
     return [0, null]
   }
-  tokenizeLineComment ( input, current ) {
+  tokenizeComment ( input, current ) {
     let char = input[current]
     let consumedChars = 0
     if ( input[current + 1] === '/' ) {
@@ -141,68 +146,79 @@ export default class Tokenizer {
       let char = input[current]
       let [consumedChars, token] = [0, null]
       let tokenized = false
-      switch ( char ) {
-      case '{': {
-        tokens.push( new Token( LPAREN, char, this.row, this.col ) )
-        current++
-        this.col++
-        break
-      }
-      case '}': {
-        tokens.push( new Token( RPAREN, char, this.row, this.col ) )
-        current++
-        this.col++
-        break
-      }
-      case '=': case ':': {
-        tokens.push( new Token( EQ, char, this.row, this.col ) )
-        current++
-        this.col++
-        break
-      }
-      case '\n': {
-        tokens.push( new Token( LINE, char, this.row, this.col ) )
-        current++
-        this.col = 0
-        this.row++
-        break
-      }
+      switch (char) {
+          case "{": {
+              tokens.push(new Token(LPAREN, char, this.row, this.col));
+              current++;
+              this.col++;
+              break;
+          }
+          case "}": {
+              tokens.push(new Token(RPAREN, char, this.row, this.col));
+              current++;
+              this.col++;
+              break;
+          }
+          case "=": {
+          // case ":": {
+              tokens.push(new Token(EQ, char, this.row, this.col));
+              current++;
+              this.col++;
+              break;
+          }
+          case ":": {
+              tokens.push(new Token(COLON, char, this.row, this.col));
+              current++;
+              this.col++;
+              break;
+          }
+          case "\n": {
+              tokens.push(new Token(LINE, char, this.row, this.col));
+              current++;
+              this.col = 0;
+              this.row++;
+              break;
+          }
 
-      default:
-
-        if ( RegExp( /[0-9]/ ).test( char ) ) {
-          //Number: tokenize number
-          let [chars, tk] = this.tokenizeNumber( input, current )
-          consumedChars = chars
-          token = tk
-        } else if ( RegExp( /\s/ ).test( char ) ) {
-          let [chars, tk] = this.skipWhiteSpace( input, current )
-          consumedChars = chars
-          token = tk
-        } else if ( '/' === char ) {
-          let [chars, tk] = this.tokenizeComment( input, current )
-          consumedChars = chars
-          token = tk
-        } else if ( RegExp( /[a-zA-Z]/ ).test( char ) ) {
-          let pattern = /[a-zA-Z]/
-          let [chars, tk] = this.tokenizeWord( input, current, pattern )
-          consumedChars = chars
-          token = tk
-        } else {
-          tokenized = false
-        }
-        if ( consumedChars !== 0 ) {
-          tokenized = true
-          current += consumedChars
-          this.col += consumedChars
-          tokens.push( token )
-        }
-        if ( !tokenized ) {
-          var err = new Token( ERROR, input[current], this.row, this.col )//{type:'ERROR', value:input[current], row:this.row-1,col:this.col, pos:current};
-          tokens.push( err )
-          current++
-          //if (production) throw new TypeError('Invalid input: '+input[current-1]);
-        }
+          default:
+              if (RegExp(/[0-9]/).test(char)) {
+                  //Number: tokenize number
+                  let [chars, tk] = this.tokenizeNumber(input, current);
+                  consumedChars = chars;
+                  token = tk;
+              } else if (RegExp(/\s/).test(char)) {
+                  let [chars, tk] = this.skipWhiteSpace(input, current);
+                  consumedChars = chars;
+                  token = tk;
+              } else if ("/" === char) {
+                  let [chars, tk] = this.tokenizeComment(input, current);
+                  consumedChars = chars;
+                  token = tk;
+              } else if (RegExp(/[a-zA-Z]/).test(char)) {
+                  let pattern = /[a-zA-Z]/;
+                  let [chars, tk] = this.tokenizeWord(input, current, pattern);
+                  consumedChars = chars;
+                  token = tk;
+              } else {
+                  tokenized = false;
+              }
+              if (consumedChars !== 0) {
+                  tokenized = true;
+                  current += consumedChars;
+                  this.col += consumedChars;
+                  tokens.push(token);
+              }
+              if (!tokenized) {
+                  var err = new Token(
+                      ERROR,
+                      input[current],
+                      this.row,
+                      this.col
+                  ); //{type:'ERROR', value:input[current], row:this.row-1,col:this.col, pos:current};
+                  tokens.push(err);
+                  current++;
+                  //if (production) throw new TypeError('Invalid input: '+input[current-1]);
+              }
       }
     }
     tokens.push( new Token( EOF, '', this.row, -1 ) )//{type:'EOF', value:''});

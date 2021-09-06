@@ -1,9 +1,9 @@
-import Parser from './parser'
+import Parser from './Parser'
 // import ResParser from './res-parser'
-import Keywords from './keywords'
-import Compiler from './compiler'
-import Validator from './validator'
-import Engine from './engine'
+import Keywords from './Keywords'
+import Compiler from './DefaultCompiler'
+import Validator from './Validator'
+import Engine from './Engine'
 import CustomErrors, {
   CustomError,
   ValidationError,
@@ -12,7 +12,7 @@ import CustomErrors, {
   NetworkError,
   SyntaxError,
   ScriptError,
-} from './custom-errors'
+} from './CustomErrors'
 // import Translator from '../translation'
 // import Keys from '../translation/keys' 
 // import ErrorCodes from './error-codes' 

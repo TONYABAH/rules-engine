@@ -1,4 +1,5 @@
-import Constants from "./constants"
+import Constants from "./Constants"
+
 const MAX_CHARS = 256
 
 export default class Prompt {
@@ -18,7 +19,7 @@ export default class Prompt {
   }
 }
 
-export function normalize(prompt) {
+/* export function normalize(prompt) {
   switch (prompt.Type) {
     case Constants.MENU:
       if (!prompt.Max) prompt.Max = prompt.Menu.length
@@ -55,5 +56,4 @@ export function normalize(prompt) {
       break
   }
  // delete prompt.__proto__
-}
-
+}*/

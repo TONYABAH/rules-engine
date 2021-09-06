@@ -20,9 +20,10 @@
   "author": "Tony Abah <tonyarmyabah@gmail.com> (https://www.ampani.com)",
   "license": "ISC",
   "scripts": {
-    "build": "microbundle --name RulesEngine -o dist --no-compress watch",
+    "build": "microbundle --name RulesEngine -o dist --no-compress",
     "dev": "microbundle --name RulesEngine -o dist --no-compress --watch",
-    "serve": " browser-sync start --server --serveStatic dist --index demo/index.html -w -f app,demo,dist"
+    "serve": " browser-sync start --server --serveStatic dist --index demo/index.html -w -f app,demo,dist",
+    "start": "npm run dev && npm run serve"
   },
   "devDependencies": {
     "microbundle": "^0.13.0"

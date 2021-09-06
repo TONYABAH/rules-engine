@@ -58,6 +58,8 @@ export const EQ = 'EQ'
 export const GT = 'GT'
 export const LT = 'LT'
 export const COMMA = 'COMMA'
+export const COLON = 'COLON';
+
 export const SPACE = 'SPACE'
 export const ERROR = 'ERROR' 
 export const EOF = 'EOF'

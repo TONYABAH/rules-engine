@@ -27,7 +27,7 @@ function debounce (func, wait, immediate) {
   }
 }
 function run () {
-  const win = window.open('/app/console.html#en', 'console', winOptions)
+  const win = window.open('/app/ux.html#en', 'console', winOptions)
   // const win = window.open('/app/ux.html', 'console', winOptions)
   // win.postMessage('Hello world', 'http://127.0.0.1')
 }

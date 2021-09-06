@@ -1,9 +1,9 @@
 import {
   BinOp, UnaryOp, Func, Const, //Expr, Comma, Num, Str, Attr,
-} from './symbols'
+} from './Symbols'
 import {
   TIMES, DIV, PLUS, MINUS, MOD,
-} from './token-constants'
+} from './TokenConstants'
 
 /**
  * Language grammer interpreter, recursively passes abstract syntax tree into algebraic output
