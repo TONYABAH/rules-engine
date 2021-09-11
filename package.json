@@ -17,7 +17,7 @@
   ],
   "homepage": "",
   "repository": "",
-  "author": "Tony Abah <tonyarmyabah@gmail.com> (https://www.ampani.com)",
+  "author": "Tony Abah <tonyarmyabah@gmail.com> (https://github.com/TONYABAH)",
   "license": "ISC",
   "scripts": {
     "build": "microbundle --name RulesEngine -o dist --no-compress",
