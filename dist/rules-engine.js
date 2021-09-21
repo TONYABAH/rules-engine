@@ -18,6 +18,197 @@ var Constants = {
   ATTR: 'ATTR'
 };
 
+var ErrorKeys = {
+  ScriptError: "ScriptError",
+  //0
+  // Network errors 1 - 9
+  NetworkError: 'NetworkError',
+  //1
+  // Security Errors 10 - 19
+  TokenRequired: "TokenRequired",
+  //10
+  TokenExpired: "TokenExpired",
+  //11
+  TokenInvalid: "TokenInvalid",
+  //12
+  APIKeyNotFound: "APIKeyNotFound",
+  //13
+  APIKeyInvalid: "APIKeyInvalid",
+  //14
+  CredentialsInvalid: "CredentialsInvalid",
+  //15
+  UserNotFound: "UserNotFound",
+  //16
+  AccessDenied: "AccessDenied",
+  //17
+  // Validation Errors 20 - 40
+  InvalidSelection: "InvalidSelection",
+  //20
+  NoSelection: "NoSelection",
+  //21 
+  SelectionsAboveRange: "SelectionsAboveRange",
+  //22
+  SelectionsBelowRange: "SelectionsBelowRange",
+  //23
+  CharactersAboveRange: "CharactersAboveRange",
+  //24
+  CharactersBelowRange: "CharactersBelowRange",
+  //25
+  NumberAboveRange: "NumberAboveRange",
+  //26
+  NumberBelowRange: "NumberBelowRange",
+  //27
+  NumberRequired: "NumberRequired",
+  //28
+  NoActiveSession: "NoActiveSession",
+  //29
+  NoInput: "NoInput",
+  //30
+  PromptNotFound: "PromptNotFound",
+  //31
+  KnowledgebaseNotFound: "KnowledgebaseNotFound",
+  //32 
+  SessionExpired: "SessionExpired",
+  //33
+  // Syntax Errors
+  UnknownToken: 'UnknownToken',
+  NoCloseParenthesis: 'NoCloseParenthesis',
+  NoOpenParenthesis: 'NoOpenParenthesis',
+  DuplicateOperator: 'DuplicateOperator',
+  NoDefinition: 'NoDefinition',
+  NoAttributeName: 'NoAttributeName',
+  ExpectedEQ: 'ExpectedEQ',
+  ExpectNoEOF: 'ExpectNoEOF',
+  ExpectNoNewLine: 'ExpectNoNewLine',
+  ExpectedArrayname: 'ExpectedArrayname',
+  ExpectedOpenParenthesis: 'ExpectedOpenParenthesis',
+  ExpectedNumberOrAttrib: 'ExpectedNumberOrAttrib',
+  ExpectedComma: 'ExpectedComma',
+  ExpectedCloseParenthesis: 'ExpectedCloseParenthesis',
+  NoGoalName: 'NoGoalName',
+  NoPromptText: 'NoPromptText',
+  ExpectType: 'ExpectType',
+  ExpectComparator: 'ExpectComparator',
+  NoInputForAttrib: 'NoInputForAttrib'
+};
+
+/* jshint esversion:8*/
+
+var validator = function () {
+  /**
+   * Method just returns the error code which should be handled by the consuming function.
+   * Normally the code should be translated to user language based on the locale.
+   * @param { String } key Error code
+   * @returns the Error code
+   */
+  function raiseValidationError(key) {
+    // return CustomErrors(translator, language).ValidationError(key)
+    return key;
+  }
+
+  function validateCF(input, prompt) {
+    var num = input;
+
+    if (isNaN(num)) {
+      return raiseValidationError(ErrorKeys.InvalidSelection);
+    }
+
+    if (num == 0) {
+      return raiseValidationError(ErrorKeys.InvalidSelection);
+    } else if (num < 1) {
+      return raiseValidationError(ErrorKeys.InvalidSelection);
+    } else if (num > prompt.Menu.length) {
+      return raiseValidationError(ErrorKeys.InvalidSelection);
+    }
+  }
+
+  function validateMenu(input, prompt) {
+    if (input.length === 0) {
+      return raiseValidationError(ErrorKeys.NoSelection);
+    } else if (input.length < prompt.Min) {
+      return raiseValidationError(ErrorKeys.SelectionsBelowRange);
+    } else if (input.length > prompt.Max) {
+      return raiseValidationError(ErrorKeys.SelectionsAboveRange);
+    }
+
+    input.forEach(function (num) {
+      if (isNaN(num)) {
+        return raiseValidationError(ErrorKeys.InvalidSelection);
+      } else if (num == 0) {
+        return raiseValidationError(ErrorKeys.InvalidSelection);
+      } else if (num < 0) {
+        return raiseValidationError(ErrorKeys.InvalidSelection);
+      } else if (num > prompt.Menu.length) {
+        return raiseValidationError(ErrorKeys.InvalidSelection);
+      }
+    });
+  }
+
+  function validateText(input, prompt) {
+    if (input.length < prompt.Min) {
+      return raiseValidationError(ErrorKeys.CharactersBelowRange);
+    } else if (input.length > prompt.Max) {
+      return raiseValidationError(ErrorKeys.CharactersAboveRange);
+    }
+  }
+
+  function validateNumeric(input, prompt) {
+    var num = Number(input);
+
+    if (isNaN(num)) {
+      return raiseValidationError(ErrorKeys.NumberRequired);
+    }
+
+    if (!prompt.Max && !prompt.Min) return null;
+
+    if (num < prompt.Min) {
+      return raiseValidationError(ErrorKeys.NumberBelowRange);
+    } else if (num > prompt.Max) {
+      return raiseValidationError(ErrorKeys.NumberAboveRange);
+    }
+  }
+
+  return {
+    /** *
+     * Validates input to the system. This is the entry point of the validation module.
+     * Depending on the type of input (menu, number, text) the input is further submmitted to
+     * other methods to complete the validation and return the result.
+     * @param {Object} input The input text.
+     * @param {OBJECT} prompt The prompt presented to the user for response.
+     * @return Error code if validation fails, or nothing.
+     */
+    validate: function validate(input, prompt) {
+      if (!prompt.Type) {
+        return raiseValidationError(ErrorKeys.NoActiveSession);
+      }
+
+      if (!input || input.toString().trim().length === 0) {
+        return raiseValidationError(ErrorKeys.NoInput);
+      }
+
+      if (prompt.Label.toUpperCase() === "CF") {
+        return validateCF(input, prompt);
+      }
+
+      switch (prompt.Type.toUpperCase()) {
+        case "MENU":
+        case "YN":
+        case "TF":
+          {
+            var values = input.toString().split(",");
+            return validateMenu(values, prompt);
+          }
+
+        case "NUMBER":
+          return validateNumeric(input, prompt);
+
+        default:
+          return validateText(input, prompt);
+      }
+    }
+  };
+}();
+
 // These definitions are internally used to store tokens
 // they should not affect language of production rules
 var REM = 'REM';
@@ -659,80 +850,6 @@ var Interpreter
   return Interpreter;
 }();
 
-var ErrorKeys = {
-  ScriptError: "ScriptError",
-  //0
-  // Network errors 1 - 9
-  NetworkError: 'NetworkError',
-  //1
-  // Security Errors 10 - 19
-  TokenRequired: "TokenRequired",
-  //10
-  TokenExpired: "TokenExpired",
-  //11
-  TokenInvalid: "TokenInvalid",
-  //12
-  APIKeyNotFound: "APIKeyNotFound",
-  //13
-  APIKeyInvalid: "APIKeyInvalid",
-  //14
-  CredentialsInvalid: "CredentialsInvalid",
-  //15
-  UserNotFound: "UserNotFound",
-  //16
-  AccessDenied: "AccessDenied",
-  //17
-  // Validation Errors 20 - 40
-  InvalidSelection: "InvalidSelection",
-  //20
-  NoSelection: "NoSelection",
-  //21 
-  SelectionsAboveRange: "SelectionsAboveRange",
-  //22
-  SelectionsBelowRange: "SelectionsBelowRange",
-  //23
-  CharactersAboveRange: "CharactersAboveRange",
-  //24
-  CharactersBelowRange: "CharactersBelowRange",
-  //25
-  NumberAboveRange: "NumberAboveRange",
-  //26
-  NumberBelowRange: "NumberBelowRange",
-  //27
-  NumberRequired: "NumberRequired",
-  //28
-  NoActiveSession: "NoActiveSession",
-  //29
-  NoInput: "NoInput",
-  //30
-  PromptNotFound: "PromptNotFound",
-  //31
-  KnowledgebaseNotFound: "KnowledgebaseNotFound",
-  //32 
-  SessionExpired: "SessionExpired",
-  //33
-  // Syntax Errors
-  UnknownToken: 'UnknownToken',
-  NoCloseParenthesis: 'NoCloseParenthesis',
-  NoOpenParenthesis: 'NoOpenParenthesis',
-  DuplicateOperator: 'DuplicateOperator',
-  NoDefinition: 'NoDefinition',
-  NoAttributeName: 'NoAttributeName',
-  ExpectedEQ: 'ExpectedEQ',
-  ExpectNoEOF: 'ExpectNoEOF',
-  ExpectNoNewLine: 'ExpectNoNewLine',
-  ExpectedArrayname: 'ExpectedArrayname',
-  ExpectedOpenParenthesis: 'ExpectedOpenParenthesis',
-  ExpectedNumberOrAttrib: 'ExpectedNumberOrAttrib',
-  ExpectedComma: 'ExpectedComma',
-  ExpectedCloseParenthesis: 'ExpectedCloseParenthesis',
-  NoGoalName: 'NoGoalName',
-  NoPromptText: 'NoPromptText',
-  ExpectType: 'ExpectType',
-  ExpectComparator: 'ExpectComparator',
-  NoInputForAttrib: 'NoInputForAttrib'
-};
-
 // import CustomErrors from "./CustomErrors";
 
 function raiseValidationError$1(code, translator, language) {
@@ -818,20 +935,18 @@ function normalize(prompt) {
 
 
 var Engine = /*#__PURE__*/function () {
-  function Engine(kb, translator, validator) {
+  function Engine(kb, translator) {
     if (!kb) throw new ReferenceError("kb is undefined");
     this.paused = false;
     this.CFSettings = null;
     this.done = false;
-    this.knowledgebase = kb; // console.log(kb.keywords)
-
+    this.knowledgebase = kb;
     this.keywords = kb.languageModule.keywords; // keywords[kb.language.toLowerCase()]
 
     this.CFSettings = kb.languageModule.prompts; // kb[kb.language.toLowerCase()].prompts // promptSettings[kb.language.toLowerCase()]
     // this.validator = new Validator(translator, kb.language)
 
-    this.translator = translator;
-    this.validator = validator;
+    this.translator = translator; // this.validator = validator;
   }
 
   var _proto = Engine.prototype;
@@ -843,6 +958,7 @@ var Engine = /*#__PURE__*/function () {
         this.translator,
         this.knowledgebase.language
     ).ScriptError(keys.ScriptError, e);*/
+    console.log(e);
     return ErrorKeys.ScriptError;
   };
 
@@ -1114,7 +1230,7 @@ var Engine = /*#__PURE__*/function () {
     var nodes = []; //tokens.map(function (token) {
 
     for (var i = 0; i < tokens.length; i++) {
-      var token = tokens[i]; // console.log( token )
+      var token = tokens[i]; // console.log(token);
 
       var value = token.value;
 
@@ -1122,8 +1238,7 @@ var Engine = /*#__PURE__*/function () {
         var attribute = this.knowledgebase.attributes[token.value.toLowerCase()];
 
         if (attribute) {
-          // console.log( { attribute, token } )
-          if (attribute.Value === null && this.knowledgebase.prompts[token.value.toLowerCase()]) {
+          if (!attribute.Value && this.knowledgebase.prompts[token.value.toLowerCase()]) {
             // Attribute attribute=this.knowledgebase.attributes.get(token.toLowerCase());
             // if (attribute.Value == null)
             // the attribute has no value assigned yet, then
@@ -1177,7 +1292,7 @@ var Engine = /*#__PURE__*/function () {
   _proto.prompt = function prompt(name) {
     var _name = name.toLowerCase().trim();
 
-    var prompt = this.knowledgebase.prompts[_name]; // console.log({ prompt, name } )
+    var prompt = this.knowledgebase.prompts[_name]; // console.log({ prompt, name });
 
     if (!prompt) {
       return this.raisePromptNotFoundError();
@@ -1188,7 +1303,7 @@ var Engine = /*#__PURE__*/function () {
     this.knowledgebase.currentPrompt = this.knowledgebase.prompts[_name];
     this.knowledgebase.currentPrompt.Index = this.knowledgebase.promptIndex; //this.publish('engine.prompt', this.knowledgebase.currentPrompt)
 
-    this.knowledgebase.promptIndex++; // console.log( this.knowledgebase.currentPrompt )
+    this.knowledgebase.promptIndex++; // console.log(this.knowledgebase.currentPrompt);
 
     return this.knowledgebase.currentPrompt;
   };
@@ -1243,7 +1358,7 @@ var Engine = /*#__PURE__*/function () {
       return this.raiseSessionExpiredError();
     }
 
-    var validateResult = this.validator.validate(value, this.knowledgebase.currentPrompt);
+    var validateResult = validator.validate(value, this.knowledgebase.currentPrompt);
 
     if (validateResult && validateResult.name === "ValidationError") {
       return validateResult;
@@ -1384,123 +1499,6 @@ var Engine = /*#__PURE__*/function () {
   };
 
   return Engine;
-}();
-
-/* jshint esversion:8*/
-
-var validator$1 = function () {
-  /**
-   * Method just returns the error code which should be handled by the consuming function.
-   * Normally the code should be translated to user language based on the locale.
-   * @param { String } key Error code
-   * @returns the Error code
-   */
-  function raiseValidationError(key) {
-    // return CustomErrors(translator, language).ValidationError(key)
-    return key;
-  }
-
-  function validateCF(input, prompt) {
-    var num = input;
-
-    if (isNaN(num)) {
-      return raiseValidationError(ErrorKeys.InvalidSelection);
-    }
-
-    if (num == 0) {
-      return raiseValidationError(ErrorKeys.InvalidSelection);
-    } else if (num < 1) {
-      return raiseValidationError(ErrorKeys.InvalidSelection);
-    } else if (num > prompt.Menu.length) {
-      return raiseValidationError(ErrorKeys.InvalidSelection);
-    }
-  }
-
-  function validateMenu(input, prompt) {
-    if (input.length === 0) {
-      return raiseValidationError(ErrorKeys.NoSelection);
-    } else if (input.length < prompt.Min) {
-      return raiseValidationError(ErrorKeys.SelectionsBelowRange);
-    } else if (input.length > prompt.Max) {
-      return raiseValidationError(ErrorKeys.SelectionsAboveRange);
-    }
-
-    input.forEach(function (num) {
-      if (isNaN(num)) {
-        return raiseValidationError(ErrorKeys.InvalidSelection);
-      } else if (num == 0) {
-        return raiseValidationError(ErrorKeys.InvalidSelection);
-      } else if (num < 0) {
-        return raiseValidationError(ErrorKeys.InvalidSelection);
-      } else if (num > prompt.Menu.length) {
-        return raiseValidationError(ErrorKeys.InvalidSelection);
-      }
-    });
-  }
-
-  function validateText(input, prompt) {
-    if (input.length < prompt.Min) {
-      return raiseValidationError(ErrorKeys.CharactersBelowRange);
-    } else if (input.length > prompt.Max) {
-      return raiseValidationError(ErrorKeys.CharactersAboveRange);
-    }
-  }
-
-  function validateNumeric(input, prompt) {
-    var num = Number(input);
-
-    if (isNaN(num)) {
-      return raiseValidationError(ErrorKeys.NumberRequired);
-    }
-
-    if (!prompt.Max && !prompt.Min) return null;
-
-    if (num < prompt.Min) {
-      return raiseValidationError(ErrorKeys.NumberBelowRange);
-    } else if (num > prompt.Max) {
-      return raiseValidationError(ErrorKeys.NumberAboveRange);
-    }
-  }
-
-  return {
-    /** *
-     * Validates input to the system. This is the entry point of the validation module.
-     * Depending on the type of input (menu, number, text) the input is further submmitted to
-     * other methods to complete the validation and return the result.
-     * @param {Object} input The input text.
-     * @param {OBJECT} prompt The prompt presented to the user for response.
-     * @return Error code if validation fails, or nothing.
-     */
-    validate: function validate(input, prompt) {
-      if (!prompt.Type) {
-        return raiseValidationError(ErrorKeys.NoActiveSession);
-      }
-
-      if (!input || input.toString().trim().length === 0) {
-        return raiseValidationError(ErrorKeys.NoInput);
-      }
-
-      if (prompt.Label.toUpperCase() === "CF") {
-        return validateCF(input, prompt);
-      }
-
-      switch (prompt.Type.toUpperCase()) {
-        case "MENU":
-        case "YN":
-        case "TF":
-          {
-            var values = input.toString().split(",");
-            return validateMenu(values, prompt);
-          }
-
-        case "NUMBER":
-          return validateNumeric(input, prompt);
-
-        default:
-          return validateText(input, prompt);
-      }
-    }
-  };
 }();
 
 // import en from './locales/en'
@@ -5167,6 +5165,7 @@ var ParserFactory = /*#__PURE__*/function () {
       mode = defaults.mode;
     }
 
+    // console.log({ language, languageModule, mode });
     switch (mode) {
       case "ace/mode/res":
         return new ResourceParser(language, languageModule);
@@ -5210,11 +5209,15 @@ function raiseValidationError(code, translator, systemLanguage) {
 
 var Rules = /*#__PURE__*/function () {
   function Rules(systemLanguage, mode) {
+    if (mode === void 0) {
+      mode = "ace/mode/kbf";
+    }
+
     this.systemLanguage = systemLanguage;
     this.languageModule = languageModules[systemLanguage];
     this.compiler = ParserFactory.createCompiler(systemLanguage, this.languageModule, mode);
     this.parser = ParserFactory.createParser(systemLanguage, this.languageModule, mode);
-    this.translator = new Translator(systemLanguage, this.languageModule); //  = new InputValidator(systemLanguage, this.translator);
+    this.translator = new Translator(systemLanguage, this.languageModule); // InputValidator(systemLanguage, this.translator);
   }
 
   Rules.registerLanguage = function registerLanguage(lang, data) {
@@ -5268,7 +5271,7 @@ var Rules = /*#__PURE__*/function () {
           Rules.registerLanguage(l, data);
           console.log("Enabled language: " + l);
         } else {
-          throw new Error("Locale not installed: " + l);
+          console.error("Locale not installed: " + l);
         }
       });
     } catch (e) {
@@ -5314,8 +5317,8 @@ var Rules = /*#__PURE__*/function () {
       return raiseValidationError(ErrorKeys.KnowledgebaseNotFound, this.translator, this.systemLanguage);
     }
 
-    var response = new Engine(freshData, this.translator).run();
-    return process(response);
+    var response = new Engine(freshData).run();
+    return response; // return process(response);
   };
 
   _proto.reply = function reply(modifiedData, input) {
@@ -5327,12 +5330,12 @@ var Rules = /*#__PURE__*/function () {
       return raiseValidationError(ErrorKeys.NoInput, this.translator, this.systemLanguage);
     }
 
-    var response = new Engine(modifiedData, this.translator, validator).input(input);
+    var response = new Engine(modifiedData, this.translator, this.validator).input(input);
     return process(response);
   };
 
   _proto.validate = function validate(input, prompt) {
-    return validator$1.validate(input, prompt);
+    return validator.validate(input, prompt);
   };
 
   _proto.choice = function choice(input, prompt) {
@@ -5348,6 +5351,81 @@ var Rules = /*#__PURE__*/function () {
   };
 
   return Rules;
+}();
+
+var CustomEvent = /*#__PURE__*/function () {
+  function CustomEvent() {
+    this.topics = {}; // this.hOP = topics.hasOwnProperty
+  }
+
+  var _proto = CustomEvent.prototype;
+
+  _proto.on = function on(topic, listener) {
+    // Create the topic's object if not yet created
+    if (!this.topics.hasOwnProperty.call(this.topics, topic)) this.topics[topic] = []; // Add the listener to queue
+
+    var index = this.topics[topic].push(listener) - 1;
+
+    var _this = this; // Provide handle back for removal of topic
+
+
+    return {
+      remove: function remove() {
+        //delete topics[topic][index]
+        _this.topics[topic].splice(index, 1);
+      }
+    };
+  };
+
+  _proto.remove = function remove(topic, listener) {
+    // Create the topic's object if not yet created
+    if (this.topics.hasOwnProperty.call(this.topics, topic)) {
+      // Add the listener to queue
+      var index = this.topics[topic]; //delete topics[topic][index]
+
+      this.topics[topic].splice(index, 1);
+    }
+  };
+
+  _proto.off = function off(topic, listener) {
+    this.remove(topic, listener);
+  };
+
+  _proto.trigger = function trigger(topic, info) {
+    // If the topic doesn't exist, or there's no listeners in queue, just leave
+    if (!this.topics.hasOwnProperty.call(this.topics, topic)) return; // Cycle through topics queue, fire!
+
+    this.topics[topic].forEach(function (item) {
+      item(info != undefined ? info : {});
+    });
+  };
+
+  _proto.emit = function emit(topic, info) {
+    this.trigger(topic, info);
+  };
+
+  _proto.fire = function fire(topic, info) {
+    this.trigger(topic, info);
+  };
+
+  _proto.publish = function publish(topic, info) {
+    this.trigger(topic, info);
+  };
+
+  _proto.destroy = function destroy() {
+    var _this2 = this;
+
+    Object.keys(this.topics).forEach(function (topic) {
+      var topics = _this2.topics[topic];
+
+      while (topics.length > 0) {
+        topics.pop();
+      }
+    });
+    delete this.topics;
+  };
+
+  return CustomEvent;
 }();
 
 function attachCSS(css, id, name, toggle) {
@@ -5600,51 +5678,59 @@ function _catch(body, recover) {
   return result;
 }
 
-var Ux = /*#__PURE__*/function () {
+var Ux = /*#__PURE__*/function (_CustomEvent) {
+  _inheritsLoose(Ux, _CustomEvent);
+
   function Ux(el, options) {
+    var _this;
+
     if (options === void 0) {
       options = {};
     }
 
-    // super();
-    this.language = options.language || "en";
+    _this = _CustomEvent.call(this) || this;
+    _this.language = options.language || "en";
+    Rules.init(["fr", "es"]);
     if (!el) throw "Missing Element ID to attach UX";
     var node = el instanceof HTMLElement ? el : typeof el === "string" ? document.getElementById(el) : el;
     if (!node || !node instanceof HTMLElement) throw "ID not a valid Node";
-    this.el = node;
-    this.el.style.overflow = "hidden";
-    this.text = options.text || null;
-    this.data = null;
-    this.widgets = [];
-    this.prompt = {};
-    this.error = null;
-    this.display = null;
-    this.buttons = null;
-    this.container = null;
-    this.toolbar = null;
-    this.rules = Rules(this.language, ["fr", "de", "cn"], "ace/mode/res");
-    this.init();
+    _this.el = node;
+    _this.el.style.overflow = "hidden";
+    _this.text = options.text || null;
+    _this.data = null;
+    _this.widgets = [];
+    _this.prompt = {};
+    _this.error = null;
+    _this.display = null;
+    _this.buttons = null;
+    _this.container = null;
+    _this.toolbar = null;
+    _this.rules = new Rules(_this.language, "ace/mode/kbf");
+
+    _this.init();
+
+    return _this;
   }
 
   var _proto = Ux.prototype;
 
   _proto.run = function run(text) {
     try {
-      var _this2 = this;
+      var _this3 = this;
 
       return Promise.resolve(_catch(function () {
-        _this2.text = text;
-        return Promise.resolve(_this2.rules.compile(text)).then(function (_ref) {
+        _this3.text = text;
+        return Promise.resolve(_this3.rules.compile(text)).then(function (_ref) {
           var errors = _ref.errors,
               data = _ref.data;
-          _this2.data = data;
-          _this2.errors = errors;
+          _this3.data = data;
+          _this3.errors = errors;
 
-          if (errors.length && errors.length > 0) {
-            return _this2.processParserErrors(errors);
+          if (errors && errors.length > 0) {
+            return _this3.processParserErrors(errors);
           }
 
-          _this2.start();
+          _this3.start(data);
         });
       }, function (e) {
         console.trace(e);
@@ -5654,23 +5740,23 @@ var Ux = /*#__PURE__*/function () {
           message: e
         };
 
-        _this2.processError(response);
+        _this3.processError(response);
       }));
     } catch (e) {
       return Promise.reject(e);
     }
   };
 
-  _proto.start = function start() {
-    var response = this.rules.run(this.data);
+  _proto.start = function start(data) {
+    var response = this.rules.run(data);
     this.process(response);
   };
 
   _proto.repeat = function repeat() {
     try {
-      var _this4 = this;
+      var _this5 = this;
 
-      return Promise.resolve(_this4.run(_this4.text)).then(function () {}); // this.start()
+      return Promise.resolve(_this5.run(_this5.text)).then(function () {}); // this.start()
     } catch (e) {
       return Promise.reject(e);
     }
@@ -5724,7 +5810,7 @@ var Ux = /*#__PURE__*/function () {
   _proto.copy = function copy() {};
 
   _proto.process = function process(response) {
-    // console.log({ response })
+    // console.log({ response });
     if (response.Label === "Prompt" || response.Label === "CF") {
       //Prompting for input
       return this.processPrompt(response);
@@ -5761,25 +5847,25 @@ var Ux = /*#__PURE__*/function () {
 
   _proto.init = function init() {
     try {
-      var _this6 = this;
+      var _this7 = this;
 
-      _this6.el.classList.add("pr-parent");
+      _this7.el.classList.add("pr-parent");
 
-      _this6.theme = "dark";
-      _this6.display = document.getElementById("console-display");
-      _this6.input = document.getElementById("console-input");
-      _this6.buttons = document.getElementById("console-btpanel");
-      _this6.banner = document.getElementById("console-banner");
-      _this6.toolbar = document.getElementById("console-toolbar");
-      new Viewer(_this6.display, _this6.toolbar);
+      _this7.theme = "dark";
+      _this7.display = document.getElementById("console-display");
+      _this7.input = document.getElementById("console-input");
+      _this7.buttons = document.getElementById("console-btpanel");
+      _this7.banner = document.getElementById("console-banner");
+      _this7.toolbar = document.getElementById("console-toolbar");
+      new Viewer(_this7.display, _this7.toolbar);
 
-      _this6.input.focus();
+      _this7.input.focus();
 
-      _this6.container = document.getElementById("console-container");
+      _this7.container = document.getElementById("console-container");
 
-      _this6.attachListeners(_this6.el, _this6.toolbar, _this6.buttons);
+      _this7.attachListeners(_this7.el, _this7.toolbar, _this7.buttons);
 
-      _this6.addListeners(); // let doc = document.createDocumentFragment()
+      _this7.addListeners(); // let doc = document.createDocumentFragment()
       // let runpanel = doc.getElementById( container )
       // let input = doc.getElementById( inputId )
       // this.stylePanel( runpanel )
@@ -5800,14 +5886,14 @@ var Ux = /*#__PURE__*/function () {
   };
 
   _proto.attachListeners = function attachListeners(el, toolbar, buttons) {
-    var _this7 = this;
+    var _this8 = this;
 
     el.addEventListener("keyup", function (e) {
       if (e.keyCode === 13) {
         if (e.target.type === "radio" || e.target.type === "checkbox") {
-          _this7.send();
+          _this8.send();
         } else if (e.target.type === "text") {
-          _this7.send();
+          _this8.send();
         } else {
           e.target.click();
         }
@@ -5819,12 +5905,12 @@ var Ux = /*#__PURE__*/function () {
     toolbar.addEventListener("click", function (e) {
       switch (e.target.id) {
         case "pr-print":
-          _this7.print();
+          _this8.print();
 
           break;
 
         case "pr-copy":
-          _this7.copy();
+          _this8.copy();
 
           break;
       }
@@ -5835,32 +5921,32 @@ var Ux = /*#__PURE__*/function () {
     buttons.addEventListener("click", function (e) {
       switch (e.target.innerText) {
         case "✓":
-          _this7.send();
+          _this8.send();
 
           break;
 
         case "?":
-          _this7.why();
+          _this8.why();
 
           break;
 
         case "!":
-          _this7.explain();
+          _this8.explain();
 
           break;
 
         case "×":
-          _this7.cancel();
+          _this8.cancel();
 
           break;
 
         case "‣":
-          _this7.repeat();
+          _this8.repeat();
 
           break;
 
         case "⛔":
-          _this7.stop();
+          _this8.stop();
 
           break;
 
@@ -5869,7 +5955,7 @@ var Ux = /*#__PURE__*/function () {
           return;
       }
 
-      _this7.input.focus();
+      _this8.input.focus();
 
       e.preventDefault();
       e.stopPropagation();
@@ -5877,10 +5963,10 @@ var Ux = /*#__PURE__*/function () {
   };
 
   _proto.addListeners = function addListeners() {
-    var _this8 = this;
+    var _this9 = this;
 
     this.on("error", function (e) {
-      _this8.processError(e);
+      _this9.processError(e);
     });
     this.on("syntax-error", function (e) {// this.processParserErrors(e.msg )
       // this.processError( e )
@@ -5889,25 +5975,25 @@ var Ux = /*#__PURE__*/function () {
     });
     this.on("system-error", function (e) {
       // this.processError( e )
-      _this8.processError(e); // console.log(e)
+      _this9.processError(e); // console.log(e)
 
     });
     this.on("validation-error", function (e) {
-      _this8.processValidationError(e);
+      _this9.processValidationError(e);
     });
     this.on("prompt", function (e) {
-      _this8.processPrompt(e);
+      _this9.processPrompt(e);
     });
     this.on("answers", function (e) {
-      _this8.display.innerHTML = "";
+      _this9.display.innerHTML = "";
 
-      _this8.processAnswers(e);
+      _this9.processAnswers(e);
     });
     this.on("message", function (e) {
-      _this8.appendToContent("<h6>" + e.msg || e + "</h6>");
+      _this9.appendToContent("<h6>" + e.msg || e + "</h6>");
     });
     this.on("done", function () {
-      _this8.display.innerHTML = "";
+      _this9.display.innerHTML = "";
     });
   };
 
@@ -5945,7 +6031,7 @@ var Ux = /*#__PURE__*/function () {
   };
 
   _proto.processParserErrors = function processParserErrors(errors) {
-    var _this9 = this;
+    var _this10 = this;
 
     if (!errors) {
       this.appendToContent("<div>System error</div>");
@@ -5957,9 +6043,9 @@ var Ux = /*#__PURE__*/function () {
       var x = e.x === undefined ? e.column : e.x;
       var y = e.y === undefined ? e.row : e.y;
       var s = "<br/><i style='color:red;' class='fa fa-times'></i> '" + e.text + "'<br/> <i style='color:blue;' class='fa fa-anchor'></i> <a href='javascript:void()' onclick='selectLine(" + y + ")'>" + "Line: " + (y * 1 + 1) + " Column: " + (x + 1) + "</a> <br/><i class='fa fa-code'></i> <a href ='javascript:void()' onclick='selectLine(" + y + ")'>" + e.text + "</a>";
-      _this9.display.innerHTML += s + "<br/>";
+      _this10.display.innerHTML += s + "<br/>";
 
-      _this9.scrollDown("Error");
+      _this10.scrollDown("Error");
     });
   };
 
@@ -6234,66 +6320,80 @@ var Ux = /*#__PURE__*/function () {
   }]);
 
   return Ux;
-}();
+}(CustomEvent);
 
-var Ui = /*#__PURE__*/function () {
+var Ui = /*#__PURE__*/function (_CustomEvent) {
+  _inheritsLoose(Ui, _CustomEvent);
+
   function Ui(el, options) {
+    var _this;
+
     if (options === void 0) {
       options = {};
     }
 
-    // super();
-    this.language = options.language || "en";
+    _this = _CustomEvent.call(this) || this;
+    _this.language = options.language || "en";
+    Rule.init(["fr", "es"]);
     if (!el) throw "Missing Element ID to attach UX";
     var node = el instanceof HTMLElement ? el : typeof el === "string" ? document.getElementById(el) : el;
     if (!node || !node instanceof HTMLElement) throw "ID not a valid Node";
-    this.el = node;
-    this.el.style.overflow = "hidden";
-    this.text = options.text || null;
-    this.data = null;
-    this.widgets = [];
-    this.prompt = {};
-    this.error = null;
-    this.display = null;
-    this.buttons = null;
-    this.container = null;
-    this.rules = new Rules(this.language);
-    this.loadConsolePanel();
-    this.attachListeners();
-    this.attachCSS();
-    this.addListeners(); // if (this.text) this.start(this.text)
+    _this.el = node;
+    _this.el.style.overflow = "hidden";
+    _this.text = options.text || null;
+    _this.data = null;
+    _this.widgets = [];
+    _this.prompt = {};
+    _this.error = null;
+    _this.display = null;
+    _this.buttons = null;
+    _this.container = null;
+    _this.rules = new Rules(_this.language);
+
+    _this.loadConsolePanel();
+
+    _this.attachListeners();
+
+    _this.attachCSS();
+
+    _this.addListeners(); // if (this.text) this.start(this.text)
+
+
+    return _this;
   }
 
   var _proto = Ui.prototype;
 
   _proto.run = function run(codes) {
     try {
-      var _this2 = this;
+      var _this3 = this;
 
-      _this2.codes = codes;
-      return Promise.resolve(_this2.rules.compile(codes)).then(function (_this$rules$compile) {
-        _this2.data = _this$rules$compile;
+      _this3.codes = codes;
+      return Promise.resolve(_this3.rules.compile(codes)).then(function (_ref) {
+        var errors = _ref.errors,
+            data = _ref.data;
+        _this3.data = data;
+        _this3.errors = errors;
 
-        // localStorage.setItem('engine-kb-data', JSON.stringify(this.data))
-        _this2.start();
+        _this3.start(data);
       });
     } catch (e) {
       return Promise.reject(e);
     }
   };
 
-  _proto.start = function start() {
-    var response = this.rules.run(this.data);
+  _proto.start = function start(data) {
+    var response = this.rules.run(data);
     this.process(response);
   };
 
   _proto.repeat = function repeat() {
     try {
-      var _this4 = this;
+      var _this5 = this;
 
       // let data = localStorage.getItem('engine-kb-data')
       // this.data = JSON.parse(data)
-      return Promise.resolve(_this4.run(_this4.codes)).then(function () {});
+      return Promise.resolve(_this5.run(_this5.codes)).then(function () {});
     } catch (e) {
       return Promise.reject(e);
     }
@@ -6383,14 +6483,14 @@ var Ui = /*#__PURE__*/function () {
   };
 
   _proto.attachListeners = function attachListeners() {
-    var _this5 = this;
+    var _this6 = this;
 
     this.el.addEventListener("keyup", function (e) {
       if (e.keyCode === 13) {
         if (e.target.type === "radio" || e.target.type === "checkbox") {
-          _this5.send();
+          _this6.send();
         } else if (e.target.type === "text") {
-          _this5.send();
+          _this6.send();
         } else {
           e.target.click();
         }
@@ -6402,12 +6502,12 @@ var Ui = /*#__PURE__*/function () {
     this.toolbar.addEventListener("click", function (e) {
       switch (e.target.id) {
         case "pr-print":
-          _this5.print();
+          _this6.print();
 
           break;
 
         case "pr-copy":
-          _this5.copy();
+          _this6.copy();
 
           break;
       }
@@ -6418,32 +6518,32 @@ var Ui = /*#__PURE__*/function () {
     this.buttons.addEventListener("click", function (e) {
       switch (e.target.innerText) {
         case "✓":
-          _this5.send();
+          _this6.send();
 
           break;
 
         case "?":
-          _this5.why();
+          _this6.why();
 
           break;
 
         case "!":
-          _this5.explain();
+          _this6.explain();
 
           break;
 
         case "×":
-          _this5.cancel();
+          _this6.cancel();
 
           break;
 
         case "‣":
-          _this5.repeat();
+          _this6.repeat();
 
           break;
 
         case "⛔":
-          _this5.stop();
+          _this6.stop();
 
           break;
 
@@ -6452,7 +6552,7 @@ var Ui = /*#__PURE__*/function () {
           return;
       }
 
-      _this5.input.focus();
+      _this6.input.focus();
 
       e.preventDefault();
       e.stopPropagation();
@@ -6470,7 +6570,7 @@ var Ui = /*#__PURE__*/function () {
 
   _proto.loadConsolePanel = function loadConsolePanel() {
     try {
-      var _this7 = this;
+      var _this8 = this;
 
       var num = Math.random().toString(36).slice(2).toString(36);
       var display_id = "display" + num,
@@ -6480,21 +6580,21 @@ var Ui = /*#__PURE__*/function () {
           toolbar = "tb" + num,
           banner = "banner" + num;
       var panel = "\n    <div id = '" + container + "' class ='pr-container'>\n      <div id ='" + banner + "' class ='pr-banner'>\n        <span class=\"pr-banner-title\">Rules Interface</span>\n        <div id ='" + toolbar + "' class ='pr-toolbar'></div>\n      </div>\n      <div id ='" + display_id + "' class ='pr-display'></div>\n      <div id ='" + btpanel + "' class ='pr-input-panel'>\n      <span class='pr-text-input-container'>\n        <input id ='" + inputId + "' class ='pr-text-input' type='text'/>\n      </span> \n      <span class='pr-input-buttons'>\n          <a href='javascript:void(0)' title='Send' class='pr-link-btn'><span class='pr-char'>&check;</span></a>\n          <a href='javascript:void(0)' title='Why ask?' class='pr-link-btn'><span class='pr-char'>&quest;</span></a>\n          <a href='javascript:void(0)' title='Explain' class='pr-link-btn'><span class='pr-char'>&excl;</span></a>\n          <a href='javascript:void(0)' title='Disconnect' class='pr-link-btn'><span class='pr-char'>&times;</span></a>\n          <a href='javascript:void(0)' title='Repeat' class='pr-link-btn'><span class='pr-char' style=\"font-size:1.5rem\">&#8227;</span></a>\n      </span>\n    </div></div>";
-      _this7.el.innerHTML = panel;
+      _this8.el.innerHTML = panel;
 
-      _this7.el.classList.add("pr-parent");
+      _this8.el.classList.add("pr-parent");
 
-      _this7.theme = "dark";
-      _this7.display = document.getElementById(display_id);
-      _this7.input = document.getElementById(inputId);
-      _this7.buttons = document.getElementById(btpanel);
-      _this7.banner = document.getElementById(banner);
-      _this7.toolbar = document.getElementById(toolbar);
-      new Viewer(_this7.display, _this7.toolbar);
+      _this8.theme = "dark";
+      _this8.display = document.getElementById(display_id);
+      _this8.input = document.getElementById(inputId);
+      _this8.buttons = document.getElementById(btpanel);
+      _this8.banner = document.getElementById(banner);
+      _this8.toolbar = document.getElementById(toolbar);
+      new Viewer(_this8.display, _this8.toolbar);
 
-      _this7.input.focus();
+      _this8.input.focus();
 
-      _this7.container = document.getElementById(container); // let doc = document.createDocumentFragment()
+      _this8.container = document.getElementById(container); // let doc = document.createDocumentFragment()
       // let runpanel = doc.getElementById( container )
       // let input = doc.getElementById( inputId )
       // this.stylePanel( runpanel )
@@ -6568,38 +6668,38 @@ var Ui = /*#__PURE__*/function () {
   };
 
   _proto.addListeners = function addListeners() {
-    var _this8 = this;
+    var _this9 = this;
 
     this.on("error", function (e) {
-      _this8.processError(e);
+      _this9.processError(e);
     });
     this.on("syntax-error", function (e) {
       // this.processParserErrors(e.msg )
       // this.processError( e )
       // console.log(e)
-      _this8.processError(e);
+      _this9.processError(e);
     });
     this.on("system-error", function (e) {
       // this.processError( e )
-      _this8.processError(e); // console.log(e)
+      _this9.processError(e); // console.log(e)
 
     });
     this.on("validation-error", function (e) {
-      _this8.processValidationError(e);
+      _this9.processValidationError(e);
     });
     this.on("prompt", function (e) {
-      _this8.processPrompt(e);
+      _this9.processPrompt(e);
     });
     this.on("answers", function (e) {
-      _this8.display.innerHTML = "";
+      _this9.display.innerHTML = "";
 
-      _this8.processAnswers(e);
+      _this9.processAnswers(e);
     });
     this.on("message", function (e) {
-      _this8.appendToContent("<h6>" + e.msg || e + "</h6>");
+      _this9.appendToContent("<h6>" + e.msg || e + "</h6>");
     });
     this.on("done", function () {
-      _this8.display.innerHTML = "";
+      _this9.display.innerHTML = "";
     });
   };
 
@@ -6637,7 +6737,7 @@ var Ui = /*#__PURE__*/function () {
   };
 
   _proto.processParserErrors = function processParserErrors(errors) {
-    var _this9 = this;
+    var _this10 = this;
 
     if (!errors) {
       this.appendToContent("<div>System error</div>");
@@ -6648,9 +6748,9 @@ var Ui = /*#__PURE__*/function () {
       var x = e.x === undefined ? e.column : e.x;
       var y = e.y === undefined ? e.row : e.y;
       var s = "<br/><i style='color:red;' class='fa fa-times'></i> '" + e.text + "'<br/> <i style='color:blue;' class='fa fa-anchor'></i> <a href='javascript:void()' onclick='selectLine(" + y + ")'>" + "Line: " + (y * 1 + 1) + " Column: " + (x + 1) + "</a> <br/><i class='fa fa-code'></i> <a href ='javascript:void()' onclick='selectLine(" + y + ")'>" + e.text + "</a>";
-      _this9.display.innerHTML += s + "<br/>";
+      _this10.display.innerHTML += s + "<br/>";
 
-      _this9.scrollDown("Error");
+      _this10.scrollDown("Error");
     });
   };
 
@@ -6925,7 +7025,7 @@ var Ui = /*#__PURE__*/function () {
   }]);
 
   return Ui;
-}();
+}(CustomEvent);
 
 exports.Rules = Rules;
 exports.Ui = Ui;

@@ -18,6 +18,198 @@ var Constants = {
   ATTR: 'ATTR'
 };
 
+const ErrorKeys = {
+  ScriptError: "ScriptError",
+  //0
+  // Network errors 1 - 9
+  NetworkError: 'NetworkError',
+  //1
+  // Security Errors 10 - 19
+  TokenRequired: "TokenRequired",
+  //10
+  TokenExpired: "TokenExpired",
+  //11
+  TokenInvalid: "TokenInvalid",
+  //12
+  APIKeyNotFound: "APIKeyNotFound",
+  //13
+  APIKeyInvalid: "APIKeyInvalid",
+  //14
+  CredentialsInvalid: "CredentialsInvalid",
+  //15
+  UserNotFound: "UserNotFound",
+  //16
+  AccessDenied: "AccessDenied",
+  //17
+  // Validation Errors 20 - 40
+  InvalidSelection: "InvalidSelection",
+  //20
+  NoSelection: "NoSelection",
+  //21 
+  SelectionsAboveRange: "SelectionsAboveRange",
+  //22
+  SelectionsBelowRange: "SelectionsBelowRange",
+  //23
+  CharactersAboveRange: "CharactersAboveRange",
+  //24
+  CharactersBelowRange: "CharactersBelowRange",
+  //25
+  NumberAboveRange: "NumberAboveRange",
+  //26
+  NumberBelowRange: "NumberBelowRange",
+  //27
+  NumberRequired: "NumberRequired",
+  //28
+  NoActiveSession: "NoActiveSession",
+  //29
+  NoInput: "NoInput",
+  //30
+  PromptNotFound: "PromptNotFound",
+  //31
+  KnowledgebaseNotFound: "KnowledgebaseNotFound",
+  //32 
+  SessionExpired: "SessionExpired",
+  //33
+  // Syntax Errors
+  UnknownToken: 'UnknownToken',
+  NoCloseParenthesis: 'NoCloseParenthesis',
+  NoOpenParenthesis: 'NoOpenParenthesis',
+  DuplicateOperator: 'DuplicateOperator',
+  NoDefinition: 'NoDefinition',
+  NoAttributeName: 'NoAttributeName',
+  ExpectedEQ: 'ExpectedEQ',
+  ExpectNoEOF: 'ExpectNoEOF',
+  ExpectNoNewLine: 'ExpectNoNewLine',
+  ExpectedArrayname: 'ExpectedArrayname',
+  ExpectedOpenParenthesis: 'ExpectedOpenParenthesis',
+  ExpectedNumberOrAttrib: 'ExpectedNumberOrAttrib',
+  ExpectedComma: 'ExpectedComma',
+  ExpectedCloseParenthesis: 'ExpectedCloseParenthesis',
+  NoGoalName: 'NoGoalName',
+  NoPromptText: 'NoPromptText',
+  ExpectType: 'ExpectType',
+  ExpectComparator: 'ExpectComparator',
+  NoInputForAttrib: 'NoInputForAttrib'
+};
+
+/* jshint esversion:8*/
+
+const validator = function () {
+  /**
+   * Method just returns the error code which should be handled by the consuming function.
+   * Normally the code should be translated to user language based on the locale.
+   * @param { String } key Error code
+   * @returns the Error code
+   */
+  function raiseValidationError(key) {
+    // return CustomErrors(translator, language).ValidationError(key)
+    return key;
+  }
+
+  function validateCF(input, prompt) {
+    const num = input;
+
+    if (isNaN(num)) {
+      return raiseValidationError(ErrorKeys.InvalidSelection);
+    }
+
+    if (num == 0) {
+      return raiseValidationError(ErrorKeys.InvalidSelection);
+    } else if (num < 1) {
+      return raiseValidationError(ErrorKeys.InvalidSelection);
+    } else if (num > prompt.Menu.length) {
+      return raiseValidationError(ErrorKeys.InvalidSelection);
+    }
+  }
+
+  function validateMenu(input, prompt) {
+    if (input.length === 0) {
+      return raiseValidationError(ErrorKeys.NoSelection);
+    } else if (input.length < prompt.Min) {
+      return raiseValidationError(ErrorKeys.SelectionsBelowRange);
+    } else if (input.length > prompt.Max) {
+      return raiseValidationError(ErrorKeys.SelectionsAboveRange);
+    }
+
+    input.forEach(num => {
+      if (isNaN(num)) {
+        return raiseValidationError(ErrorKeys.InvalidSelection);
+      } else if (num == 0) {
+        return raiseValidationError(ErrorKeys.InvalidSelection);
+      } else if (num < 0) {
+        return raiseValidationError(ErrorKeys.InvalidSelection);
+      } else if (num > prompt.Menu.length) {
+        return raiseValidationError(ErrorKeys.InvalidSelection);
+      }
+    });
+  }
+
+  function validateText(input, prompt) {
+    if (input.length < prompt.Min) {
+      return raiseValidationError(ErrorKeys.CharactersBelowRange);
+    } else if (input.length > prompt.Max) {
+      return raiseValidationError(ErrorKeys.CharactersAboveRange);
+    }
+  }
+
+  function validateNumeric(input, prompt) {
+    const num = Number(input);
+
+    if (isNaN(num)) {
+      return raiseValidationError(ErrorKeys.NumberRequired);
+    }
+
+    if (!prompt.Max && !prompt.Min) return null;
+
+    if (num < prompt.Min) {
+      return raiseValidationError(ErrorKeys.NumberBelowRange);
+    } else if (num > prompt.Max) {
+      return raiseValidationError(ErrorKeys.NumberAboveRange);
+    }
+  }
+
+  return {
+    /** *
+     * Validates input to the system. This is the entry point of the validation module.
+     * Depending on the type of input (menu, number, text) the input is further submmitted to
+     * other methods to complete the validation and return the result.
+     * @param {Object} input The input text.
+     * @param {OBJECT} prompt The prompt presented to the user for response.
+     * @return Error code if validation fails, or nothing.
+     */
+    validate(input, prompt) {
+      if (!prompt.Type) {
+        return raiseValidationError(ErrorKeys.NoActiveSession);
+      }
+
+      if (!input || input.toString().trim().length === 0) {
+        return raiseValidationError(ErrorKeys.NoInput);
+      }
+
+      if (prompt.Label.toUpperCase() === "CF") {
+        return validateCF(input, prompt);
+      }
+
+      switch (prompt.Type.toUpperCase()) {
+        case "MENU":
+        case "YN":
+        case "TF":
+          {
+            const values = input.toString().split(",");
+            return validateMenu(values, prompt);
+          }
+
+        case "NUMBER":
+          return validateNumeric(input, prompt);
+
+        default:
+          return validateText(input, prompt);
+      }
+    }
+
+  };
+}();
+
 // These definitions are internally used to store tokens
 // they should not affect language of production rules
 const REM = 'REM';
@@ -572,80 +764,6 @@ class Interpreter
 
 }
 
-const ErrorKeys = {
-  ScriptError: "ScriptError",
-  //0
-  // Network errors 1 - 9
-  NetworkError: 'NetworkError',
-  //1
-  // Security Errors 10 - 19
-  TokenRequired: "TokenRequired",
-  //10
-  TokenExpired: "TokenExpired",
-  //11
-  TokenInvalid: "TokenInvalid",
-  //12
-  APIKeyNotFound: "APIKeyNotFound",
-  //13
-  APIKeyInvalid: "APIKeyInvalid",
-  //14
-  CredentialsInvalid: "CredentialsInvalid",
-  //15
-  UserNotFound: "UserNotFound",
-  //16
-  AccessDenied: "AccessDenied",
-  //17
-  // Validation Errors 20 - 40
-  InvalidSelection: "InvalidSelection",
-  //20
-  NoSelection: "NoSelection",
-  //21 
-  SelectionsAboveRange: "SelectionsAboveRange",
-  //22
-  SelectionsBelowRange: "SelectionsBelowRange",
-  //23
-  CharactersAboveRange: "CharactersAboveRange",
-  //24
-  CharactersBelowRange: "CharactersBelowRange",
-  //25
-  NumberAboveRange: "NumberAboveRange",
-  //26
-  NumberBelowRange: "NumberBelowRange",
-  //27
-  NumberRequired: "NumberRequired",
-  //28
-  NoActiveSession: "NoActiveSession",
-  //29
-  NoInput: "NoInput",
-  //30
-  PromptNotFound: "PromptNotFound",
-  //31
-  KnowledgebaseNotFound: "KnowledgebaseNotFound",
-  //32 
-  SessionExpired: "SessionExpired",
-  //33
-  // Syntax Errors
-  UnknownToken: 'UnknownToken',
-  NoCloseParenthesis: 'NoCloseParenthesis',
-  NoOpenParenthesis: 'NoOpenParenthesis',
-  DuplicateOperator: 'DuplicateOperator',
-  NoDefinition: 'NoDefinition',
-  NoAttributeName: 'NoAttributeName',
-  ExpectedEQ: 'ExpectedEQ',
-  ExpectNoEOF: 'ExpectNoEOF',
-  ExpectNoNewLine: 'ExpectNoNewLine',
-  ExpectedArrayname: 'ExpectedArrayname',
-  ExpectedOpenParenthesis: 'ExpectedOpenParenthesis',
-  ExpectedNumberOrAttrib: 'ExpectedNumberOrAttrib',
-  ExpectedComma: 'ExpectedComma',
-  ExpectedCloseParenthesis: 'ExpectedCloseParenthesis',
-  NoGoalName: 'NoGoalName',
-  NoPromptText: 'NoPromptText',
-  ExpectType: 'ExpectType',
-  ExpectComparator: 'ExpectComparator',
-  NoInputForAttrib: 'NoInputForAttrib'
-};
-
 // import CustomErrors from "./CustomErrors";
 
 function raiseValidationError$1(code, translator, language) {
@@ -731,20 +849,18 @@ function normalize(prompt) {
 
 
 class Engine {
-  constructor(kb, translator, validator) {
+  constructor(kb, translator) {
     if (!kb) throw new ReferenceError("kb is undefined");
     this.paused = false;
     this.CFSettings = null;
     this.done = false;
-    this.knowledgebase = kb; // console.log(kb.keywords)
-
+    this.knowledgebase = kb;
     this.keywords = kb.languageModule.keywords; // keywords[kb.language.toLowerCase()]
 
     this.CFSettings = kb.languageModule.prompts; // kb[kb.language.toLowerCase()].prompts // promptSettings[kb.language.toLowerCase()]
     // this.validator = new Validator(translator, kb.language)
 
-    this.translator = translator;
-    this.validator = validator;
+    this.translator = translator; // this.validator = validator;
   }
 
   raiseScriptError(e) {
@@ -754,6 +870,7 @@ class Engine {
         this.translator,
         this.knowledgebase.language
     ).ScriptError(keys.ScriptError, e);*/
+    console.log(e);
     return ErrorKeys.ScriptError;
   }
 
@@ -1025,7 +1142,7 @@ class Engine {
     const nodes = []; //tokens.map(function (token) {
 
     for (let i = 0; i < tokens.length; i++) {
-      const token = tokens[i]; // console.log( token )
+      const token = tokens[i]; // console.log(token);
 
       let value = token.value;
 
@@ -1033,8 +1150,7 @@ class Engine {
         const attribute = this.knowledgebase.attributes[token.value.toLowerCase()];
 
         if (attribute) {
-          // console.log( { attribute, token } )
-          if (attribute.Value === null && this.knowledgebase.prompts[token.value.toLowerCase()]) {
+          if (!attribute.Value && this.knowledgebase.prompts[token.value.toLowerCase()]) {
             // Attribute attribute=this.knowledgebase.attributes.get(token.toLowerCase());
             // if (attribute.Value == null)
             // the attribute has no value assigned yet, then
@@ -1086,7 +1202,7 @@ class Engine {
   prompt(name) {
     const _name = name.toLowerCase().trim();
 
-    const prompt = this.knowledgebase.prompts[_name]; // console.log({ prompt, name } )
+    const prompt = this.knowledgebase.prompts[_name]; // console.log({ prompt, name });
 
     if (!prompt) {
       return this.raisePromptNotFoundError();
@@ -1097,7 +1213,7 @@ class Engine {
     this.knowledgebase.currentPrompt = this.knowledgebase.prompts[_name];
     this.knowledgebase.currentPrompt.Index = this.knowledgebase.promptIndex; //this.publish('engine.prompt', this.knowledgebase.currentPrompt)
 
-    this.knowledgebase.promptIndex++; // console.log( this.knowledgebase.currentPrompt )
+    this.knowledgebase.promptIndex++; // console.log(this.knowledgebase.currentPrompt);
 
     return this.knowledgebase.currentPrompt;
   }
@@ -1152,7 +1268,7 @@ class Engine {
       return this.raiseSessionExpiredError();
     }
 
-    const validateResult = this.validator.validate(value, this.knowledgebase.currentPrompt);
+    const validateResult = validator.validate(value, this.knowledgebase.currentPrompt);
 
     if (validateResult && validateResult.name === "ValidationError") {
       return validateResult;
@@ -1293,124 +1409,6 @@ class Engine {
   }
 
 }
-
-/* jshint esversion:8*/
-
-const validator$1 = function () {
-  /**
-   * Method just returns the error code which should be handled by the consuming function.
-   * Normally the code should be translated to user language based on the locale.
-   * @param { String } key Error code
-   * @returns the Error code
-   */
-  function raiseValidationError(key) {
-    // return CustomErrors(translator, language).ValidationError(key)
-    return key;
-  }
-
-  function validateCF(input, prompt) {
-    const num = input;
-
-    if (isNaN(num)) {
-      return raiseValidationError(ErrorKeys.InvalidSelection);
-    }
-
-    if (num == 0) {
-      return raiseValidationError(ErrorKeys.InvalidSelection);
-    } else if (num < 1) {
-      return raiseValidationError(ErrorKeys.InvalidSelection);
-    } else if (num > prompt.Menu.length) {
-      return raiseValidationError(ErrorKeys.InvalidSelection);
-    }
-  }
-
-  function validateMenu(input, prompt) {
-    if (input.length === 0) {
-      return raiseValidationError(ErrorKeys.NoSelection);
-    } else if (input.length < prompt.Min) {
-      return raiseValidationError(ErrorKeys.SelectionsBelowRange);
-    } else if (input.length > prompt.Max) {
-      return raiseValidationError(ErrorKeys.SelectionsAboveRange);
-    }
-
-    input.forEach(num => {
-      if (isNaN(num)) {
-        return raiseValidationError(ErrorKeys.InvalidSelection);
-      } else if (num == 0) {
-        return raiseValidationError(ErrorKeys.InvalidSelection);
-      } else if (num < 0) {
-        return raiseValidationError(ErrorKeys.InvalidSelection);
-      } else if (num > prompt.Menu.length) {
-        return raiseValidationError(ErrorKeys.InvalidSelection);
-      }
-    });
-  }
-
-  function validateText(input, prompt) {
-    if (input.length < prompt.Min) {
-      return raiseValidationError(ErrorKeys.CharactersBelowRange);
-    } else if (input.length > prompt.Max) {
-      return raiseValidationError(ErrorKeys.CharactersAboveRange);
-    }
-  }
-
-  function validateNumeric(input, prompt) {
-    const num = Number(input);
-
-    if (isNaN(num)) {
-      return raiseValidationError(ErrorKeys.NumberRequired);
-    }
-
-    if (!prompt.Max && !prompt.Min) return null;
-
-    if (num < prompt.Min) {
-      return raiseValidationError(ErrorKeys.NumberBelowRange);
-    } else if (num > prompt.Max) {
-      return raiseValidationError(ErrorKeys.NumberAboveRange);
-    }
-  }
-
-  return {
-    /** *
-     * Validates input to the system. This is the entry point of the validation module.
-     * Depending on the type of input (menu, number, text) the input is further submmitted to
-     * other methods to complete the validation and return the result.
-     * @param {Object} input The input text.
-     * @param {OBJECT} prompt The prompt presented to the user for response.
-     * @return Error code if validation fails, or nothing.
-     */
-    validate(input, prompt) {
-      if (!prompt.Type) {
-        return raiseValidationError(ErrorKeys.NoActiveSession);
-      }
-
-      if (!input || input.toString().trim().length === 0) {
-        return raiseValidationError(ErrorKeys.NoInput);
-      }
-
-      if (prompt.Label.toUpperCase() === "CF") {
-        return validateCF(input, prompt);
-      }
-
-      switch (prompt.Type.toUpperCase()) {
-        case "MENU":
-        case "YN":
-        case "TF":
-          {
-            const values = input.toString().split(",");
-            return validateMenu(values, prompt);
-          }
-
-        case "NUMBER":
-          return validateNumeric(input, prompt);
-
-        default:
-          return validateText(input, prompt);
-      }
-    }
-
-  };
-}();
 
 // import en from './locales/en'
 // import fr from './locales/fr'
@@ -4906,6 +4904,7 @@ class ParserFactory {
   }
 
   static createCompiler(language, languageModule, mode = defaults.mode) {
+    // console.log({ language, languageModule, mode });
     switch (mode) {
       case "ace/mode/res":
         return new ResourceParser(language, languageModule);
@@ -4947,12 +4946,12 @@ function raiseValidationError(code, translator, systemLanguage) {
 }
 
 class Rules {
-  constructor(systemLanguage, mode) {
+  constructor(systemLanguage, mode = "ace/mode/kbf") {
     this.systemLanguage = systemLanguage;
     this.languageModule = languageModules[systemLanguage];
     this.compiler = ParserFactory.createCompiler(systemLanguage, this.languageModule, mode);
     this.parser = ParserFactory.createParser(systemLanguage, this.languageModule, mode);
-    this.translator = new Translator(systemLanguage, this.languageModule); //  = new InputValidator(systemLanguage, this.translator);
+    this.translator = new Translator(systemLanguage, this.languageModule); // InputValidator(systemLanguage, this.translator);
   }
 
   static registerLanguage(lang, data) {
@@ -5006,7 +5005,7 @@ class Rules {
           Rules.registerLanguage(l, data);
           console.log("Enabled language: " + l);
         } else {
-          throw new Error("Locale not installed: " + l);
+          console.error("Locale not installed: " + l);
         }
       });
     } catch (e) {
@@ -5039,8 +5038,8 @@ class Rules {
       return raiseValidationError(ErrorKeys.KnowledgebaseNotFound, this.translator, this.systemLanguage);
     }
 
-    let response = new Engine(freshData, this.translator).run();
-    return process(response);
+    let response = new Engine(freshData).run();
+    return response; // return process(response);
   }
 
   reply(modifiedData, input) {
@@ -5052,12 +5051,12 @@ class Rules {
       return raiseValidationError(ErrorKeys.NoInput, this.translator, this.systemLanguage);
     }
 
-    let response = new Engine(modifiedData, this.translator, validator).input(input);
+    let response = new Engine(modifiedData, this.translator, this.validator).input(input);
     return process(response);
   }
 
   validate(input, prompt) {
-    return validator$1.validate(input, prompt);
+    return validator.validate(input, prompt);
   }
 
   choice(input, prompt) {
@@ -5070,6 +5069,76 @@ class Rules {
 
   translatePlain(text, to, from) {
     return this.translator.translatePlain(text, to, from);
+  }
+
+}
+
+class CustomEvent {
+  constructor() {
+    this.topics = {}; // this.hOP = topics.hasOwnProperty
+  }
+
+  on(topic, listener) {
+    // Create the topic's object if not yet created
+    if (!this.topics.hasOwnProperty.call(this.topics, topic)) this.topics[topic] = []; // Add the listener to queue
+
+    let index = this.topics[topic].push(listener) - 1;
+
+    let _this = this; // Provide handle back for removal of topic
+
+
+    return {
+      remove: function () {
+        //delete topics[topic][index]
+        _this.topics[topic].splice(index, 1);
+      }
+    };
+  }
+
+  remove(topic, listener) {
+    // Create the topic's object if not yet created
+    if (this.topics.hasOwnProperty.call(this.topics, topic)) {
+      // Add the listener to queue
+      let index = this.topics[topic]; //delete topics[topic][index]
+
+      this.topics[topic].splice(index, 1);
+    }
+  }
+
+  off(topic, listener) {
+    this.remove(topic, listener);
+  }
+
+  trigger(topic, info) {
+    // If the topic doesn't exist, or there's no listeners in queue, just leave
+    if (!this.topics.hasOwnProperty.call(this.topics, topic)) return; // Cycle through topics queue, fire!
+
+    this.topics[topic].forEach(item => {
+      item(info != undefined ? info : {});
+    });
+  }
+
+  emit(topic, info) {
+    this.trigger(topic, info);
+  }
+
+  fire(topic, info) {
+    this.trigger(topic, info);
+  }
+
+  publish(topic, info) {
+    this.trigger(topic, info);
+  }
+
+  destroy() {
+    Object.keys(this.topics).forEach(topic => {
+      let topics = this.topics[topic];
+
+      while (topics.length > 0) {
+        topics.pop();
+      }
+    });
+    delete this.topics;
   }
 
 }
@@ -5402,10 +5471,11 @@ class Viewer {
 
 /*jshint esversion: 6*/
 
-class Ux {
+class Ux extends CustomEvent {
   constructor(el, options = {}) {
-    // super();
+    super();
     this.language = options.language || "en";
+    Rules.init(["fr", "es"]);
     if (!el) throw "Missing Element ID to attach UX";
     let node = el instanceof HTMLElement ? el : typeof el === "string" ? document.getElementById(el) : el;
     if (!node || !node instanceof HTMLElement) throw "ID not a valid Node";
@@ -5420,7 +5490,7 @@ class Ux {
     this.buttons = null;
     this.container = null;
     this.toolbar = null;
-    this.rules = Rules(this.language, ["fr", "de", "cn"], "ace/mode/res");
+    this.rules = new Rules(this.language, "ace/mode/kbf");
     this.init();
   }
 
@@ -5450,11 +5520,11 @@ class Ux {
       this.data = data;
       this.errors = errors;
 
-      if (errors.length && errors.length > 0) {
+      if (errors && errors.length > 0) {
         return this.processParserErrors(errors);
       }
 
-      this.start();
+      this.start(data);
     } catch (e) {
       console.trace(e);
       const response = {
@@ -5466,8 +5536,8 @@ class Ux {
     }
   }
 
-  start() {
-    const response = this.rules.run(this.data);
+  start(data) {
+    const response = this.rules.run(data);
     this.process(response);
   }
 
@@ -5523,7 +5593,7 @@ class Ux {
   copy() {}
 
   process(response) {
-    // console.log({ response })
+    // console.log({ response });
     if (response.Label === "Prompt" || response.Label === "CF") {
       //Prompting for input
       return this.processPrompt(response);
@@ -5981,10 +6051,11 @@ class Ux {
 }
 
 /*jshint esversion: 6*/
-class Ui {
+class Ui extends CustomEvent {
   constructor(el, options = {}) {
-    // super();
+    super();
     this.language = options.language || "en";
+    Rule.init(["fr", "es"]);
     if (!el) throw "Missing Element ID to attach UX";
     let node = el instanceof HTMLElement ? el : typeof el === "string" ? document.getElementById(el) : el;
     if (!node || !node instanceof HTMLElement) throw "ID not a valid Node";
@@ -6023,13 +6094,17 @@ class Ui {
 
   async run(codes) {
     this.codes = codes;
-    this.data = await this.rules.compile(codes); // localStorage.setItem('engine-kb-data', JSON.stringify(this.data))
-
-    this.start();
+    const {
+      errors,
+      data
+    } = await this.rules.compile(codes);
+    this.data = data;
+    this.errors = errors;
+    this.start(data);
   }
 
-  start() {
-    const response = this.rules.run(this.data);
+  start(data) {
+    const response = this.rules.run(data);
     this.process(response);
   }
 

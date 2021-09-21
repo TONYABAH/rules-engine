@@ -1,13 +1,14 @@
 /*jshint esversion: 6*/
-// import CustomEvent from "../core/CustomEvent";
+import CustomEvent from "../util/eventbus";
 import Rule from "../Rules";
 import Viewer from "../buttons/viewer.js";
 // import de from '../plugins/language/de'
 
-export default class Ux {
+export default class Ux extends CustomEvent {
     constructor(el, options = {}) {
-        // super();
+        super();
         this.language = options.language || "en";
+        Rule.init(["fr", "es"]);
         if (!el) throw "Missing Element ID to attach UX";
         let node =
             el instanceof HTMLElement
@@ -29,7 +30,7 @@ export default class Ux {
         this.buttons = null;
         this.container = null;
         this.toolbar = null;
-        this.rules = Rule(this.language, ["fr", "de", "cn"], "ace/mode/res");
+        this.rules = new Rule(this.language, "ace/mode/kbf");
         this.init();
     }
     get Text() {
@@ -48,13 +49,13 @@ export default class Ux {
         try {
             this.text = text;
             const { errors, data } = await this.rules.compile(text);
-            
+
             this.data = data;
             this.errors = errors;
-            if (errors.length && errors.length > 0) {
-              return this.processParserErrors(errors);
+            if (errors && errors.length > 0) {
+                return this.processParserErrors(errors);
             }
-            this.start();
+            this.start(data);
         } catch (e) {
             console.trace(e);
             const response = {
@@ -65,8 +66,8 @@ export default class Ux {
             this.processError(response);
         }
     }
-    start() {
-        const response = this.rules.run(this.data);
+    start(data) {
+        const response = this.rules.run(data);
         this.process(response);
     }
     async repeat() {
@@ -114,7 +115,7 @@ export default class Ux {
     }
     copy() {}
     process(response) {
-        // console.log({ response })
+        // console.log({ response });
         if (response.Label === "Prompt" || response.Label === "CF") {
             //Prompting for input
             return this.processPrompt(response);

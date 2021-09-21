@@ -1,12 +1,14 @@
 /*jshint esversion: 6*/
-// import CustomEvent from "../core/CustomEvent";
+import CustomEvent from "../util/eventbus";
 import Rules from "../Rules";
 import Viewer from "../buttons/viewer";
+import Rule from "../core/Rule";
 
-export default class Ui {
+export default class Ui extends CustomEvent {
     constructor(el, options = {}) {
-        // super();
+        super();
         this.language = options.language || "en";
+        Rule.init(["fr", "es"]);
         if (!el) throw "Missing Element ID to attach UX";
         let node =
             el instanceof HTMLElement
@@ -46,12 +48,14 @@ export default class Ui {
     }
     async run(codes) {
         this.codes = codes;
-        this.data = await this.rules.compile(codes);
-        // localStorage.setItem('engine-kb-data', JSON.stringify(this.data))
-        this.start();
+        const { errors, data } = await this.rules.compile(codes);
+        this.data = data;
+        this.errors = errors;
+
+        this.start(data);
     }
-    start() {
-        const response = this.rules.run(this.data);
+    start(data) {
+        const response = this.rules.run(data);
         this.process(response);
     }
     async repeat() {

@@ -16,6 +16,7 @@ export default class ParserFactory {
         }
     }
     static createCompiler(language, languageModule, mode = defaults.mode) {
+        // console.log({ language, languageModule, mode });
         switch (mode) {
             case "ace/mode/res":
                 return new ResourceParser(language, languageModule);

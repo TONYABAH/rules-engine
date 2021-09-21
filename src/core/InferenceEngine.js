@@ -1,5 +1,6 @@
 /* jshint esversion:8*/
 import Constants from "./Constants";
+import inputValidator from "./InputValidator"; // Validation
 // import CustomErrors from "./CustomErrors";
 import { MENU, MUL, AVE, SUM, MAX, MIN } from "./TokenConstants";
 import Builder from "./TreeBuilder";
@@ -47,18 +48,18 @@ function normalize(prompt) {
 }
 //
 export default class Engine {
-    constructor(kb, translator, validator) {
+    constructor(kb, translator) {
         if (!kb) throw new ReferenceError("kb is undefined");
         this.paused = false;
         this.CFSettings = null;
         this.done = false;
         this.knowledgebase = kb;
-        // console.log(kb.keywords)
+
         this.keywords = kb.languageModule.keywords; // keywords[kb.language.toLowerCase()]
         this.CFSettings = kb.languageModule.prompts; // kb[kb.language.toLowerCase()].prompts // promptSettings[kb.language.toLowerCase()]
         // this.validator = new Validator(translator, kb.language)
         this.translator = translator;
-        this.validator = validator;
+        // this.validator = validator;
     }
 
     raiseScriptError(e) {
@@ -67,7 +68,8 @@ export default class Engine {
             this.translator,
             this.knowledgebase.language
         ).ScriptError(keys.ScriptError, e);*/
-        return ERROR_KEYS.ScriptError
+        console.log(e);
+        return ERROR_KEYS.ScriptError;
     }
     raisePromptNotFoundError() {
         // const message = this.t(keys.PromptNotFound).data
@@ -138,9 +140,11 @@ export default class Engine {
             this.knowledgebase.currentRule =
                 this.knowledgebase.rules[this.knowledgebase.ruleIndex];
             this.knowledgebase.ruleIndex++;
+
             if (this.knowledgebase.currentRule.Fired) {
                 continue;
             }
+
             this.knowledgebase.currentPrompt = null;
             let conditionIndex = 0;
             while (
@@ -331,16 +335,14 @@ export default class Engine {
         const nodes = []; //tokens.map(function (token) {
         for (let i = 0; i < tokens.length; i++) {
             const token = tokens[i];
-            // console.log( token )
+            // console.log(token);
             let value = token.value;
             if (token.type === "ATTR") {
                 const attribute =
                     this.knowledgebase.attributes[token.value.toLowerCase()];
-
                 if (attribute) {
-                    // console.log( { attribute, token } )
                     if (
-                        attribute.Value === null &&
+                        !attribute.Value &&
                         this.knowledgebase.prompts[token.value.toLowerCase()]
                     ) {
                         // Attribute attribute=this.knowledgebase.attributes.get(token.toLowerCase());
@@ -385,7 +387,7 @@ export default class Engine {
     prompt(name) {
         const _name = name.toLowerCase().trim();
         const prompt = this.knowledgebase.prompts[_name];
-        // console.log({ prompt, name } )
+        // console.log({ prompt, name });
         if (!prompt) {
             return this.raisePromptNotFoundError();
         }
@@ -395,7 +397,7 @@ export default class Engine {
         this.knowledgebase.currentPrompt.Index = this.knowledgebase.promptIndex;
         //this.publish('engine.prompt', this.knowledgebase.currentPrompt)
         this.knowledgebase.promptIndex++;
-        // console.log( this.knowledgebase.currentPrompt )
+        // console.log(this.knowledgebase.currentPrompt);
         return this.knowledgebase.currentPrompt;
     }
     cfPrompt() {
@@ -440,7 +442,7 @@ export default class Engine {
         if (!this.knowledgebase.currentPrompt) {
             return this.raiseSessionExpiredError();
         }
-        const validateResult = this.validator.validate(
+        const validateResult = inputValidator.validate(
             value,
             this.knowledgebase.currentPrompt
         );

@@ -6,7 +6,7 @@
   "description": "Rules engine library",
   "source": "src/index.js",
   "main": "dist/rules-engine.js",
-  "exports": "./src/index.js",
+  "exports": "./dist/rules-engine.modern.js",
   "unpkg": "dist/rules-engine.umd.js",
   "files": [
     "dist"
@@ -23,7 +23,7 @@
     "build": "microbundle --name RulesEngine -o dist --no-compress",
     "dev": "microbundle --name RulesEngine -o dist --no-compress --watch",
     "serve": " browser-sync start --server --serveStatic dist --index demo/index.html -w -f app,demo,dist",
-    "start": "npm run dev && npm run serve"
+    "start": "npm run serve && npm run dev"
   },
   "devDependencies": {
     "microbundle": "^0.13.0"

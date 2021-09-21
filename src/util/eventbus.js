@@ -1,4 +1,4 @@
-class Events {
+export default class CustomEvent {
     constructor() {
         this.topics = {};
         // this.hOP = topics.hasOwnProperty
@@ -59,4 +59,3 @@ class Events {
         delete this.topics;
     }
 }
-export default new Events();

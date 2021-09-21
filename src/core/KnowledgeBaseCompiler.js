@@ -80,12 +80,10 @@ export default class KnowledgebaseCompiler extends Parser {
         });
         this.subscribe("goal", (data) => this.addGoal(data[0], data[1]));
         this.subscribe("title", (data) => this.setTitle(data[0], data[1]));
-        this.subscribe("summary", (data) =>
-            this.setSummary(data[0], data[1])
-        );
+        this.subscribe("summary", (data) => this.setSummary(data[0], data[1]));
         this.subscribe("line", () => this.addNewLine());
         this.subscribe("done", (data) => {
-             this.unsubscribe()
+            this.unsubscribe();
         });
         // event.on('eof',this.eof);
         // event.on('syntax-error',this.addText);
@@ -328,7 +326,10 @@ export default class KnowledgebaseCompiler extends Parser {
         return new Promise(async (resolve, reject) => {
             // let knowledgebase = new Knowledgebase(this);
             const errors = await this.parse(text);
-            pubsub.publish("done-compile-knowledgebase-data", { errors: this.errors, data: this.Data });
+            pubsub.publish("done-compile-knowledgebase-data", {
+                errors: this.errors,
+                data: this.Data,
+            });
             resolve({ errors, data: this.Data });
         });
     }

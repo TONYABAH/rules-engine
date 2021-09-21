@@ -29,9 +29,10 @@ function raiseSecurityError(key, translator, systemLanguage) {
     return err;
 }
 export class Rules {
-    constructor(systemLanguage, mode) {
+    constructor(systemLanguage, mode = "ace/mode/kbf") {
         this.systemLanguage = systemLanguage;
         this.languageModule = languageModules[systemLanguage];
+
         this.compiler = ParserFactory.createCompiler(
             systemLanguage,
             this.languageModule,
@@ -43,7 +44,7 @@ export class Rules {
             mode
         );
         this.translator = new Translator(systemLanguage, this.languageModule);
-        //  = new InputValidator(systemLanguage, this.translator);
+        // InputValidator(systemLanguage, this.translator);
     }
     static registerLanguage(lang, data) {
         if (!arguments) {
@@ -88,7 +89,7 @@ export class Rules {
                         Rules.registerLanguage(l, data);
                         console.log("Enabled language: " + l);
                     } else {
-                        throw new Error("Locale not installed: " + l);
+                        console.error("Locale not installed: " + l);
                     }
                 });
         } catch (e) {
@@ -115,8 +116,9 @@ export class Rules {
                 this.systemLanguage
             );
         }
-        let response = new Engine(freshData, this.translator).run();
-        return process(response);
+        let response = new Engine(freshData).run();
+        return response;
+        // return process(response);
     }
     reply(modifiedData, input) {
         if (!modifiedData) {
@@ -136,7 +138,7 @@ export class Rules {
         let response = new Engine(
             modifiedData,
             this.translator,
-            validator
+            this.validator
         ).input(input);
         return process(response);
     }
