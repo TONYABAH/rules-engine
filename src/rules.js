@@ -75,7 +75,8 @@ export class Rules {
             throw new Error("Unknown character in language code");
         }
         if (languageModules[language]) {
-            throw new Error(language + " Language already installed");
+            console.info(language + " Language already installed");
+            return;
         }
         languageModules[language] = data;
     }
@@ -87,7 +88,7 @@ export class Rules {
                     const data = installedLanguagePlugins[l];
                     if (data) {
                         Rules.registerLanguage(l, data);
-                        console.log("Enabled language: " + l);
+                        console.info("Enabled language: " + l);
                     } else {
                         console.error("Locale not installed: " + l);
                     }

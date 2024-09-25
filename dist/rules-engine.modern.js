@@ -4990,7 +4990,8 @@ class Rules {
     }
 
     if (languageModules[language]) {
-      throw new Error(language + " Language already installed");
+      console.info(language + " Language already installed");
+      return;
     }
 
     languageModules[language] = data;
@@ -5003,7 +5004,7 @@ class Rules {
 
         if (data) {
           Rules.registerLanguage(l, data);
-          console.log("Enabled language: " + l);
+          console.info("Enabled language: " + l);
         } else {
           console.error("Locale not installed: " + l);
         }
@@ -6051,11 +6052,12 @@ class Ux extends CustomEvent {
 }
 
 /*jshint esversion: 6*/
+
 class Ui extends CustomEvent {
   constructor(el, options = {}) {
     super();
     this.language = options.language || "en";
-    Rule.init(["fr", "es"]);
+    Rules.init(["fr", "es"]);
     if (!el) throw "Missing Element ID to attach UX";
     let node = el instanceof HTMLElement ? el : typeof el === "string" ? document.getElementById(el) : el;
     if (!node || !node instanceof HTMLElement) throw "ID not a valid Node";
@@ -6268,7 +6270,7 @@ class Ui extends CustomEvent {
     const link = document.createElement("style");
     link.rel = "stylesheet";
     const css = `
-    .pr-copy, 
+    .pr-copy,
     .pr-print {
       cursor: pointer;
       padding: 2px 0;
@@ -6307,7 +6309,7 @@ class Ui extends CustomEvent {
         color: white;
         background: #222;
     }
-    .pr-banner, 
+    .pr-banner,
     .pr-banner {
         height: 1.8rem;
         font-weight: 400;
@@ -6416,7 +6418,7 @@ class Ui extends CustomEvent {
     }
     .indigo .pr-container {
       background: slateblue;
-    } 
+    }
     .green .pr-container {
       background: lightgreen;
     }
@@ -6456,7 +6458,7 @@ class Ui extends CustomEvent {
       <div id ='${btpanel}' class ='pr-input-panel'>
       <span class='pr-text-input-container'>
         <input id ='${inputId}' class ='pr-text-input' type='text'/>
-      </span> 
+      </span>
       <span class='pr-input-buttons'>
           <a href='javascript:void(0)' title='Send' class='pr-link-btn'><span class='pr-char'>&check;</span></a>
           <a href='javascript:void(0)' title='Why ask?' class='pr-link-btn'><span class='pr-char'>&quest;</span></a>
