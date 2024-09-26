@@ -1,9 +1,4 @@
-import {Rules} from './Rules'
-import { Ux, Ui } from './client'
+import { Rules } from "./rules";
+import { Ux, Ui } from "./client";
 
-export {
-  Rules,
-  Ux,
-  Ui,
-}
-
+export { Rules, Ux, Ui };

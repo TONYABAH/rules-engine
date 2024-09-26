@@ -26,7 +26,6 @@
     "start": "npm run serve && npm run dev"
   },
   "devDependencies": {
-    "microbundle": "^0.13.0"
-  },
-  "dependencies": {}
+    "microbundle": "^0.15.1"
+  }
 }

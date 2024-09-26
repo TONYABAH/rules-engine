@@ -82,10 +82,12 @@ export class Rules {
     }
 
     static init(installLanguageModules) {
+        //console.log({ installLanguageModules });
         try {
             installLanguageModules &&
                 installLanguageModules.forEach((l) => {
                     const data = installedLanguagePlugins[l];
+                    //console.log(l);
                     if (data) {
                         Rules.registerLanguage(l, data);
                         console.info("Enabled language: " + l);

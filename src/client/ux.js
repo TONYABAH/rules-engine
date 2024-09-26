@@ -1,6 +1,6 @@
 /*jshint esversion: 6*/
 import CustomEvent from "../util/eventbus";
-import Rule from "../Rules";
+import Rules from "../rules";
 import Viewer from "../buttons/viewer.js";
 // import de from '../plugins/language/de'
 
@@ -8,7 +8,7 @@ export default class Ux extends CustomEvent {
     constructor(el, options = {}) {
         super();
         this.language = options.language || "en";
-        Rule.init(["fr", "es"]);
+        Rules.init(options.languages || ["fr"]);
         if (!el) throw "Missing Element ID to attach UX";
         let node =
             el instanceof HTMLElement
@@ -30,7 +30,7 @@ export default class Ux extends CustomEvent {
         this.buttons = null;
         this.container = null;
         this.toolbar = null;
-        this.rules = new Rule(this.language, "ace/mode/kbf");
+        this.rules = new Rules(this.language, "ace/mode/kbf");
         this.init();
     }
     get Text() {

@@ -1,6 +1,6 @@
 /*jshint esversion: 6*/
 import CustomEvent from "../util/eventbus";
-import Rules from "../Rules";
+import Rules from "../rules";
 import Viewer from "../buttons/viewer";
 //import Rule from "../core/Rule";
 
@@ -8,7 +8,7 @@ export default class Ui extends CustomEvent {
     constructor(el, options = {}) {
         super();
         this.language = options.language || "en";
-        Rules.init(["fr", "es"]);
+        Rules.init(options.languages || ["fr"]);
         if (!el) throw "Missing Element ID to attach UX";
         let node =
             el instanceof HTMLElement
@@ -279,8 +279,8 @@ export default class Ui extends CustomEvent {
         left: 0;
         right: 0;
         background: #111;
-        border-top: 1px solid transparent;
-        border-bottom: 1px solid transparent;
+        border-top: 0px solid transparent;
+        border-bottom: 0px solid transparent;
         font-size: 16px;
         letter-spacing: 1.2px;
         color: cadetblue;
@@ -288,7 +288,7 @@ export default class Ui extends CustomEvent {
     }
     .pr-display ul {list-style-type:none; border-bottom:0px solid #555;}
     .pr-dispaly ol {border-bottom:0px solid #555; list-style:upper-latin;}
-    .pr-display .pr-margin-bottom {border-bottom: 1px solid cadetblue;margin-bottom:5px; padding:5px}
+    .pr-display .pr-margin-bottom {border-bottom: 0px solid cadetblue;margin-bottom:5px; padding:5px}
     .pr-input-panel {
         position: absolute;
         left: 0;
@@ -332,7 +332,7 @@ export default class Ui extends CustomEvent {
         color: white;
     }
     .pr-margin-bottom {
-       border-bottom: 1px solid transparent;
+       border-bottom: 0px solid transparent;
        padding-top: 6px;
        margin-bottom: 8px;
     }

@@ -93,7 +93,6 @@ const ErrorKeys = {
 };
 
 /* jshint esversion:8*/
-
 const validator = function () {
   /**
    * Method just returns the error code which should be handled by the consuming function.
@@ -105,14 +104,11 @@ const validator = function () {
     // return CustomErrors(translator, language).ValidationError(key)
     return key;
   }
-
   function validateCF(input, prompt) {
     const num = input;
-
     if (isNaN(num)) {
       return raiseValidationError(ErrorKeys.InvalidSelection);
     }
-
     if (num == 0) {
       return raiseValidationError(ErrorKeys.InvalidSelection);
     } else if (num < 1) {
@@ -121,7 +117,6 @@ const validator = function () {
       return raiseValidationError(ErrorKeys.InvalidSelection);
     }
   }
-
   function validateMenu(input, prompt) {
     if (input.length === 0) {
       return raiseValidationError(ErrorKeys.NoSelection);
@@ -130,7 +125,6 @@ const validator = function () {
     } else if (input.length > prompt.Max) {
       return raiseValidationError(ErrorKeys.SelectionsAboveRange);
     }
-
     input.forEach(num => {
       if (isNaN(num)) {
         return raiseValidationError(ErrorKeys.InvalidSelection);
@@ -143,7 +137,6 @@ const validator = function () {
       }
     });
   }
-
   function validateText(input, prompt) {
     if (input.length < prompt.Min) {
       return raiseValidationError(ErrorKeys.CharactersBelowRange);
@@ -151,23 +144,18 @@ const validator = function () {
       return raiseValidationError(ErrorKeys.CharactersAboveRange);
     }
   }
-
   function validateNumeric(input, prompt) {
     const num = Number(input);
-
     if (isNaN(num)) {
       return raiseValidationError(ErrorKeys.NumberRequired);
     }
-
     if (!prompt.Max && !prompt.Min) return null;
-
     if (num < prompt.Min) {
       return raiseValidationError(ErrorKeys.NumberBelowRange);
     } else if (num > prompt.Max) {
       return raiseValidationError(ErrorKeys.NumberAboveRange);
     }
   }
-
   return {
     /** *
      * Validates input to the system. This is the entry point of the validation module.
@@ -181,15 +169,12 @@ const validator = function () {
       if (!prompt.Type) {
         return raiseValidationError(ErrorKeys.NoActiveSession);
       }
-
       if (!input || input.toString().trim().length === 0) {
         return raiseValidationError(ErrorKeys.NoInput);
       }
-
       if (prompt.Label.toUpperCase() === "CF") {
         return validateCF(input, prompt);
       }
-
       switch (prompt.Type.toUpperCase()) {
         case "MENU":
         case "YN":
@@ -198,15 +183,12 @@ const validator = function () {
             const values = input.toString().split(",");
             return validateMenu(values, prompt);
           }
-
         case "NUMBER":
           return validateNumeric(input, prompt);
-
         default:
           return validateText(input, prompt);
       }
     }
-
   };
 }();
 
@@ -222,11 +204,8 @@ const ATTR = 'ATTR';
 const GOAL = 'GOAL';
 const LINE = 'LINE';
 const SUM = '+'; // addition
-
 const MUL = 'x'; // times
-
 const AVE = 'AVE'; // average
-
 const TF = 'TF';
 const YN = 'YN';
 const RULE = 'RULE';
@@ -252,8 +231,9 @@ const MAX = 'MAX';
 const EX = 'EXCLUDE';
 const IN = 'INCLUDE';
 const NOT = 'NOT';
-const IS = 'IS'; // symbols and special characters
+const IS = 'IS';
 
+// symbols and special characters
 const LPAREN = 'LPAREN';
 const RPAREN = 'RPAREN';
 const LBRACKET = 'LBRACKET';
@@ -274,7 +254,7 @@ const SPACE = 'SPACE';
 const ERROR = 'ERROR';
 const EOF = 'EOF';
 const FUNC = 'FUNC';
-const CONST = 'CONST'; // Math constants
+const CONST = 'CONST';
  //(x)
 
 /* jshint esversion:8*/
@@ -286,13 +266,13 @@ class Token {
     this.column = col || 0;
     this.length = value ? value.length : 0;
   }
-
 }
+
 /**
  * Abstract Syntax Tree (AST)
  */
-
-class AST {// pass
+class AST {
+  // pass
 }
 class BinOp extends AST {
   constructor(left, op, right) {
@@ -301,7 +281,6 @@ class BinOp extends AST {
     this.token = this.op = op;
     this.right = right;
   }
-
 }
 class Num extends AST {
   constructor(token) {
@@ -309,7 +288,6 @@ class Num extends AST {
     this.token = token;
     this.value = token.value;
   }
-
 }
 class Str extends AST {
   constructor(token) {
@@ -317,7 +295,6 @@ class Str extends AST {
     this.token = token;
     this.value = token.value;
   }
-
 }
 class Attr extends AST {
   constructor(token) {
@@ -325,7 +302,6 @@ class Attr extends AST {
     this.token = token;
     this.value = token.value;
   }
-
 }
 class Const extends AST {
   constructor(token) {
@@ -333,7 +309,6 @@ class Const extends AST {
     this.token = token;
     this.value = token.value;
   }
-
 }
 class Func extends AST {
   constructor(op, params) {
@@ -341,7 +316,6 @@ class Func extends AST {
     this.token = this.op = op;
     this.params = [params];
   }
-
 }
 class Comma extends AST {
   constructor(token) {
@@ -349,14 +323,12 @@ class Comma extends AST {
     this.token = token;
     this.value = token.value;
   }
-
 }
 class UnaryOp {
   constructor(op, expr) {
     this.token = this.op = op;
     this.expr = expr;
   }
-
 }
 
 /* jshint esversion:8*/
@@ -367,57 +339,46 @@ class UnaryOp {
 class Builder {
   constructor() {
     this.tokens = [];
-    this.pos = 0; // set current token to the first token taken from the input
-
+    this.pos = 0;
+    // set current token to the first token taken from the input
     this.current_token = null;
   }
-
   matchCloseParenthesis(tokens, startIndex) {
     let $return = -1;
     let left = 0;
     let right = 0;
-
     for (let i = startIndex; i < tokens.length; i++) {
       const s = tokens[i].value;
-
       if (s === "(") {
         left++;
       } else if (s === ")") {
         right++;
       }
-
       if (left > 0 && left === right) {
         $return = i;
         break;
       }
     }
-
     return $return;
   }
-
   matchOpenParenthesis(tokens, startIndex) {
     let $return = -1;
     let left = 0;
     let right = 0;
-
     for (let i = startIndex; i >= 0; i--) {
       const s = tokens[i].value;
-
       if (s === "(") {
         left++;
       } else if (s === ")") {
         right++;
       }
-
       if (left > 0 && left === right) {
         $return = i;
         break;
       }
     }
-
     return $return;
   }
-
   matchParenthesis(tokens) {
     if (!tokens) return;
     this.matchBrackets(tokens);
@@ -425,62 +386,47 @@ class Builder {
     const close = ")";
     const opens = [];
     const closes = [];
-
     for (let i = 0; i < tokens.length; i++) {
       const c = tokens[i].value;
-
       if (c === open) {
         opens.push([i, c]);
       } else if (c === close) {
         closes.push([i, c]);
       }
     }
-
     for (let i = opens.length - 1; i >= 0; i--) {
       const match = this.matchCloseParenthesis(tokens, opens[i][0]);
-
       if (match === -1) {
         const msg = "Open parenthesis '{0}' at column {1} has no close parenthesis";
-        this.error(msg
-        /* , open, opens[i][0]*/
-        );
+        this.error(msg /* , open, opens[i][0]*/);
         break;
       }
     }
-
     for (let i = 0; i < closes.length; i++) {
       // let c = closes[i][1];
       const index = closes[i][0];
       const match = this.matchOpenParenthesis(tokens, index);
-
       if (match === -1) {
         const msg = "Close parenthesis '{0}' at column {1} has no opening parenthesis";
-        this.error(msg
-        /* , close, closes[i][0]*/
-        );
+        this.error(msg /* , close, closes[i][0]*/);
         break;
       }
     }
   }
-
   error() {
     return new Error("Invalid syntax");
   }
-
   getNextToken() {
     this.pos++;
-
     while (this.tokens[this.pos]) {
       this.current_token = this.tokens[this.pos];
       return this.current_token;
     }
-
     return {
       type: "EOF",
       value: null
     };
   }
-
   eat(token_type) {
     /*
     # compare the current token type with the passed token
@@ -494,11 +440,9 @@ class Builder {
       this.error();
     }
   }
-
   factor() {
     // factor { NUM | LPAREN expr RPAREN//
     const token = this.current_token;
-
     if (token.type === PLUS) {
       this.eat(PLUS);
       const node = new UnaryOp(token, this.factor());
@@ -519,11 +463,9 @@ class Builder {
       return new Num(token);
     } else if (token.type === ATTR) {
       this.eat(ATTR);
-
       if (typeof token.value === "object") {
         return this.parseExpr(token);
       }
-
       return new Attr(token);
     } else if (token.type === STRING) {
       this.eat(STRING);
@@ -554,10 +496,8 @@ class Builder {
       this.eat(RBRACKET);
       return node;
     }
-
     return null;
   }
-
   parseExpr(token) {
     let attr = [];
     let isAttrib = false;
@@ -565,49 +505,36 @@ class Builder {
       if (v.type === "ATTR") {
         isAttrib = true;
       }
-
       attr.push(v.value);
     });
-
     if (isAttrib) {
       token.value = attr.join(" ");
-
       let _node = new Attr(token);
-
       return _node;
     }
-
     const node = new UnaryOp(token, this.build(token.value));
     return node;
   }
-
   parseFunc(token) {
     let endIndex = this.matchCloseParenthesis(this.tokens, this.pos - 1);
     this.eat(LPAREN);
     const node = new Func(token, this.expr());
-
     while (this.pos < endIndex) {
       const _token = this.current_token;
-
       if (_token.type !== COMMA) {
         let expr = this.expr();
         if (expr) node.params.push(expr);
       }
-
       this.getNextToken();
     }
-
     this.eat(RPAREN);
     return node;
   }
-
   term() {
     // term { factor ((TIMES | DIV) factor)*//
     let node = this.factor();
-
     while (this.current_token.type === TIMES || this.current_token.type === DIV || this.current_token.type === MOD) {
       const token = this.current_token;
-
       if (token.type === TIMES) {
         this.eat(TIMES);
       } else if (token.type === DIV) {
@@ -615,59 +542,48 @@ class Builder {
       } else if (token.type === MOD) {
         this.eat(MOD);
       }
-
       node = new BinOp(node, token, this.factor());
     }
-
     return node;
   }
-
   expr() {
     /*
     expr   { term ((PLUS | MINUS) term)*
     term   { factor ((TIMES | DIV) factor)*
     factor { NUM | LPAREN expr RPAREN */
     let node = this.term();
-
     while (this.current_token.type === PLUS || this.current_token.type === MINUS) {
       const token = this.current_token;
-
       if (token.type == PLUS) {
         this.eat(PLUS);
       } else if (token.type == MINUS) {
         this.eat(MINUS);
       }
-
       node = new BinOp(node, token, this.term());
     }
-
     return node;
   }
-
   build(tokens) {
     this.tokens = tokens;
-    this.pos = 0; // set current token to the first token taken from the input
-
-    this.current_token = this.tokens[this.pos]; // set current token to the first token taken from the input
-
-    const ast = this.expr(); // console.log( ast )
-
+    this.pos = 0;
+    // set current token to the first token taken from the input
+    this.current_token = this.tokens[this.pos];
+    // set current token to the first token taken from the input
+    const ast = this.expr();
+    // console.log( ast )
     return ast;
   }
-
 }
 
 /**
  * Language grammer interpreter, recursively passes abstract syntax tree into algebraic output
  */
 
-class Interpreter
-/* extends NodeVisitor*/
-{
-  constructor() {// super();
+class Interpreter /* extends NodeVisitor*/ {
+  constructor() {
+    // super();
     // this.visitors = {visit_BinOp:this.visit_BinOp, visit_Num: this.visit_Num};
   }
-
   visit(node) {
     if (node instanceof BinOp) {
       return this.visit_BinOp(node);
@@ -676,7 +592,8 @@ class Interpreter
     } else if (node instanceof Func) {
       return this.visit_UnaryOp(node);
     } else if (node instanceof Const) {
-      return this.visit_Const(node); //} else if (node instanceof Num) {
+      return this.visit_Const(node);
+      //} else if (node instanceof Num) {
       // return this.visit_Num( node )
       //} else if ( node instanceof Str ) {
       // return this.visit_Str( node )
@@ -687,10 +604,8 @@ class Interpreter
     } else if (node) {
       return this.visit_Attr(node);
     }
-
     return null;
   }
-
   visit_BinOp(node) {
     if (node.op.type == PLUS) {
       return Number(this.visit(node.left)) + Number(this.visit(node.right));
@@ -703,13 +618,10 @@ class Interpreter
     } else if (node.op.type == MOD) {
       return this.visit(node.left) % this.visit(node.right);
     }
-
     return node.value;
   }
-
   visit_UnaryOp(node) {
     const op = node.op.type;
-
     if (op == PLUS) {
       return +this.visit(node.expr);
     } else if (op == MINUS) {
@@ -723,29 +635,22 @@ class Interpreter
           params.push(this.visit(p));
         }
       });
-
       if (params) {
         return Math[node.op.value](...params);
       }
-
       return Math[node.op.value]();
     }
-
     return null;
   }
-
   visit_Num(node) {
     return node.value;
   }
-
   visit_Str(node) {
     return node.value;
   }
-
   visit_Attr(node) {
     return node.value;
   }
-
   visit_Const(node) {
     return Math[node.value];
   }
@@ -753,20 +658,16 @@ class Interpreter
    * Recursively passes AST into algebraic output
    * @param {AST} ast
    */
-
-
   interpret(ast) {
     // console.log( {ast} )
     this.ast = ast;
     const result = this.visit(this.ast);
     return result;
   }
-
 }
 
 // import CustomErrors from "./CustomErrors";
-
-function raiseValidationError$1(code, translator, language) {
+function raiseValidationError$2(code, translator, language) {
   // return CustomErrors(translator, language).ValidationError(code);
   return code;
 }
@@ -777,51 +678,40 @@ function raiseValidationError$1(code, translator, language) {
  * @param {String} language User Language (eg. en, fr, es)
  * @returns {String} Result of the map
  */
-
-
 function multipleChoice(input, prompt) {
   // translator.target = language
   if (!input || input.length === 0) {
-    return raiseValidationError$1(ErrorKeys.NoInput);
+    return raiseValidationError$2(ErrorKeys.NoInput);
   }
-
   if (!prompt) {
-    return raiseValidationError$1(ErrorKeys.NoActiveSession);
+    return raiseValidationError$2(ErrorKeys.NoActiveSession);
   }
-
   if (prompt.Type === "NUMBER" || prompt.Type === "TEXT" || prompt.Type === "VALUE") {
     return input && input instanceof Array ? input[0] : input;
   }
-
   const array = input.toString().trim().split(/,/g);
   const result = []; //array.map((v) => {
-
   for (let i = 0; i < array.length; i++) {
     const v = array[i];
-
     if (!prompt.Menu[v - 1]) {
-      return raiseValidationError$1(ErrorKeys.InvalidSelection);
+      return raiseValidationError$2(ErrorKeys.InvalidSelection);
     }
-
     result.push(prompt.Menu[v - 1].Value);
   }
-
   return result.length > 0 ? result : null;
 }
 
 /* jshint esversion:8*/
-
 function normalize(prompt) {
   switch (prompt.Type) {
     case Constants.MENU:
       if (!prompt.Max) prompt.Max = prompt.Menu.length;
       if (!prompt.Min) prompt.Min = 1;
       prompt.Min = prompt.Min < 1 ? 1 : prompt.Min;
-      prompt.Max = prompt.Max > prompt.Menu.length ? prompt.Menu.length : prompt.Max; //delete MAX_CHARS // MAX_CHARS=null;
-
+      prompt.Max = prompt.Max > prompt.Menu.length ? prompt.Menu.length : prompt.Max;
+      //delete MAX_CHARS // MAX_CHARS=null;
       if (!prompt.Max) prompt.Max = 1;
       break;
-
     case Constants.TEXT:
     case Constants.VALUE:
       if (!prompt.Max) prompt.Max = MAX_CHARS;
@@ -829,25 +719,23 @@ function normalize(prompt) {
       prompt.Min = prompt.Min < 1 ? 1 : prompt.Min;
       prompt.Max = prompt.Max > MAX_CHARS ? MAX_CHARS : prompt.Max;
       break;
-
     case Constants.TF:
     case Constants.YN:
       prompt.Min = 1;
-      prompt.Max = 1; //delete MAX_CHARS // MAX_CHARS=null;
-
+      prompt.Max = 1;
+      //delete MAX_CHARS // MAX_CHARS=null;
       break;
-
     default:
       if (!prompt.Max) prompt.Max = Number.MAX_VALUE;
       if (!prompt.Min) prompt.Min = Number.MIN_VALUE;
       prompt.Min = prompt.Min < Number.MIN_VALUE ? Number.MIN_VALUE : prompt.Min;
-      prompt.Max = prompt.Max > Number.MAX_VALUE ? Number.MAX_VALUE : prompt.Max; //delete MAX_CHARS // p.MAX_CHARS=0;
+      prompt.Max = prompt.Max > Number.MAX_VALUE ? Number.MAX_VALUE : prompt.Max;
 
+      //delete MAX_CHARS // p.MAX_CHARS=0;
       break;
   }
-} //
-
-
+}
+//
 class Engine {
   constructor(kb, translator) {
     if (!kb) throw new ReferenceError("kb is undefined");
@@ -856,16 +744,13 @@ class Engine {
     this.done = false;
     this.knowledgebase = kb;
     this.keywords = kb.languageModule.keywords; // keywords[kb.language.toLowerCase()]
-
     this.CFSettings = kb.languageModule.prompts; // kb[kb.language.toLowerCase()].prompts // promptSettings[kb.language.toLowerCase()]
     // this.validator = new Validator(translator, kb.language)
-
-    this.translator = translator; // this.validator = validator;
+    this.translator = translator;
+    // this.validator = validator;
   }
-
   raiseScriptError(e) {
     // console.log(e)
-
     /* return CustomErrors(
         this.translator,
         this.knowledgebase.language
@@ -873,27 +758,22 @@ class Engine {
     console.log(e);
     return ErrorKeys.ScriptError;
   }
-
   raisePromptNotFoundError() {
     // const message = this.t(keys.PromptNotFound).data
-
     /*return CustomErrors(
         this.translator,
         this.knowledgebase.language
     ).ValidationError(keys.PromptNotFound);*/
     return ErrorKeys.PromptNotFound;
   }
-
   raiseSessionExpiredError() {
     // const message = this.t(keys.SessionExpired).data
-
     /* return CustomErrors(
         this.translator,
         this.knowledgebase.language
     ).ValidationError(keys.SessionExpired); */
     return ErrorKeys.SessionExpired;
   }
-
   getEventData(code, message) {
     return {
       status: "error",
@@ -906,108 +786,81 @@ class Engine {
       ruleNumber: this.knowledgebase.ruleIndex + 1
     };
   }
-
   calculateCF(oldValue, newValue, mode) {
-    let cf = 0; // let oldValue = this.getConditionCF()
-
+    let cf = 0;
+    // let oldValue = this.getConditionCF()
     switch (mode) {
       case SUM:
         {
           cf = oldValue / 100 * (100 - newValue); // probability sum
-
           break;
         }
-
       case MUL:
         {
           cf = oldValue * newValue / 100; // multiply
-
           break;
         }
-
       case AVE:
         {
           cf = (oldValue + newValue) / 2; // algebraic average
-
           break;
         }
-
       case MAX:
         {
           cf = Math.max(oldValue, newValue); // maximum
-
           break;
         }
-
       case MIN:
         {
           cf = Math.min(oldValue, newValue); // minimum
-
           break;
         }
-
       default:
         cf = oldValue / 100 * (100 - newValue); // probability sum
-
         break;
     }
-
     return cf;
   }
-
   start() {
     this.paused = false;
     this._error = null;
     this.done = false;
     this.command = null;
     if (!this.knowledgebase) return this.raiseSessionExpiredError();
-
     while (this.knowledgebase.ruleIndex < this.knowledgebase.rules.length) {
       this.knowledgebase.currentRule = this.knowledgebase.rules[this.knowledgebase.ruleIndex];
       this.knowledgebase.ruleIndex++;
-
       if (this.knowledgebase.currentRule.Fired) {
         continue;
       }
-
       this.knowledgebase.currentPrompt = null;
       let conditionIndex = 0;
-
       while (conditionIndex < this.knowledgebase.currentRule.Conditions.length) {
         this.knowledgebase.currentCondition = this.knowledgebase.currentRule.Conditions[conditionIndex];
         conditionIndex++;
         const result = this.testPremises();
-
         if (Boolean(result) === true) {
           const _result = this.fireRule(this.knowledgebase.currentCondition.Inferences);
-
           if (_result) return _result;
         } else if (this.paused) {
           this.knowledgebase.ruleIndex--;
           return this.knowledgebase.currentPrompt;
         } else if (this.knowledgebase.currentRule.Conditions.length <= conditionIndex) {
           const _result2 = this.fireRule(this.knowledgebase.currentRule.AltInferences);
-
           if (_result2) return _result2;
         }
-
         if (this.done) break;
       }
-
       if (this.done) break;
     }
-
     this.knowledgebase.ruleIndex = 0;
     return this.knowledgebase.answers;
   }
-
   testPremises() {
     const maxIndex = this.knowledgebase.currentCondition.Premises.length - 1;
     let testResult = null;
-
     for (let index = 0; index <= maxIndex; index++) {
       const Premise = this.knowledgebase.currentCondition.Premises[index];
-
       if (testResult === true && Premise.Keyword === this.keywords.OR.toUpperCase()) {
         // log(lineText + ': breaking loop...');
         continue;
@@ -1015,30 +868,25 @@ class Engine {
         // log(lineText + ': breaking loop...');
         continue;
       }
-
       const leftNodes = this.mapNodes(Premise.Left);
       if (this.paused) return false;
       const rightNodes = this.mapNodes(Premise.Right);
-      if (this.paused) return false; // console.log(leftNodes, rightNodes)
-
+      if (this.paused) return false;
+      // console.log(leftNodes, rightNodes)
       const left = this.solve(leftNodes) || "";
       const right = Premise.Right.length > 0 ? this.solve(rightNodes) : true;
       const cfLeft = Math.min(this.evaluateCF(Premise.Left));
       const cfRight = Math.min(this.evaluateCF(Premise.Right));
       const cf = Math.min(cfLeft, cfRight);
-
       if (cf < 100) {
         const mode = Premise.Keyword === this.keywords.OR.toUpperCase() ? MUL : AVE;
         let kbCF = this.knowledgebase.CF || 100;
         this.knowledgebase.CF = this.calculateCF(kbCF, cf, mode);
       }
-
       testResult = this.compare(left, right, Premise.Comparator);
     }
-
     return testResult;
   }
-
   solveAttribute(value, inference) {
     const nodes = this.mapNodes(value);
     const attribValue = this.solve(nodes);
@@ -1048,35 +896,29 @@ class Engine {
     this.setAttributeValueAndCF(attribute.Name.toLowerCase(), attribValue, this.knowledgebase.prevCf);
     attribute.Value = attribValue;
     inference.Value = attribValue;
-
     if (this.knowledgebase.goals[attribute.Name.toLowerCase()]) {
       this.knowledgebase.answers.push({
         Name: attribute.Name,
         Value: attribValue,
         CF: Math.round(this.knowledgebase.CF)
       });
-
       if (this.knowledgebase.answers.length >= Object.getOwnPropertyNames(this.knowledgebase.goals).length) {
         this.fireDoneEvent();
         this.done = true;
         return this.knowledgebase.answers; // done;
       }
     }
-
     return false;
   }
-
   fireRule(inferences) {
     this.knowledgebase.currentCondition.isMet = true;
     this.knowledgebase.firedRules[this.knowledgebase.currentRule.Name] = this.knowledgebase.currentRule;
     if (this.knowledgebase.currentRule.Fired) return false;
     this.knowledgebase.currentRule.Fired = true;
     if (!inferences) return false;
-
     for (let i = 0; i < inferences.length; i++) {
       const inference = inferences[i];
       const value = inference.Value;
-
       if (/^fetch\s[a-zA-Z]+/i.test(inference.Name)) {
         this.command = {
           type: "command",
@@ -1085,27 +927,24 @@ class Engine {
         };
         return this.command;
       }
-
       const result = this.solveAttribute(value, inference);
       if (result) return result;
     }
-
     return false;
   }
-
-  fireDoneEvent() {//this.publish('engine.done', this.knowledgebase.answers, this)
+  fireDoneEvent() {
+    //this.publish('engine.done', this.knowledgebase.answers, this)
   }
   /**
    * Solves any mathematical expression
    * @param {*} expression Mathimatical expression nodes
    */
-
-
   solve(expression) {
     const builder = new Builder();
     const interpreter = new Interpreter();
     const ast = builder.build(expression);
-    const result = interpreter.interpret(ast); // Math. + PI Random() Cos Sin TAN SQRT E
+    const result = interpreter.interpret(ast);
+    // Math. + PI Random() Cos Sin TAN SQRT E
 
     return result;
   }
@@ -1116,39 +955,29 @@ class Engine {
    * @param {String} compare Comparator
    * @return {Boolean}
    */
-
-
   compare(left, right, compare) {
     switch (compare) {
       case "GT":
         return left > right;
-
       case "LT":
         return left < right;
-
       case "IN":
         return Engine.inArray(left, right);
-
       case "EX":
         return Engine.notInArray(left, right);
       // NEQ
-
       default:
         return left.toString().toLowerCase() === right.toString().toLowerCase();
     }
   }
-
   mapNodes(tokens) {
     const nodes = []; //tokens.map(function (token) {
-
     for (let i = 0; i < tokens.length; i++) {
-      const token = tokens[i]; // console.log(token);
-
+      const token = tokens[i];
+      // console.log(token);
       let value = token.value;
-
       if (token.type === "ATTR") {
         const attribute = this.knowledgebase.attributes[token.value.toLowerCase()];
-
         if (attribute) {
           if (!attribute.Value && this.knowledgebase.prompts[token.value.toLowerCase()]) {
             // Attribute attribute=this.knowledgebase.attributes.get(token.toLowerCase());
@@ -1161,78 +990,64 @@ class Engine {
             return null;
           } else if (attribute.Value === null) {
             attribute.Value = attribute.Name;
-          } // we are replacing the token that matches the Atribute Name
+          }
+          // we are replacing the token that matches the Atribute Name
           // with the Attribute Value for evaluation in the scripting engine
-
-
-          value = attribute.Value; // this.knowledgebase.currentCondition.Confidences.push( attribute.CF )
+          value = attribute.Value;
+          // this.knowledgebase.currentCondition.Confidences.push( attribute.CF )
         }
       }
-
       nodes.push({
         type: token.type,
         value: value
       });
-    } // this.knowledgebase.currentCondition.Confidences = confidences
-
-
+    }
+    // this.knowledgebase.currentCondition.Confidences = confidences
     return nodes;
   }
-
   evaluateCF(tokens) {
     // const confidences = []
     const values = tokens.map(token => {
       let cf = 100;
-
       if (token.type === "ATTR") {
         const attribute = this.knowledgebase.attributes[token.value.toLowerCase()];
-
         if (attribute) {
           if (attribute.CF) {
             cf = attribute.CF;
           }
         }
       }
-
       return cf;
     });
     return values;
   }
-
   prompt(name) {
     const _name = name.toLowerCase().trim();
-
-    const prompt = this.knowledgebase.prompts[_name]; // console.log({ prompt, name });
-
+    const prompt = this.knowledgebase.prompts[_name];
+    // console.log({ prompt, name });
     if (!prompt) {
       return this.raisePromptNotFoundError();
     }
-
     this.knowledgebase.prompts[_name].Fired = true;
     normalize(this.knowledgebase.prompts[_name]);
     this.knowledgebase.currentPrompt = this.knowledgebase.prompts[_name];
-    this.knowledgebase.currentPrompt.Index = this.knowledgebase.promptIndex; //this.publish('engine.prompt', this.knowledgebase.currentPrompt)
-
-    this.knowledgebase.promptIndex++; // console.log(this.knowledgebase.currentPrompt);
-
+    this.knowledgebase.currentPrompt.Index = this.knowledgebase.promptIndex;
+    //this.publish('engine.prompt', this.knowledgebase.currentPrompt)
+    this.knowledgebase.promptIndex++;
+    // console.log(this.knowledgebase.currentPrompt);
     return this.knowledgebase.currentPrompt;
   }
-
   cfPrompt() {
     const CF_TEXTS = this.CFSettings.CF_TEXTS; // ['Absolutely','Very high','High','Good','Fair'];
-
     const VALUES = this.CFSettings.VALUES; // [99,95,85,70,60];
 
     this.knowledgebase.currentPrompt.Label = "CF";
     this.knowledgebase.currentPrompt.Question = this.CFSettings.QUES; // ('How confident are you about your response?');
-
     this.knowledgebase.currentPrompt.Type = MENU; // MENU
-
     this.knowledgebase.currentPrompt.Min = 1;
     this.knowledgebase.currentPrompt.Max = 1;
     this.knowledgebase.currentPrompt.CFMode = false;
     this.knowledgebase.currentPrompt.Menu = [];
-
     for (let index = 0; index < CF_TEXTS.length; index++) {
       const menu = {
         Index: index + 1,
@@ -1242,17 +1057,16 @@ class Engine {
         Value: VALUES[index] // menu item value
         // Text: CFMenuText[index], //menu item number
         // CFMenuText[index]  //menu item display text
-
       };
       this.knowledgebase.currentPrompt.Menu.push(menu);
     }
-
     normalize(this.knowledgebase.currentPrompt);
     this.knowledgebase.currentPrompt.Index = this.knowledgebase.promptIndex;
     this.knowledgebase.currentPrompt.Fired = true;
     this.knowledgebase.promptIndex++;
     return this.knowledgebase.currentPrompt;
   }
+
   /**
    * Sets the Value of the attribute or prompt. Runs the Engine if and
    * only if the current prompt does not need confidence factor input,
@@ -1261,56 +1075,45 @@ class Engine {
    * @return {JSON} Result
    * @throws ampani.engine.exception.ScriptExecutionException
    */
-
-
   setAttribute(value) {
     if (!this.knowledgebase.currentPrompt) {
       return this.raiseSessionExpiredError();
     }
-
     const validateResult = validator.validate(value, this.knowledgebase.currentPrompt);
-
     if (validateResult && validateResult.name === "ValidationError") {
       return validateResult;
     }
-
     let computedValue = multipleChoice(value, this.knowledgebase.currentPrompt);
-
     if (computedValue && computedValue.name === "ValidationError") {
       return computedValue;
     }
-
     if (computedValue) {
       computedValue = computedValue instanceof Array ? computedValue.join(";") : computedValue;
     }
-
     if (this.knowledgebase.currentPrompt.Label === "CF") {
       this.setAttributeCF(this.knowledgebase.currentPrompt.Name, computedValue);
       this.knowledgebase.currentCondition.Confidences.push(computedValue);
       return this.start();
     }
-
     this.knowledgebase.attributes[this.knowledgebase.currentPrompt.Name.toLowerCase()].Value = computedValue;
-
     if (!this.knowledgebase.currentPrompt.CFMode) {
       this.knowledgebase.currentPrompt = null;
       return this.start();
     }
-
     return this.cfPrompt();
   }
+
   /**
    * Sets the confidence factor of the prompt/attribute if the value of CF
    * is >= 0. Run the Engine thereafter.
    * @param {String} name The name of the prompt/attribute to set.
    * @param {Number} cf The value of the confidence factor.
    */
-
-
   setAttributeCF(name, cf) {
-    this.knowledgebase.attributes[name.toLowerCase().trim()].CF = cf; // this.knowledgebase.currentCondition.Confidences.push( cf )
-
-    this.knowledgebase.currentPrompt = null; // console.log( this.knowledgebase.currentCondition )
+    this.knowledgebase.attributes[name.toLowerCase().trim()].CF = cf;
+    // this.knowledgebase.currentCondition.Confidences.push( cf )
+    this.knowledgebase.currentPrompt = null;
+    // console.log( this.knowledgebase.currentCondition )
   }
   /**
    * Sets the attribute value and recalculates the confidence factor based
@@ -1320,16 +1123,14 @@ class Engine {
    * @param {Number} cf The newly encountered CF.
    * @param {String} mode The mode to be used in calculating the CF (0-2).
    */
-
-
   setAttributeValueAndCF(name, value, cf) {
     // alert( cf )
     const a = this.knowledgebase.attributes[name.toLowerCase().trim()];
     if (!a) return;
     this.knowledgebase.attributes[name.toLowerCase().trim()].Value = value;
-
     if (cf > -1 && cf < 100) {
-      this.setAttributeCF(name, cf); // this.knowledgebase.attributes[name.toLowerCase().trim()].CF = cf;
+      this.setAttributeCF(name, cf);
+      // this.knowledgebase.attributes[name.toLowerCase().trim()].CF = cf;
     } else {
       this.knowledgebase.currentPrompt = null;
     }
@@ -1340,8 +1141,6 @@ class Engine {
    * @param {Object} value The value to check if it exists in array
    * @return true if array contains value else returns false
    */
-
-
   static inArray(array, value) {
     return array.includes(value.toLowerCase().trim());
   }
@@ -1351,12 +1150,9 @@ class Engine {
    * @param {Object} value The value to check if it does not exist in array
    * @return false if array contains value else returns true
    */
-
-
   static notInArray(array, value) {
     return !array.includes(value.toLowerCase().trim());
   }
-
   getConditionCF() {
     let b = 100;
     this.knowledgebase.currentCondition.Confidences.forEach(function (d) {
@@ -1364,7 +1160,6 @@ class Engine {
     });
     return b;
   }
-
   run() {
     try {
       let data = this.start();
@@ -1373,59 +1168,52 @@ class Engine {
       return this.raiseScriptError(e);
     }
   }
-
   input(input) {
     try {
       // if (kb) this.setKnowledgebase(kb)
-      let data = this.setAttribute(input); // console.log(data)
-
+      let data = this.setAttribute(input);
+      // console.log(data)
       return data;
     } catch (e) {
       return this.raiseScriptError(e);
     }
   }
+
   /**
    * Gets the Knowledgebase of the Engine
    * @return {JSON} Knowledgebase
    */
-
-
   getKnowledgebase() {
     return this.knowledgebase;
   }
+
   /**
    * Sets the knowledgebase for Inference Engine
    * @param {JSON} kb Knowledgebase data
    */
-
-
   setKnowledgebase(kb) {
-    this.knowledgebase = kb; // this.knowledgebase.promptIndex = 1
-
+    this.knowledgebase = kb;
+    // this.knowledgebase.promptIndex = 1
     this.CFSettings = kb.keywords.prompts; // promptSettings[this.knowledgebase.language.toLowerCase()]
-
     this.keywords = kb.keywords.keywords; // keywords[kb.language.toLowerCase()]
     // this.validator = new Validator(kb.language)
   }
-
 }
 
 // import en from './locales/en'
 // import fr from './locales/fr'
 // import keywords from '../core/keywords'
+
 class Translator {
   constructor(locale, languageModule) {
     this.languageModule = languageModule;
     this.keywords = languageModule[locale];
   }
-
   get(key) {
     const data = this.keywords.errors;
-
     if (data) {
       return data[key];
     }
-
     return null;
   }
   /**
@@ -1433,8 +1221,6 @@ class Translator {
    * @param  {...any} args String arguments
    * @returns String
    */
-
-
   format(text, ...args) {
     let msg = Object.assign({}, text);
     let index = 0;
@@ -1449,8 +1235,6 @@ class Translator {
    * @param {*} code String that is unique to text being translated
    * @returns the Translater object
    */
-
-
   translate(code) {
     const data = this.get(code);
     return data;
@@ -1460,14 +1244,11 @@ class Translator {
    * @param {*} text Text to be translated
    * @returns the Translater object
    */
-
-
   translatePlain(text, from = 'en') {
     if (!this.languageModule[from] || !this.languageModule[from].errors) {
       console.log(this.format('Language \'{0}\' not implemented', from));
       return text;
     }
-
     let source = this.languageModule[from].errors;
     const index = Object.values(source).find(v => {
       return v === text;
@@ -1480,16 +1261,12 @@ class Translator {
    * @param {String} code Error code to translate
    * @returns Translator object
    */
-
-
   to(code) {
     return this.translate(code);
   }
-
   toPlain(text, from) {
     return this.translatePlain(text, from);
   }
-
 }
 
 const en = {
@@ -1526,9 +1303,9 @@ const en = {
     MIN: 'min',
     MAX: 'max',
     YES: 'yes',
-    NO: 'no' // FOLD_SETTING:			fold.en,
+    NO: 'no'
+    // FOLD_SETTING:			fold.en,
     // PROMPT_SETTING:		prompt.en
-
   },
   prompts: {
     CODE: 'en',
@@ -1700,9 +1477,9 @@ var fr = {
     MIN: 'min',
     MAX: 'max',
     YES: 'oui',
-    NO: 'pas' // FOLD_SETTING:			fold.fr,
+    NO: 'pas'
+    // FOLD_SETTING:			fold.fr,
     // PROMPT_SETTING:		prompt.fr
-
   },
   prompts: {
     CODE: 'fr',
@@ -1912,6 +1689,7 @@ var de = {
   }
 };
 
+// es, po, nl, it, ru, ch, jp, ko
 var installedLanguagePlugins = {
   fr,
   de
@@ -1921,14 +1699,14 @@ const channels = {};
 /**
  * Sigleton class to handle application wide events.
  */
-
 const EventEmmiter = {
   subscribe(topic, listener) {
     // Create the topic's object if not yet created
-    if (!channels.hasOwnProperty.call(channels, topic)) channels[topic] = []; // Add the listener to queue
+    if (!channels.hasOwnProperty.call(channels, topic)) channels[topic] = [];
 
-    let index = channels[topic].push(listener) - 1; // Provide handle back for removal of topic
-
+    // Add the listener to queue
+    let index = channels[topic].push(listener) - 1;
+    // Provide handle back for removal of topic
     return {
       remove: function () {
         //delete topics[topic][index]
@@ -1936,44 +1714,38 @@ const EventEmmiter = {
       }
     };
   },
-
   unsubscribe(topic, listener) {
     // Create the topic's object if not yet created
     if (channels.hasOwnProperty.call(channels, topic)) {
       // Add the listener to queue
-      let index = channels[topic].findIndex(l => l === listener); //delete topics[topic][index]
-
+      let index = channels[topic].findIndex(l => l === listener);
+      //delete topics[topic][index]
       channels[topic].splice(index, 1);
     }
   },
-
   publish(topic, info) {
     // If the topic doesn't exist, or there's no listeners in queue, just leave
-    if (!channels.hasOwnProperty.call(channels, topic)) return; // Cycle through topics queue, fire!
+    if (!channels.hasOwnProperty.call(channels, topic)) return;
 
+    // Cycle through topics queue, fire!
     channels[topic].forEach(item => {
       item(info != undefined ? info : {});
     });
   },
-
   remove(topic) {
     // channel is an array of listeners
     let channel = channels[topic];
-
     while (channel.length > 0) {
       channel.pop();
     }
-
     delete channels[topic];
   },
-
   destroy() {
     Object.keys(channels).forEach(topic => {
       this.remove(topic);
     });
     channels = {};
   }
-
 };
 
 /* jshint esversion:8*/
@@ -1989,8 +1761,8 @@ const Float2 = '.[0-9]+(' + Exponent.source + ')?';
 const Float3 = '[0-9]+.' + Exponent.source;
 const Float4 = '[0-9]+' + Exponent.source;
 const Float = '(?:' + Float1 + '|' + Float2 + '|' + Float3 + '|' + Float4 + ')[fFdD]?|[0-9]+[fFDd]';
-const Numeric = Float + '|' + Integer; // URL
-
+const Numeric = Float + '|' + Integer;
+// import { formatMessage } from '../validator.js'
 const MATH_CONSTS = {
   E: 'Math.E',
   LN2: 'Math.LN2',
@@ -2049,14 +1821,12 @@ const MATH_FUNCS = {
   tan: 'Math.tan',
   tanh: 'Math.tanh',
   trunc: 'Math.trunc' //(x)
-
 };
 
 /**
  * Text tokenizer Lexer
  * @param {String} lang 
  */
-
 class Tokenizer$1 {
   constructor() {
     // this.language = language
@@ -2064,145 +1834,120 @@ class Tokenizer$1 {
     // this.Keywords = Keywords[language]
     this.init();
   }
-
   get SpecialCharacters() {
     return [[LPAREN, '('], [RPAREN, ')'], [LBRACKET, '['], [RBRACKET, ']'], [CARRET, '^'], [TIMES, '*'], [MINUS, '-'], [PLUS, '+'], [DIV, '/'], [MOD, '%'], [EQ, '='], [GT, '>'], [LT, '<'], [COMMA, ','], [STRING, '"'], [LINE, '\n'], [EOF, '']];
   }
-
   init() {
     this.row = 0;
     this.col = 0;
   }
-
   tokenizeWord(input, current) {
     let consumedChars = 0;
     let value = '';
     let count = current;
-    let char = input[current]; //test for alphabetic sequence
-
+    let char = input[current];
+    //test for alphabetic sequence
     do {
       value += char;
       consumedChars++;
       count++;
       char = input[count];
     } while (char && char.match(/[^*+-/^(),![\]\s]/i));
-
     if (consumedChars > 0) {
       let token = new Token(ATTR, value, this.row, this.col);
       return [consumedChars, token]; // { type, value, row, _col }];
     }
-
     return [0, null];
   }
-
   tokenizeString(input, current) {
     if (input[current] === '"') {
       let value = '"';
       let consumedChars = 1;
-      let _col = this.col; //consumedChars ++;
-
+      let _col = this.col;
+      //consumedChars ++;
       let char = input[current + consumedChars];
-
       while (char !== '"' && char !== undefined) {
         /*if(char === undefined) {//if production throw new TypeError("unterminated string ");}*/
         value += char;
         consumedChars++;
         char = input[current + consumedChars];
       }
-
       value += '"';
       return [consumedChars + 1, new Token(STRING, value, this.row, _col)]; // { type: 'string', value, row, col }];
     } else if (input[current] === '\'') {
       let value = '\'';
       let consumedChars = 1;
-      let _col = this.col; //consumedChars ++;
-
+      let _col = this.col;
+      //consumedChars ++;
       let char = input[current + consumedChars];
-
       while (char !== '\'' && char !== undefined) {
         /*if(char === undefined) {//if production throw new TypeError("unterminated string ");}*/
         value += char;
         consumedChars++;
         char = input[current + consumedChars];
       }
-
       value += '\'';
       return [consumedChars + 1, new Token(STRING, value, this.row, _col)]; // { type: 'string', value, row, col }];
     }
-
     return [0, null];
   }
-
   tokenizeNumber(input, current) {
     //Return a (multidigit) integer or float consumed from the input
     var result = '';
     let consumedChars = 0;
     let count = current;
     let token = null;
-
     while (input[count] && input[count].toString().match(Numeric)) {
       result += input[count];
       consumedChars++;
       count++;
     }
-
     if (input[count] && input[count] == '.') {
       result += input[count];
       consumedChars++;
       count++;
-
       while (input[count] && input[count].toString().match(Numeric)) {
         result += input[count];
         consumedChars++;
         count++;
       }
-
       token = [consumedChars, new Token(NUM, Number(result), this.row, this.col)];
     } else {
       token = [consumedChars, new Token(NUM, Number(result), this.row, this.col)];
     }
-
     if (consumedChars > 0) {
       return token;
     }
-
     return [0, null];
   }
-
   skipWhiteSpace(input, current) {
     var result = '';
     let consumedChars = 0;
     let count = current;
     let char = input[current];
-
     do {
       result += char;
       consumedChars++;
       count++;
       char = input[count];
     } while (char && char !== '\n' && char.match(/\s/));
-
     if (consumedChars > 0) {
       let token = new Token(SPACE, result, this.row, this.col);
       return [consumedChars, token];
     }
-
     return [0, null];
   }
-
   tokenizeComment(input, current) {
     if (input[current + 1] === '*') {
       let value = '';
       let count = current;
       let char = input[current];
       let consumedChars = 0;
-
       do {
         value += char;
         consumedChars++;
         count++;
         char = input[count];
-
         if (char === '\n') {
           this.col = 0;
           this.row++;
@@ -2212,51 +1957,39 @@ class Tokenizer$1 {
           break;
         }
       } while (char);
-
       let token = new Token(REM, value, this.row, this.col);
       return [consumedChars, token]; // { type, value, row, _col }];
     } else if (input[current + 1] === '/') {
       return this.tokenizeLineComment(input, current);
     }
-
     return [0, null];
   }
-
   tokenizeLineComment(input, current) {
     let char = input[current];
     let consumedChars = 0;
-
     if (input[current + 1] === '/') {
       let value = '';
       let count = current;
-
       do {
         value += char;
         consumedChars++;
         count++;
         char = input[count];
       } while (char && char !== '\n');
-
       let token = new Token(REM, value, this.row, this.col);
       return [consumedChars, token]; // { type, value, row, _col }];
     }
-
     return [0, null];
   }
-
   static flagComment(tokens) {
     let filtered = [];
-
     for (let index = 0; index < tokens.length; index++) {
       let token = tokens[index];
-
       if (token.type === DIV) {
         let next = tokens[index + 1];
-
         if (next) {
           let tk = Object.assign({}, token);
           let text = [];
-
           if (next.type === DIV) {
             // Filter line comment
             do {
@@ -2270,67 +2003,53 @@ class Tokenizer$1 {
               text.push(token.value);
               index++;
               token = tokens[index];
-
               if (token && token.type === DIV && tokens[index - 1].type === TIMES) {
                 text.push(token.value);
                 break;
               }
             } while (index < tokens.length);
           }
-
           tk.value = text.join('');
           tk.type = REM;
           filtered.push(tk);
           continue;
         }
       }
-
       filtered.push(token);
     }
-
     return filtered;
   }
-
   static filterComment(tokens) {
     return tokens.filter(token => token.type !== REM && token.type !== COMMENT);
   }
-
   static filterSpace(tokens) {
     return tokens.filter(token => token.type !== SPACE);
   }
-
   static transform(tokens) {
     let transformed = [];
-
     for (let i = 0; i < tokens.length; i++) {
       let token = tokens[i];
       if (token.type === 'EOF') break;
       let phrase = [];
-
       if (token.type === ATTR) {
         let row = token.row;
         let col = token.column;
-
         do {
           phrase.push(token.value);
           i++;
           token = tokens[i];
-
           if (token.type === REM) {
             i++;
             token = tokens[i];
             continue;
           }
         } while (token && (token.type === ATTR || token.type == NUM || token.type === SPACE));
-
         i--;
-
         if (phrase.length > 0) {
           if (tokens[i].type === SPACE) {
             phrase.pop();
             i--;
           }
-
           let attr = phrase.join(' ');
           transformed.push({
             type: ATTR,
@@ -2343,7 +2062,6 @@ class Tokenizer$1 {
         transformed.push(token);
       }
     }
-
     return transformed;
   }
   /**
@@ -2351,23 +2069,20 @@ class Tokenizer$1 {
    * @param {String} input Production rules in plain text
    * @returns { Promise<Object> } Tokens
    */
-
-
   async tokenize(input) {
     this.row = 0;
     this.col = 0;
     let current = 0;
     let tokens = [];
-    let [consumedChars, token] = [0, null]; // let mathConsts = Object.keys( MATH_CONSTS )
+    let [consumedChars, token] = [0, null];
+    // let mathConsts = Object.keys( MATH_CONSTS )
     // let mathFuncs = Object.keys( MATH_FUNCS )
-
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         while (current < input.length) {
           let char = input[current];
           let tokenized = false;
           let found = this.SpecialCharacters.find(v => v[1] === char);
-
           switch (char) {
             case '\n':
               {
@@ -2377,7 +2092,6 @@ class Tokenizer$1 {
                 this.row++;
                 break;
               }
-
             default:
               if ('/' === char && (input[current + 1] === "*" || input[current + 1] === "/")) {
                 let [chars, tk] = this.tokenizeComment(input, current);
@@ -2407,32 +2121,27 @@ class Tokenizer$1 {
               } else {
                 tokenized = false;
               }
-
               if (consumedChars !== 0) {
                 tokenized = true;
                 current += consumedChars;
                 this.col += consumedChars;
                 tokens.push(token);
               }
-
               if (!tokenized) {
                 var err = new Token(ERROR, input[current], this.row, this.col); //{type:'ERROR', value:input[current], row:this.row-1,col:this.col, pos:current};
-
                 tokens.push(err);
-                current++; //if (production) throw new TypeError('Invalid input: '+input[current-1]);
+                current++;
+                //if (production) throw new TypeError('Invalid input: '+input[current-1]);
               }
-
           }
         }
-
         tokens.push(new Token(EOF, '', this.row, -1)); //{type:'EOF', value:''});
-
         resolve(tokens);
       }, 100);
-    }); // console.log( { tokens } )
+    });
+    // console.log( { tokens } )
     // return tokens
   }
-
 }
 
 const ParseToken = function ParseToken(self) {
@@ -2445,7 +2154,6 @@ const ParseToken = function ParseToken(self) {
         return true;
       }
     },
-
     if() {
       if (self.prev === RULE) {
         self.prev = IF;
@@ -2460,7 +2168,6 @@ const ParseToken = function ParseToken(self) {
         return true;
       }
     },
-
     or() {
       if (self.prev === IF || self.prev === ELSEIF || self.prev === OR || self.prev === AND) {
         self.prev = OR;
@@ -2475,11 +2182,9 @@ const ParseToken = function ParseToken(self) {
         return true;
       }
     },
-
     and() {
       if (self.prev === IF || self.prev === ELSEIF || self.prev === THEN || self.prev === ELSE || self.prev === AND) {
         self.prev = AND;
-
         if (self.prev === THEN) {
           const p = self.scanInference();
           if (!p) return;
@@ -2511,7 +2216,6 @@ const ParseToken = function ParseToken(self) {
         }
       }
     },
-
     then(token) {
       // console.log(self.prev, token)
       if (self.prev === IF || self.prev === ELSEIF || self.prev === OR || self.prev === AND) {
@@ -2526,11 +2230,10 @@ const ParseToken = function ParseToken(self) {
         return true;
       }
     },
-
     elseif(token) {
       if (self.prev === THEN || self.prev === AND || self.prev === ELSE) {
-        self.prev = ELSEIF; // console.log(token)
-
+        self.prev = ELSEIF;
+        // console.log(token)
         const p = self.scanPremise();
         if (!p) return;
         const {
@@ -2542,7 +2245,6 @@ const ParseToken = function ParseToken(self) {
         return true;
       }
     },
-
     else() {
       if (self.prev === THEN || self.prev === AND) {
         self.prev = ELSE;
@@ -2556,7 +2258,6 @@ const ParseToken = function ParseToken(self) {
         return true;
       }
     },
-
     prompt() {
       if (self.prev === null || self.prev === MENU || self.prev === THEN || self.prev === ELSE) {
         self.prev = PROMPT;
@@ -2565,7 +2266,6 @@ const ParseToken = function ParseToken(self) {
         return true;
       }
     },
-
     question() {
       if (self.prev === PROMPT) {
         self.prev = QUESTION;
@@ -2574,7 +2274,6 @@ const ParseToken = function ParseToken(self) {
         return true;
       }
     },
-
     menu() {
       if (self.prev === QUESTION) {
         self.prev = MENU;
@@ -2583,7 +2282,6 @@ const ParseToken = function ParseToken(self) {
         return this;
       }
     },
-
     digit() {
       if (self.prev === QUESTION) {
         self.prev = MENU;
@@ -2592,7 +2290,6 @@ const ParseToken = function ParseToken(self) {
         return true;
       }
     },
-
     text() {
       if (self.prev === QUESTION) {
         self.prev = MENU;
@@ -2601,7 +2298,6 @@ const ParseToken = function ParseToken(self) {
         return true;
       }
     },
-
     yes() {
       if (self.prev === QUESTION) {
         self.prev = MENU;
@@ -2610,7 +2306,6 @@ const ParseToken = function ParseToken(self) {
         return true;
       }
     },
-
     true() {
       if (self.prev === QUESTION) {
         self.prev = MENU;
@@ -2619,65 +2314,54 @@ const ParseToken = function ParseToken(self) {
         return true;
       }
     },
-
     min() {
       if (self.prev === MENU) {
-        const min = self.scanMin(); // self.pos--
-
+        const min = self.scanMin();
+        // self.pos--
         if (min) {
           EventEmmiter.publish("min", [min, self.row], this);
         }
-
         return true;
       }
     },
-
     max() {
       if (self.prev === MENU) {
-        const max = self.scanMax(); // self.pos--
-
+        const max = self.scanMax();
+        // self.pos--
         if (max) {
           EventEmmiter.publish("max", [max, self.row], this);
         }
-
         return true;
       }
     },
-
     cf() {
       if (self.prev === MENU) {
         EventEmmiter.publish("cf", [self.row], this);
         return true;
       }
     },
-
     mod() {
       if (self.prev === MENU) {
         EventEmmiter.publish("cf", [self.row], this);
         return true;
       }
     },
-
     attribute() {
       const attribute = self.scanAttribute();
       EventEmmiter.publish("attribute", [attribute, self.row], this);
       return true;
     },
-
     goal(token) {
       if (self.prev === null || self.prev === MENU || self.prev === THEN || self.prev === ELSE) {
         if (self.lastToken.type === LINE) {
           const goal = self.scanGoal();
-
           if (goal) {
             EventEmmiter.publish("goal", [goal, self.row], this);
           }
-
           return true;
         }
       }
     },
-
     array() {
       if (self.prev === null || self.prev === MENU || self.prev === THEN || self.prev === ELSE) {
         const array = self.scanArray();
@@ -2685,7 +2369,6 @@ const ParseToken = function ParseToken(self) {
         return true;
       }
     },
-
     title() {
       if (self.prev === null) {
         const title = self.scanTitle();
@@ -2693,7 +2376,6 @@ const ParseToken = function ParseToken(self) {
         return true;
       }
     },
-
     summary() {
       if (self.prev === null) {
         const summary = self.scanSummary();
@@ -2701,23 +2383,19 @@ const ParseToken = function ParseToken(self) {
         return true;
       }
     },
-
     line() {
       EventEmmiter.publish("line", [self.row], this);
       return true;
     },
-
     eof() {
       // End of file
       EventEmmiter.publish("eof", [self.row], this);
       return true;
     },
-
     error(token) {
       self.error("Unknown character or token: " + token.value, token);
       return true;
     }
-
   };
 };
 
@@ -2726,38 +2404,33 @@ const ParseToken = function ParseToken(self) {
  * Laguage grammar parser. Parser is language neutral, 
  * it does not know in which language the rules are written
  */
-
 class Parser {
   /**
     * Constructor 
     */
   constructor(language, languageModule) {
     // super()
-    this.language = language; // this.languageModule = languageModule
-
+    this.language = language;
+    // this.languageModule = languageModule
     this.keywords = languageModule.keywords; // languageModule.keywords // keywords[language.toLowerCase()]
-
     this.keyMap = Object.keys(this.keywords);
     this.keyValues = Object.values(this.keywords);
     this.tokens = null;
     this.prev = null;
     this.errors = [];
     this.data = {};
-    this.parseToken = ParseToken(this); // this.init()
+    this.parseToken = ParseToken(this);
+    // this.init()
   }
-
   get Event() {
     return super.prototype;
   }
-
   get Data() {
     return this.data;
   }
-
   get Error() {
     return this.errors;
   }
-
   init() {
     this.row = 0;
     this.col = 0;
@@ -2767,53 +2440,42 @@ class Parser {
     this.data = null;
     this.tokens = [];
   }
-
   matchCloseParenthesis(tokens, startIndex) {
     let $return = -1;
     let left = 0;
     let right = 0;
-
     for (let i = startIndex; i < tokens.length; i++) {
       const s = tokens[i].value;
-
       if (s === '(') {
         left++;
       } else if (s === ')') {
         right++;
       }
-
       if (left > 0 && left === right) {
         $return = i;
         break;
       }
     }
-
     return $return;
   }
-
   matchOpenParenthesis(tokens, startIndex) {
     let $return = -1;
     let left = 0;
     let right = 0;
-
     for (let i = startIndex; i >= 0; i--) {
       const s = tokens[i].value;
-
       if (s === '(') {
         left++;
       } else if (s === ')') {
         right++;
       }
-
       if (left > 0 && left === right) {
         $return = i;
         break;
       }
     }
-
     return $return;
   }
-
   matchParenthesis(tokens) {
     if (!tokens) return;
     this.matchBrackets(tokens);
@@ -2821,32 +2483,26 @@ class Parser {
     const close = ')';
     const opens = [];
     const closes = [];
-
     for (let i = 0; i < tokens.length; i++) {
       const c = tokens[i].value;
-
       if (c === open) {
         opens.push([i, c]);
       } else if (c === close) {
         closes.push([i, c]);
       }
     }
-
     for (let i = opens.length - 1; i >= 0; i--) {
       const match = this.matchCloseParenthesis(tokens, opens[i][0]);
-
       if (match === -1) {
         const msg = 'Open parenthesis \'{0}\' at column {1} has no close parenthesis';
         this.error(msg);
         break;
       }
     }
-
     for (let i = 0; i < closes.length; i++) {
       // let c = closes[i][1];
       const index = closes[i][0];
       const match = this.matchOpenParenthesis(tokens, index);
-
       if (match === -1) {
         const msg = 'Close parenthesis \'{0}\' at column {1} has no opening parenthesis';
         this.error(msg);
@@ -2854,84 +2510,67 @@ class Parser {
       }
     }
   }
-
   matchCloseBracket(tokens, startIndex) {
     let $return = -1;
     let left = 0;
     let right = 0;
-
     for (let i = startIndex; i < tokens.length; i++) {
       const s = tokens[i].value;
-
       if (s === '[') {
         left++;
       } else if (s === ']') {
         right++;
       }
-
       if (left > 0 && left === right) {
         $return = i;
         break;
       }
     }
-
     return $return;
   }
-
   matchOpenBracket(tokens, startIndex) {
     let $return = -1;
     let left = 0;
     let right = 0;
-
     for (let i = startIndex; i >= 0; i--) {
       const s = tokens[i].value;
-
       if (s === '[') {
         left++;
       } else if (s === ']') {
         right++;
       }
-
       if (left > 0 && left === right) {
         $return = i;
         break;
       }
     }
-
     return $return;
   }
-
   matchBrackets(tokens) {
     if (!tokens) return;
     const open = '[';
     const close = ']';
     const opens = [];
     const closes = [];
-
     for (let i = 0; i < tokens.length; i++) {
       const c = tokens[i].value;
-
       if (c === open) {
         opens.push([i, c]);
       } else if (c === close) {
         closes.push([i, c]);
       }
     }
-
     for (let i = opens.length - 1; i >= 0; i--) {
       const match = this.matchCloseBracket(tokens, opens[i][0]);
-
       if (match === -1) {
         const msg = 'Open bracket \'{0}\' at column {1} has no close bracket';
         this.error(msg);
         break;
       }
     }
-
     for (let i = 0; i < closes.length; i++) {
       const index = closes[i][0];
       const match = this.matchOpenBracket(tokens, index);
-
       if (match === -1) {
         const msg = 'Close bracket \'{0}\' at column {1} has no opening bracket';
         this.error(msg);
@@ -2939,280 +2578,213 @@ class Parser {
       }
     }
   }
-
   matchDuplicateOperator(token) {
     if (!token) return;
-
     if (token.value.toString().match(/[+\-*/]/)) {
       const next = this.peek();
-
       if (next && next.value.toString().match(/[+\-*/]/)) {
         this.error('Duplicate operator ' + token.value + ' ' + next.value, token);
         return;
       }
     }
   }
-
   readToEndOfLine() {
     const tokens = [];
     let peek = null;
-
     do {
       peek = this.peek();
       let token = this.tokens[this.pos];
       tokens.push(token);
       this.advance();
     } while (peek && peek.type !== LINE && peek.type !== EOF);
-
     const text = tokens.map(t => t.value);
-
     if (!text || text.length === 0) {
       return null;
     }
-
     return text.join(' ');
   }
-
   scanRule() {
     const text = this.scanDefinition(RULE);
-
     if (!text || text.length === 0) {
       return this.error('Rule should have description');
     }
-
     return text;
   }
-
   scanDefinition(type, name) {
     let token = this.peek(type);
     if (token) this.eat(type);
     return this.readToEndOfLine();
   }
-
   scanTitle() {
     const text = this.scanDefinition(TITLE, this.keywords.TITLE);
-
     if (!text || text.length === 0) {
       return this.error('Title should have description');
     }
-
     return text;
   }
-
   scanSummary() {
     const text = this.scanDefinition(SUMMARY, this.keywords.SUMMARY);
-
     if (!text || text.length === 0) {
       return this.error('Summary should have description');
     }
-
     return text;
   }
-
   scanQuestion() {
     const text = this.scanDefinition(QUESTION, this.keywords.QUESTION);
-
     if (!text || text.length === 0) {
       return this.error('Question should have a statement');
     }
-
     return text;
   }
-
   scanAttribute() {
     // then attribute equal expression
     this.eat(ATTRIBUTE);
     const left = this.eat(ATTR);
-
     if (!left) {
       return this.error('Attribute definition should have Attribute Name');
     }
-
     const equal = this.eat(EQ);
-
     if (!equal) {
       return this.error('Expected =');
     }
-
     const right = this.rightNode();
-
     if (right.type === EOF) {
       return this.error('Expected expression but found end of file', right);
     } else if (right.type === LINE) {
       return this.error('Expected expression but found new line', right);
     }
-
     this.matchParenthesis(left);
     this.matchParenthesis(right);
     const rt = right.map(n => n.value);
     this.assignGlobal(left.value, rt.join(' '), right[0].row, right[0].column, true);
     return [left.value, right];
   }
-
   scanArray() {
     const node = this.eat(ARRAY);
-
     if (!node) {
       return this.error('Expected array name');
     }
-
     const equal = this.eat(EQ);
-
     if (!equal) {
       return this.error('Expected =');
-    } // let token=null;
-
-
+    }
+    // let token=null;
     const tokens = [];
     const lparen = this.eat(LPAREN);
-
     if (!lparen) {
       return this.error('Expected (');
-    } // tokens.push(lparen);
-
-
+    }
+    // tokens.push(lparen);
     while (this.peek() && this.peek().type !== LINE && this.peek().type !== EOF) {
       let token = this.tokens[this.pos];
-
       if (!token || token.type !== NUM && token.type !== ATTR) {
         return this.error('Expected number or Attribute');
       }
-
       tokens.push(token);
       token = this.eat(COMMA);
-
       if (!token) {
         return this.error('Expected ,');
       }
-
       tokens.push(token);
     }
-
     const rparen = tokens.pop();
-
     if (rparen && rparen.type !== RPAREN) {
       return this.error('Expected ) but found new line');
     }
-
     this.assignGlobal(node.value, node.value, node.row, node.column);
     return [node, tokens, ARRAY];
   }
-
   scanGoal() {
     // this.eat(GOAL)
     const text = this.scanDefinition(GOAL);
-
     if (!text || text.length === 0) {
       return this.error('Goal definition should have texts');
     }
-
     return text;
   }
-
   scanPrompt() {
     // this.eat(PROMPT)
     const prompt = this.scanDefinition(PROMPT); // this.eat(ATTR)
-
     if (!prompt || prompt.length === 0) {
       return this.error('Prompt definition should have texts');
     }
-
     this.prompts[prompt.toLowerCase()] = prompt;
     return prompt;
   }
-
   scanMenu() {
     this.eat(MENU);
     const tokens = [];
     const lparen = this.eat(LPAREN);
-
     if (!lparen) {
       return this.error('Expected (');
     }
-
     let token = this.tokens[this.pos];
-
     while (token && token.type !== RPAREN && token.type !== LINE && token.type !== EOF) {
       if (!token || token.type !== NUM && token.type !== ATTR && token.type !== YES && token.type !== NO && token.type !== TRUE && token.type !== FALSE) {
         return this.error('Expected number or Attribute');
       }
-
       tokens.push(token);
-
       if (this.peek() && this.peek().type === RPAREN) {
         this.advance();
         break;
       }
-
       this.advance();
       this.eat(COMMA);
       token = this.tokens[this.pos];
     }
-
     const menu = tokens.map(m => m.value);
     return menu;
   }
-
   scanYesNo() {
     // let next = this.peek()
-    this.eat(YES); // if (next && next.type === COMMA) {
-
-    this.eat(COMMA); // }
-
+    this.eat(YES);
+    // if (next && next.type === COMMA) {
+    this.eat(COMMA);
+    // }
     this.eat(NO);
   }
-
   scanTrueFalse() {
     // let next = this.peek()
-    this.eat(TRUE); // if (next && next.type === COMMA) {
-
-    this.eat(COMMA); // }
-
+    this.eat(TRUE);
+    // if (next && next.type === COMMA) {
+    this.eat(COMMA);
+    // }
     this.eat(FALSE);
   }
-
   scanDigit() {
     this.eat(DIGIT);
   }
-
   scanText() {
     this.eat(TEXT);
   }
-
   scanMin() {
     this.eat(MIN);
     const min = this.eat(NUM);
     return min;
   }
-
   scanMax() {
     this.eat(MAX);
     const max = this.eat(NUM);
     return max;
   }
-
   scanCF() {
     if (this.peek() && this.peek().type === this.CF) {
       this.advance();
       cf = true;
     }
-
     if (this.peek() && this.peek().type !== LINE) {
       this.error('Expected end of line but found ' + this.peek().value);
     }
   }
-
   scanInference() {
     this.advance();
     const name = this.leftAttribute();
     let right = null;
     let nextToken = this.taste();
     let comparator = nextToken;
-
     if (!comparator) {
       return this.error('Expected expression but found end of line');
     }
-
     switch (nextToken.type) {
       case EQ:
       case GT:
@@ -3223,51 +2795,40 @@ class Parser {
       case EX:
         this.advance();
         right = this.rightNode();
-
         if (comparator) {
           if (right && right[0].type === EOF) {
             return this.error('Expected expression but found end of file', right);
           } else if (right && right[0].type === LINE) {
             return this.error('Expected expression but found new line', right);
           }
-
           this.matchParenthesis(right);
         }
-
         break;
-
       default:
         comparator = null;
     }
-
     let _right = Object.assign({}, name);
-
     if (!right) {
       _right.type = TRUE;
       _right.value = this.keywords[TRUE];
     }
-
     if (!right) right = [_right];
     return {
       name,
       right
     };
   }
-
   scanPremise() {
     this.advance();
     const left = this.leftNode();
     let nextToken = this.taste();
     let comparator = nextToken;
-
     if (!comparator) {
       return this.error('Expected expression but found end of line');
     }
-
     this.matchParenthesis(left);
     let comp = null;
     let right = [];
-
     switch (comparator.type) {
       case EQ:
       case GT:
@@ -3280,31 +2841,26 @@ class Parser {
         comp = comparator.type;
         right = this.rightNode();
         this.matchParenthesis(right);
-
         if (comparator) {
           if (right && right[0].type === EOF) {
             return this.error('Expected expression but found end of file', right);
           } else if (right && right[0].type === LINE) {
             return this.error('Expected expression but found new line', right);
           }
-
           this.matchParenthesis(right);
         }
-
         break;
-
       case AND:
       case OR:
         this.pos--;
         break;
-
       default:
         comparator = null;
-    } // if (left.length == 0) {
+    }
+
+    // if (left.length == 0) {
     // this.error('Expected expression but found end of line')
     // }
-
-
     left.forEach(token => {
       if (token.type === ATTR) {
         if (!this.attributes[token.value.toLocaleLowerCase()]) {
@@ -3312,15 +2868,12 @@ class Parser {
         }
       }
     });
-
     if (!right || right.length === 0) {
       let _right = Object.assign({}, {});
-
       _right.type = TRUE;
       _right.value = this.keywords[TRUE];
       right = [_right];
     }
-
     if (!comp) comp = EQ;
     return {
       left,
@@ -3328,35 +2881,26 @@ class Parser {
       op: comp
     };
   }
-
   peek() {
     const peek_pos = this.pos + 1;
-
     if (peek_pos > this.tokens.length - 1) {
       return null;
     }
-
     return this.tokens[peek_pos];
   }
-
   trace() {
     const trace_pos = this.pos - 1;
-
     if (trace_pos < 0) {
       return null;
     }
-
     return this.tokens[trace_pos];
   }
-
   taste() {
     const token = this.tokens[this.pos];
     return token;
   }
-
   eat(type) {
     const token = this.tokens[this.pos];
-
     if (token) {
       if (token.type === type) {
         this.advance();
@@ -3365,18 +2909,14 @@ class Parser {
         return this.error('Expected ' + type + ' but found ' + token.type);
       }
     }
-
     return this.error('Expected ' + type + ' but found end of line');
   }
-
   advance() {
     this.pos++;
   }
-
   rightNode() {
     const result = [];
     let token = this.tokens[this.pos];
-
     while (token && token.type !== LINE && token.type !== EOF) {
       switch (token.type) {
         case EQ:
@@ -3387,11 +2927,9 @@ class Parser {
         case IN:
         case EX:
           return this.error('Duplicate comparator ' + token.value);
-
         case AND:
         case OR:
           return result;
-
         default:
           this.matchDuplicateOperator(token);
           result.push(token);
@@ -3399,19 +2937,15 @@ class Parser {
           token = this.tokens[this.pos];
       }
     }
-
     return result;
   }
-
   leftNode() {
     const result = [];
     let token = this.tokens[this.pos];
-
     while (token && token.type !== LINE && token.type !== EOF) {
       if (token.type === ERROR) {
         this.error('Error', token);
       }
-
       switch (token.type) {
         case EQ:
         case GT:
@@ -3421,11 +2955,9 @@ class Parser {
         case IN:
         case EX:
           return result;
-
         case AND:
         case OR:
           return result;
-
         default:
           // do nothing
           this.matchDuplicateOperator(token);
@@ -3434,24 +2966,18 @@ class Parser {
           token = this.tokens[this.pos];
       }
     }
-
     return result; // may never be reached
   }
-
   leftAttribute() {
     const token = this.eat(ATTR);
-
     if (!token) {
       return this.error('Expected attribute');
     }
-
     this.inferences[token.value.toLocaleLowerCase()] = token;
     return token; // may never be reached
   }
-
   comparator() {
     const token = this.tokens[this.pos];
-
     switch (token.type) {
       case EQ:
       case GT:
@@ -3461,15 +2987,12 @@ class Parser {
       case IN:
       case EX:
         break;
-
       default:
         this.warn('Expected comparator but found ' + token.value + ' ' + token.row);
     }
-
     this.advance();
     return token;
   }
-
   assignGlobal(name, value, row, col, inf) {
     this.attributes[name.toLocaleLowerCase()] = {
       name: name,
@@ -3477,22 +3000,19 @@ class Parser {
       row: row,
       col: col
     };
-
     if (inf) {
       this.inferences[name.toLocaleLowerCase()] = name;
     }
   }
-
   checkVarableDeclarations() {
     Object.keys(this.attributes).forEach(k => {
       const a = this.attributes[k];
-
       if (!(this.inferences[k] || this.prompts[k])) {
-        this.warn('No input prompt for attribute ' + k, a); // console.log(this.inferences, this.prompts)
+        this.warn('No input prompt for attribute ' + k, a);
+        // console.log(this.inferences, this.prompts)
       }
     });
   }
-
   warn(msg, token) {
     const w = {
       type: 'warning',
@@ -3504,12 +3024,10 @@ class Parser {
       text: msg,
       // Error message
       raw: '' // "Missing semicolon"
-
     };
     this.errors.push(w);
     EventEmmiter.publish('warning', w);
   }
-
   error(msg, token) {
     const e = {
       type: 'error',
@@ -3521,12 +3039,10 @@ class Parser {
       text: msg,
       // Error message
       raw: token // "Missing semicolon"
-
     };
     this.errors.push(e);
     EventEmmiter.publish('error', e);
   }
-
   info(msg, token) {
     const i = {
       type: 'info',
@@ -3538,17 +3054,14 @@ class Parser {
       text: msg,
       // Error message
       raw: token // "Missing semicolon"
-
     };
     this.errors.push(i);
     EventEmmiter.publish('info', i);
   }
-
   isKeyword(word, index, tokens) {
     const token = index > 0 ? tokens[index - 1] : null;
     const prev = token ? token.type : null;
     const history = index > 1 ? tokens[index - 2].type : null;
-
     switch (word) {
       case AND:
       case THEN:
@@ -3568,83 +3081,62 @@ class Parser {
         if (prev === LINE) {
           return true;
         }
-
         return false;
-
       case YES:
       case TRUE:
         if (prev === LINE || prev === EQ || prev === IS) {
           return true;
         }
-
         return false;
-
       case NO:
         if (prev === EQ || prev === IS) {
           return true;
         } else if (prev === COMMA && history === YES) {
           return true;
         }
-
         return false;
-
       case FALSE:
         if (prev === EQ || prev === IS) {
           return true;
         } else if (prev === COMMA && history === TRUE) {
           return true;
         }
-
         return false;
-
       case MIN:
         if (prev === LINE) return true;
         return false;
-
       case MAX:
         if (prev === LINE) {
           return true;
         }
-
         return false;
-
       case IF:
         if (prev === LINE || prev === ELSE) {
           return true;
         }
-
         return false;
-
       case ELSEIF:
         if (prev === LINE) {
           return true;
         }
-
         return false;
-
       default:
         return true;
     }
   }
-
   filterKeywords() {
     let tokens = [];
     let prevToken = null;
-
     for (let i = 0; i < this.tokens.length; i++) {
       let token = this.tokens[i];
-
       if (token.type === ATTR) {
         //let found = this.keyValues.findIndex(v => v.toUpperCase() === token.value.toUpperCase())
         let key = this.keyMap.find(k => this.keywords[k].toUpperCase && this.keywords[k].toUpperCase() === token.value.toUpperCase());
-
         if (key) {
           const isKeyword = this.isKeyword(key, i, tokens);
-
           if (isKeyword) {
             let tk = Object.assign({}, token);
             tk.type = key;
-
             if (prevToken && prevToken.type === ELSE && key === IF) {
               tokens[i - 1].value += ' ' + tk.value;
               tokens[i - 1].type = ELSEIF;
@@ -3654,40 +3146,34 @@ class Parser {
             } else {
               token = tk;
             }
-
             tokens.push(tk);
             continue;
           }
         }
       }
-
       tokens.push(token);
-      prevToken = token; // history.unshift(Object.assign({}, token))
+      prevToken = token;
+      // history.unshift(Object.assign({}, token))
       // if (history.length > 2) history.pop()
     }
-
-    this.tokens = tokens; // console.log(tokens)
+    this.tokens = tokens;
+    // console.log(tokens)
   }
-
   transform() {
     let transformed = [];
     this.filterKeywords();
-
     for (let i = 0; i < this.tokens.length; i++) {
       let token = this.tokens[i];
       if (token.type === EOF) break;
       let phrase = [];
-
       if (token.type === ATTR) {
         let row = token.row;
         let col = token.column;
-
         do {
           phrase.push(token.value);
           i++;
           token = this.tokens[i];
         } while (token && (token.type === ATTR || token.type == NUM));
-
         let attr = phrase.join(' ');
         transformed.push({
           type: ATTR,
@@ -3707,50 +3193,40 @@ class Parser {
         transformed.push(token);
       }
     }
-
     this.tokens = transformed;
   }
-
   applyMaths() {
     let _tokens = [];
-
     for (let i = 0; i < this.tokens.length; i++) {
       let math = null;
       let current = this.tokens[i];
       const t = this.tokens[i + 1];
-
       if (t && t.type === LPAREN && current.type === ATTR && MATH_FUNCS[current.value]) {
         math = Object.assign({}, current);
         math.type = FUNC;
-
         _tokens.push(math);
       } else if (current.type === ATTR && MATH_CONSTS[current.value]) {
         math = Object.assign({}, current);
         math.type = CONST;
-
         _tokens.push(math);
       } else {
         _tokens.push(current);
       }
     }
-
     let finalTokens = [];
-
     for (let i = 0; i < _tokens.length; i++) {
       let math = null;
       let current = _tokens[i];
       const t = _tokens[i + 1];
       const nextToken = _tokens[i + 2];
-
       if ((current.type === ATTR || current.type === NUM || current.type === CONST) && (t.type === LPAREN || t.type === LBRACKET)) {
         finalTokens.push(current);
         let key = this.keyMap.find(k => this.keywords[k].toUpperCase() === current.value.toUpperCase());
-
         if (!key) {
           math = Object.assign({}, current);
           math.type = TIMES;
-          math.value = '*'; // finalTokens.push(current)
-
+          math.value = '*';
+          // finalTokens.push(current)
           finalTokens.push(math);
         }
       } else if (nextToken && (nextToken.type === ATTR || nextToken.type === NUM || nextToken.type === CONST) && (current.type === ATTR || current.type === NUM || current.type === CONST) && t.type === CARRET) {
@@ -3778,57 +3254,44 @@ class Parser {
         finalTokens.push(current);
       }
     }
-
     this.tokens = finalTokens;
   }
-
   filterComment() {
     return this.tokens.filter(token => token.type !== REM && token.type !== COMMENT);
   }
+
   /**
      * Recursively go through tokens and emmit events using implementation of
      * Finite State Machine (FST)
      * @param {JSON} tokens 
      * @returns { Promise<Object> } errors if any including warning and info
      */
-
-
   async parse(text) {
     var _this = this;
-
     return new Promise(async function (resolve, reject) {
       _this.init();
-
       _this.pos = 0;
       let tokenizer = new Tokenizer$1();
       let tokens = await tokenizer.tokenize(text);
       setTimeout(() => {
         _this.tokens = tokens.filter(token => token.type !== SPACE && token.type !== REM);
-
         _this.applyMaths();
-
         _this.transform();
-
         _this.prev = null;
         _this.lastToken = null;
-
         for (_this.pos = 0; _this.pos < _this.tokens.length; _this.pos++) {
           const token = _this.tokens[_this.pos];
           _this.lastToken = _this.tokens[_this.pos > 0 ? _this.pos - 1 : 0];
           _this.row = token.row;
           _this.col = token.column;
           const type = token.type;
-
           if (type === REM || type === COMMENT) {
             continue;
           }
-
           const action = _this.parseToken[type.toLowerCase()];
-
           if (action) {
             // call the method to parse token
             const result = _this.parseToken[type.toLowerCase()](token);
-
             if (!result) {
               _this.error('Invalid keyword: ' + token.value);
             }
@@ -3836,25 +3299,22 @@ class Parser {
             _this.error('Invalid token or keyword: ' + token.value, token);
           }
         }
-
-        _this.checkVarableDeclarations(); // pubsub.publish('data', { errors: this.errors, data: this.tokens })
-
-
+        _this.checkVarableDeclarations();
+        // pubsub.publish('data', { errors: this.errors, data: this.tokens })
         EventEmmiter.publish('done', {
           errors: _this.errors,
           data: _this.tokens
         });
-
         if (_this.errors.length > 0) {
           // console.log(this.tokens, this.errors, this.keywords)
-          resolve(_this.errors); // 
+          resolve(_this.errors);
+          // 
         } else {
           resolve([]);
         }
       }, 100);
     });
   }
-
 }
 
 // import CustomEvent from './events.js'
@@ -3864,15 +3324,12 @@ class Tokenizer {
     this.col = 0;
     this.errors = [];
   }
-
   get Data() {
     return this.data;
   }
-
   get Error() {
     return this.errors;
   }
-
   error(msg, token, flag = 'error') {
     const e = {
       type: flag,
@@ -3884,89 +3341,74 @@ class Tokenizer {
       text: msg,
       // Error message
       raw: token // "Missing semicolon"
-
     };
     this.errors.push(e);
   }
-
   tokenizeNumber(input, current) {
     //Return a (multidigit) integer or float consumed from the input
     var result = '';
     let consumedChars = 0;
     let count = current;
     let char = input[current];
-
     do {
       result += char;
       consumedChars++;
       count++;
       char = input[count];
     } while (char && char.toString().match(/[0-9]/));
-
     if (consumedChars > 0) {
       let token = [consumedChars, new Token(NUM, Number(result), this.row, this.col)];
       return token;
     }
-
     return [0, null];
   }
-
   skipWhiteSpace(input, current) {
     var result = '';
     let consumedChars = 0;
     let count = current;
     let char = input[current];
-
     do {
       result += char;
       consumedChars++;
       count++;
       char = input[count];
     } while (char && char !== '\n' && char.match(/\s/));
-
     if (consumedChars > 0) {
       let token = [consumedChars, new Token(SPACE, result, this.row, this.col)];
       return token;
     }
-
     return [0, null];
   }
-
   tokenizeWord(input, current) {
     let consumedChars = 0;
     let value = '';
     let count = current;
-    let char = input[current]; //test for alphabetic sequence
-
+    let char = input[current];
+    //test for alphabetic sequence
     do {
       value += char;
       consumedChars++;
       count++;
       char = input[count];
     } while (char && char !== "\n" && char !== " " && char !== "=" && char !== ":");
-
     if (consumedChars > 0) {
-      let token = new Token(ATTR, value, this.row, this.col); // console.log([consumedChars, token])
-
+      let token = new Token(ATTR, value, this.row, this.col);
+      // console.log([consumedChars, token])
       return [consumedChars, token]; // { type, value, row, _col }];
     }
-
     return [0, null];
   }
-
   tokenizeBlockCommentXXX(input, current) {
     if (input[current + 1] === '*') {
       let value = '';
       let count = current;
       let char = input[current];
       let consumedChars = 0;
-
       do {
         value += char;
         consumedChars++;
         count++;
         char = input[count];
-
         if (char === '\n') {
           this.col = 0;
           this.row++;
@@ -3976,49 +3418,39 @@ class Tokenizer {
           break;
         }
       } while (char);
-
       let token = new Token(REM, value, this.row, this.col);
       return [consumedChars, token]; // { type, value, row, _col }];
     } else if (input[current + 1] === '/') {
       return this.tokenizeLineComment(input, current);
     }
-
     return [0, null];
   }
-
   tokenizeComment(input, current) {
     let char = input[current];
     let consumedChars = 0;
-
     if (input[current + 1] === '/') {
       let value = '';
       let count = current;
-
       do {
         value += char;
         consumedChars++;
         count++;
         char = input[count];
       } while (char && char !== '\n');
-
       let token = new Token(REM, value, this.row, this.col);
       return [consumedChars, token]; // { type, value, row, _col }];
     }
-
     return [0, null];
   }
-
   tokenize(input) {
     this.row = 0;
     this.col = 0;
     let current = 0;
     let tokens = [];
-
     while (current < input.length) {
       let char = input[current];
       let [consumedChars, token] = [0, null];
       let tokenized = false;
-
       switch (char) {
         case "{":
           {
@@ -4027,7 +3459,6 @@ class Tokenizer {
             this.col++;
             break;
           }
-
         case "}":
           {
             tokens.push(new Token(RPAREN, char, this.row, this.col));
@@ -4035,7 +3466,6 @@ class Tokenizer {
             this.col++;
             break;
           }
-
         case "=":
           {
             // case ":": {
@@ -4044,7 +3474,6 @@ class Tokenizer {
             this.col++;
             break;
           }
-
         case ":":
           {
             tokens.push(new Token(COLON, char, this.row, this.col));
@@ -4052,7 +3481,6 @@ class Tokenizer {
             this.col++;
             break;
           }
-
         case "\n":
           {
             tokens.push(new Token(LINE, char, this.row, this.col));
@@ -4061,7 +3489,6 @@ class Tokenizer {
             this.row++;
             break;
           }
-
         default:
           if (RegExp(/[0-9]/).test(char)) {
             //Number: tokenize number
@@ -4084,29 +3511,24 @@ class Tokenizer {
           } else {
             tokenized = false;
           }
-
           if (consumedChars !== 0) {
             tokenized = true;
             current += consumedChars;
             this.col += consumedChars;
             tokens.push(token);
           }
-
           if (!tokenized) {
             var err = new Token(ERROR, input[current], this.row, this.col); //{type:'ERROR', value:input[current], row:this.row-1,col:this.col, pos:current};
-
             tokens.push(err);
-            current++; //if (production) throw new TypeError('Invalid input: '+input[current-1]);
+            current++;
+            //if (production) throw new TypeError('Invalid input: '+input[current-1]);
           }
-
       }
     }
-
     tokens.push(new Token(EOF, '', this.row, -1)); //{type:'EOF', value:''});
 
     return tokens;
   }
-
 }
 
 const editText = `
@@ -4117,11 +3539,10 @@ const editText = `
     work email abah.a@nafdac.gov.ng:
     your message: Please come to {0} Adeleye Street, 1} Ladilak
   `;
-
 function ResourceParser(lang, languageModule) {
   var errors = [];
-  var data = {}; // const row = 0;
-
+  var data = {};
+  // const row = 0;
   function error(data, flag = "error") {
     const e = {
       type: flag,
@@ -4133,44 +3554,35 @@ function ResourceParser(lang, languageModule) {
       text: data.msg,
       // Error message
       raw: data.raw // "Missing semicolon"
-
     };
     errors.push(e);
     throw new Error(e.text + " " + e.raw);
   }
-
   function transform(tokens) {
     let transformed = [];
-
     for (let i = 0; i < tokens.length; i++) {
       let token = tokens[i];
       if (token.type === "EOF") break;
       let phrase = [];
-
       if (token.type === ATTR) {
         let row = token.row;
         let col = token.column;
-
         do {
           phrase.push(token.value);
           i++;
           token = tokens[i];
-
           if (token.type === REM) {
             i++;
             token = tokens[i];
             continue;
           }
         } while (token && (token.type === ATTR || token.type == NUM || token.type === SPACE));
-
         i--;
-
         if (phrase.length > 0) {
           if (phrase[phrase.length - 1] === " ") {
             phrase.pop();
             i--;
           }
-
           let attr = phrase.join(" ");
           transformed.push({
             type: ATTR,
@@ -4183,33 +3595,25 @@ function ResourceParser(lang, languageModule) {
         transformed.push(token);
       }
     }
-
     return transformed;
   }
-
   function eatLeft(tokens, index) {
     let token = tokens[index];
-
     if (token.type === LPAREN) {
       index++;
       return index;
     }
-
     return index;
   }
-
   function eatRight(tokens, index) {
     let token = tokens[index];
-
     if (token && token.type === RPAREN) {
       index++;
       return index;
     }
-
     if (!token) {
       token = tokens[index - 1];
     }
-
     let msg = "Expected '}' at row: " + token.row + " col:" + token.column + " but found '" + tokens.map(t => t.value).join("") + "'";
     error({
       row,
@@ -4220,32 +3624,26 @@ function ResourceParser(lang, languageModule) {
     });
     return index;
   }
-
   function eatNumber(tokens, index) {
     let token = tokens[index];
-
     if (token && token.type === SPACE) {
       index++;
       token = tokens[index];
     }
-
     if (token && token.value.toString().match(/[0-9]/)) {
       do {
         index++;
         token = tokens[index];
       } while (token && token.value.toString().match(/[0-9]/));
-
       if (token && token.type === SPACE) {
         index++;
         token = tokens[index];
       }
-
       return index;
     }
-
     let msg = "Integer expected at row: " + token.row + " col: " + token.column + " but found '" + token.value + "'";
-    " in" + tokens.map(t => t.value).join(""); // error(msg, token);
-
+    " in" + tokens.map(t => t.value).join("");
+    // error(msg, token);
     error({
       row,
       col: token.column,
@@ -4255,20 +3653,19 @@ function ResourceParser(lang, languageModule) {
     });
     return index;
   }
-
   function checkParam(line) {
-
     for (let i = 0; i < line.length; i++) {
-      let token = line[i]; // console.log({token})
-
+      let token = line[i];
+      // console.log({token})
       if (token.type === LPAREN) {
         i = eatLeft(line, i);
         i = eatNumber(line, i);
         i = eatRight(line, i);
       } else if (token.type === RPAREN) {
         // No opening parenthesis
-        let msg = "'}' at " + token.row + " col: " + token.column + " has no matching opening parenthesis "; // error(msg, token);
+        let msg = "'}' at " + token.row + " col: " + token.column + " has no matching opening parenthesis ";
 
+        // error(msg, token);
         error({
           row,
           col: token.column,
@@ -4279,18 +3676,16 @@ function ResourceParser(lang, languageModule) {
       }
     }
   }
-
   function tokenize(text) {
     let tokenizer = new Tokenizer();
     let raw = tokenizer.tokenize(text);
     let tokens = transform(raw);
     return tokens;
   }
-
   function parseLine(line, formattedLine, row) {
     let tokens = tokenize(line);
-    let assign = tokens.find(t => t.type === COLON || t.type === EQ); // console.log(assign.column, formattedLine.length);
-
+    let assign = tokens.find(t => t.type === COLON || t.type === EQ);
+    // console.log(assign.column, formattedLine.length);
     if (!assign) {
       error({
         row,
@@ -4315,18 +3710,15 @@ function ResourceParser(lang, languageModule) {
         raw: formattedLine,
         params: []
       });
-    } // let assignIndex = tokens.indexOf(":");
+    }
+    // let assignIndex = tokens.indexOf(":");
     // if (assignIndex < 0) assignIndex = tokens.indexOf("=");
     // let lineParts = line.split(":");
-
-
     let leftTokens = tokens.filter(t => t.column <= assign.column); // substring(0, assignIndex); // lineParts[0];
-
     checkParam(leftTokens);
     let rightTokens = tokens.filter(t => t.column >= assign.column);
     checkParam(rightTokens);
     const key = leftTokens.map(token => token.value).join("");
-
     if (data[key]) {
       error({
         row,
@@ -4336,11 +3728,9 @@ function ResourceParser(lang, languageModule) {
         params: [key]
       });
     }
-
     const value = rightTokens.map(token => token.value).join("");
     data[key] = value.trim();
   }
-
   function parse(text) {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
@@ -4348,36 +3738,31 @@ function ResourceParser(lang, languageModule) {
         errors = [];
         const lines = text.split("\n");
         if (lines.length === 0) return;
-
         for (let row = 0; row < lines.length; row++) {
           let line = lines[row];
           let formattedLine = line.trim();
           if (formattedLine.length === 0) continue;
           if (formattedLine.indexOf("//") === 0) continue;
-
           try {
             parseLine(line, formattedLine, row);
           } catch (e) {
             console.log(e.message);
           }
         }
-
         resolve(errors);
       }, 0);
     });
   }
-
   function compile(text) {
     return new Promise(resolve => {
       setTimeout(async () => {
-        await this.parse(text); // this.emit("data", { errors: errors, data: this.data });
+        await this.parse(text);
+        // this.emit("data", { errors: errors, data: this.data });
         // data.languageModule = languageModule;
-
         resolve(data);
       }, 0);
     });
   }
-
   return {
     data,
     errors,
@@ -4392,7 +3777,7 @@ function ResourceParser(lang, languageModule) {
       });
     }
   };
-} // ResourceParser("en", []).test();
+}
 
 class Prompt {
   constructor(name) {
@@ -4407,11 +3792,10 @@ class Prompt {
     this.Type = Constants.NUMBER;
     this.Menu = [];
     this.Min = null; // = (Number.MIN_VALUE);
-
     this.Max = null; // = (Number.MAX_VALUE);
   }
-
 }
+
 /* export function normalize(prompt) {
   switch (prompt.Type) {
     case Constants.MENU:
@@ -4458,7 +3842,6 @@ class Attribute {
     this.CF = 100;
     this.Value = null;
   }
-
 }
 
 class Inference extends Attribute {
@@ -4466,14 +3849,12 @@ class Inference extends Attribute {
     super(name);
     this.Action = null;
   }
-
 }
 
 class Goal extends Attribute {
   constructor(name) {
     super(name);
   }
-
 }
 
 class Condition {
@@ -4483,7 +3864,6 @@ class Condition {
     this.Premises = [];
     this.isMet = false;
   }
-
   static getCF(condition) {
     let cf = 100;
     condition.confidences.forEach(v => {
@@ -4491,7 +3871,6 @@ class Condition {
     });
     return cf;
   }
-
 }
 
 class Statement {
@@ -4503,7 +3882,6 @@ class Statement {
     this.Right = null;
     this.Comparator = null;
   }
-
 }
 
 const characters = ['@', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
@@ -4512,11 +3890,10 @@ class Menu {
     this.Index = index;
     this.Name = name;
     this.Value = value;
-    this.Letter = characters[index]; // this.Text=displayText||value;
-
+    this.Letter = characters[index];
+    // this.Text=displayText||value;
     this.Line = 0;
   }
-
 }
 
 class Rule {
@@ -4529,11 +3906,9 @@ class Rule {
     this.AltInferences = [];
     this.Conditions = [];
   }
-
   addLine(line) {
     this.Texts.push(line);
   }
-
 }
 
 class KnowledgebaseCompiler extends Parser {
@@ -4561,15 +3936,12 @@ class KnowledgebaseCompiler extends Parser {
     this.subscriptions = [];
     this.attachListeners();
   }
-
   subscribe(topic, listener) {
     this.subscriptions.push(EventEmmiter.subscribe(topic, listener));
   }
-
   unsubscribe() {
     this.subscriptions.forEach(subscription => subscription.remove());
   }
-
   attachListeners() {
     this.subscribe("rule", data => this.addRule(data[0], data[1]));
     this.subscribe("inference", data => {
@@ -4582,7 +3954,8 @@ class KnowledgebaseCompiler extends Parser {
     });
     this.subscribe("condition", data => {
       let [keyword, left, right, row, op] = data;
-      return this.addCondition(keyword, left, right, op, row // data[0], data[1][0], data[1][1], data[1][2], data[2],
+      return this.addCondition(keyword, left, right, op, row
+      // data[0], data[1][0], data[1][1], data[1][2], data[2],
       );
     });
     this.subscribe("prompt", data => this.addPrompt(data[0], data[1]));
@@ -4604,14 +3977,14 @@ class KnowledgebaseCompiler extends Parser {
     this.subscribe("line", () => this.addNewLine());
     this.subscribe("done", data => {
       this.unsubscribe();
-    }); // event.on('eof',this.eof);
+    });
+    // event.on('eof',this.eof);
     // event.on('syntax-error',this.addText);
     // event.on('char-error',this.addText);
     // event.on('error',this.addText);
     // event.on('warning',this.addText);
     // event.on('info',this.addText);
   }
-
   get Data() {
     return {
       language: this.language,
@@ -4633,81 +4006,68 @@ class KnowledgebaseCompiler extends Parser {
       rules: this.rules
     };
   }
-
   get Keywords() {
     return this.keywords;
   }
-
   get Rules() {
     return this.rules;
   }
+
   /* get Delimeters () {
     return /Math\.[a-z]+|Math\.(E|PI)/
   }*/
-
-
   get ActiveRule() {
     return this.rules[this.rules.length - 1];
   }
-
   get ActiveCondition() {
     let R = this.ActiveRule;
     let condition = R.Conditions[R.Conditions.length - 1];
     return condition;
   }
-
   get ActivePrompt() {
     return this.activePrompt;
   }
-
   set ActivePrompt(p) {
     this.activePrompt = p;
   }
-
   setTitle(text) {
     this.title = text;
   }
-
   setSummary(text) {
     this.summary = text;
-  } // Public Methods
+  }
 
-
+  // Public Methods
   setMin(value) {
     if (this.ActivePrompt.Type === YN || this.ActivePrompt.Type === TF) {
       value = 1;
     }
-
     this.prompts[this.ActivePrompt.Name].Min = this.ActivePrompt.Min = value.value || value;
   }
-
   setMax(value) {
     if (this.ActivePrompt.Type === YN || this.ActivePrompt.Type === TF) {
       value = 1;
     }
-
     this.prompts[this.ActivePrompt.Name].Max = this.ActivePrompt.Max = value.value || value;
   }
-
   setPromptType(type) {
     this.ActivePrompt.Type = type;
   }
-
   addText() {
     this.setPromptType(TEXT);
   }
-
   addNumber() {
     this.setPromptType(NUMBER);
   }
-
   addMenu(values) {
     // let menus = values;
     this.ActivePrompt.Menu = [];
     let index = 1;
     values.forEach(value => {
-      const M = new Menu(index, // index
-      value, // name
+      const M = new Menu(index,
+      // index
+      value,
+      // name
       value // value
       );
       this.ActivePrompt.Menu.push(M);
@@ -4715,15 +4075,16 @@ class KnowledgebaseCompiler extends Parser {
     });
     this.setPromptType(MENU);
   }
-
   addTrueFalse() {
     // let menus = values;
     this.ActivePrompt.Menu = [];
     let index = 0;
     const values = [true, false];
     values.forEach(value => {
-      const M = new Menu(index, // index
-      value, // name
+      const M = new Menu(index,
+      // index
+      value,
+      // name
       value // value
       // value   //display text
       );
@@ -4734,15 +4095,16 @@ class KnowledgebaseCompiler extends Parser {
     this.setMin(1);
     this.setMax(1);
   }
-
   addYesNo() {
     // let menus = values;
     this.ActivePrompt.Menu = [];
     let index = 0;
     const values = [this.keywords[YES], this.keywords[NO]];
     values.forEach(value => {
-      const M = new Menu(index, // index
-      value, // name
+      const M = new Menu(index,
+      // index
+      value,
+      // name
       value // value
       // value   //display text
       );
@@ -4753,60 +4115,51 @@ class KnowledgebaseCompiler extends Parser {
     this.setMin(1);
     this.setMax(1);
   }
-
   addQuestion(text) {
     this.ActivePrompt.Question = text;
   }
-
   addPrompt(name, line) {
     const prompt = new Prompt(name.toLowerCase());
     prompt.Line = line;
-    this.prompts[prompt.Name] = this.activePrompt = prompt; // this.addAttribute( p.Name);
+    this.prompts[prompt.Name] = this.activePrompt = prompt;
+    // this.addAttribute( p.Name);
   }
-
   setAttribute(name, value, line) {
     const a = this.addAttribute(name.toLowerCase(), line);
     a.Value = value;
   }
-
   addAttribute(name, line) {
     // if ( !name ) return null
     let a = this.attributes[name.toLowerCase()];
-
     if (a) {
       return a;
     }
-
     this.attributes[name.toLowerCase()] = a = new Attribute(name.toLowerCase());
-    a.Line = line; // this.attributes[a.Name] = a
-
+    a.Line = line;
+    // this.attributes[a.Name] = a
     return a;
   }
-
   addInference(name, value, alternative, line) {
     const inf = new Inference(name);
     inf.Value = value; // ( value && value.value ) ? value : [{ type: 'TRUE', value: true }]
-
     inf.Line = line;
-
     if (alternative) {
       // this.R.AltInferences.push(inf)
       this.ActiveRule.AltInferences.push(inf);
     } else {
-      this.ActiveCondition.Inferences.push(inf); // this.condition.Inferences.push( inf )
+      this.ActiveCondition.Inferences.push(inf);
+      // this.condition.Inferences.push( inf )
     }
-
     this.addAttribute(name, inf.Line);
   }
-
   addPremise(keyword, left, right, op, line) {
     const E = new Statement(line);
     E.Left = left;
     E.Right = right;
     E.Comparator = op;
     E.Keyword = keyword;
-    E.Line = line; // this.condition.Premises.push(s)
-
+    E.Line = line;
+    // this.condition.Premises.push(s)
     this.ActiveCondition.Premises.push(E);
     left.forEach(token => {
       if (token && token.type === ATTR) {
@@ -4819,55 +4172,45 @@ class KnowledgebaseCompiler extends Parser {
       }
     });
   }
-
   addCondition(keyword, left, right, op, line) {
-    const condition = new Condition(); // this.condition = c
+    const condition = new Condition();
+    // this.condition = c
     //this.R.Conditions.push(c)
-
     this.ActiveRule.Conditions.push(condition);
     this.addPremise(keyword, left, right, op, line);
   }
-
   addRule(name, line) {
     const R = new Rule(name);
     R.Line = line;
     this.rules.push(R);
   }
-
   addGoal(name, line) {
     const G = new Goal(name.toLowerCase());
     G.Line = line;
     this.goals[G.Name] = G;
   }
-
   setPromptCFMode() {
     this.ActivePrompt.CFMode = true;
   }
-
   addObject(name, value) {
     this.objects[name.toLowerCase()] = value;
   }
-
   addArray(name, value) {
     this.arrays[name.tolowerCase()] = value;
   }
-
   setGoalCF(name, value) {
     this.goals[name.toLowerCase()].CF = value;
   }
-
-  addNewLine() {// do nothing
+  addNewLine() {
+    // do nothing
   }
   /**
    *
    * @param { String } text Pruduction rules in plain text
    * @returns { Promise<Object> } Knowledgebase Data
    */
-
-
   compile(text) {
     var _this = this;
-
     return new Promise(async function (resolve, reject) {
       // let knowledgebase = new Knowledgebase(this);
       const errors = await _this.parse(text);
@@ -4881,7 +4224,6 @@ class KnowledgebaseCompiler extends Parser {
       });
     });
   }
-
 }
 
 const defaults = {
@@ -4893,36 +4235,29 @@ class ParserFactory {
     // const ext = mode && mode.substring(mode.indexOf(".") + 1);
     switch (mode) {
       case "ace/mode/res":
-        return new ResourceParser(language, languageModule);
-
+        return new ResourceParser();
       case "ace/mode/kbf":
         return new Parser(language, languageModule);
-
       default:
         throw new Error("No parser for current mode: " + mode);
     }
   }
-
   static createCompiler(language, languageModule, mode = defaults.mode) {
     // console.log({ language, languageModule, mode });
     switch (mode) {
       case "ace/mode/res":
-        return new ResourceParser(language, languageModule);
+        return new ResourceParser();
       // throw new Error("Compiler for this Mode is not yet supported");
-
       case "ace/mode/kbf":
         return new KnowledgebaseCompiler(language, languageModule);
-
       default:
         throw new Error("No compiler for current mode: " + mode);
     }
   }
-
 }
 
-function process(response) {
+function process$1(response) {
   if (response) return response;
-
   if (response.Label === "Prompt" || response.Label === "CF") {
     //Prompting for input
     return {
@@ -4939,69 +4274,243 @@ function process(response) {
     return response;
   }
 }
+function raiseValidationError$1(code, translator, systemLanguage) {
+  const err = CustomErrors(translator, systemLanguage).ValidationError(code);
+  return err;
+}
+class Rules$1 {
+  constructor(systemLanguage, mode = "ace/mode/kbf") {
+    this.systemLanguage = systemLanguage;
+    this.languageModule = languageModules[systemLanguage];
+    this.compiler = ParserFactory.createCompiler(systemLanguage, this.languageModule, mode);
+    this.parser = ParserFactory.createParser(systemLanguage, this.languageModule, mode);
+    this.translator = new Translator(systemLanguage, this.languageModule);
+    // InputValidator(systemLanguage, this.translator);
+  }
+  static registerLanguage(lang, data) {
+    if (!arguments) {
+      throw new Error("Language name required");
+    }
+    if (typeof lang !== "string") {
+      throw new Error("Expected language code as first argument");
+    }
+    if (typeof data !== "object") {
+      throw new Error("Expected language data as second argument");
+    }
+    const language = lang.toLocaleLowerCase();
+    if (arguments.length < 2) {
+      throw new Error("Two arguments expected: Language name and data are required");
+    }
+    if (!data) {
+      throw new Error("Language data required");
+    }
+    if (typeof language !== "string") {
+      throw new Error("Language name should be a String");
+    }
+    if (language.length > 2) {
+      throw new Error("Language code should contain only two characters");
+    }
+    if (!language.match(/[a-z][a-z]/)) {
+      throw new Error("Unknown character in language code");
+    }
+    if (languageModules[language]) {
+      console.info(language + " Language already installed");
+      return;
+    }
+    languageModules[language] = data;
+  }
+  static init(installLanguageModules) {
+    try {
+      installLanguageModules && installLanguageModules.forEach(l => {
+        const data = installedLanguagePlugins[l];
+        if (data) {
+          Rules$1.registerLanguage(l, data);
+          console.info("Enabled language: " + l);
+        } else {
+          console.error("Locale not installed: " + l);
+        }
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+  getKeywords() {
+    return this.languageModule.keywords;
+  }
+  async parse(codes) {
+    const errors = await this.parser.parse(codes);
+    return errors;
+  }
+  async compile(codes) {
+    const {
+      errors,
+      data
+    } = await this.compiler.compile(codes);
+    return {
+      errors,
+      data
+    };
+  }
+  run(freshData) {
+    if (!freshData) {
+      return raiseValidationError$1(ErrorKeys.KnowledgebaseNotFound, this.translator, this.systemLanguage);
+    }
+    let response = new Engine(freshData).run();
+    return response;
+    // return process(response);
+  }
+  reply(modifiedData, input) {
+    if (!modifiedData) {
+      return raiseValidationError$1(ErrorKeys.KnowledgebaseNotFound, this.translator, this.systemLanguage);
+    }
+    if (!input || input.toString().trim().length === 0) {
+      return raiseValidationError$1(ErrorKeys.NoInput, this.translator, this.systemLanguage);
+    }
+    let response = new Engine(modifiedData, this.translator, this.validator).input(input);
+    return process$1(response);
+  }
+  validate(input, prompt) {
+    return validator.validate(input, prompt);
+  }
+  choice(input, prompt) {
+    return multipleChoice(input, prompt);
+  }
+  translate(code, to) {
+    return this.translator.translate(code, to);
+  }
+  translatePlain(text, to, from) {
+    return this.translator.translatePlain(text, to, from);
+  }
+}
 
+class CustomEvent {
+  constructor() {
+    this.topics = {};
+    // this.hOP = topics.hasOwnProperty
+  }
+  on(topic, listener) {
+    // Create the topic's object if not yet created
+    if (!this.topics.hasOwnProperty.call(this.topics, topic)) this.topics[topic] = [];
+
+    // Add the listener to queue
+    let index = this.topics[topic].push(listener) - 1;
+    let _this = this;
+    // Provide handle back for removal of topic
+    return {
+      remove: function () {
+        //delete topics[topic][index]
+        _this.topics[topic].splice(index, 1);
+      }
+    };
+  }
+  remove(topic, listener) {
+    // Create the topic's object if not yet created
+    if (this.topics.hasOwnProperty.call(this.topics, topic)) {
+      // Add the listener to queue
+      let index = this.topics[topic];
+      //delete topics[topic][index]
+      this.topics[topic].splice(index, 1);
+    }
+  }
+  off(topic, listener) {
+    this.remove(topic, listener);
+  }
+  trigger(topic, info) {
+    // If the topic doesn't exist, or there's no listeners in queue, just leave
+    if (!this.topics.hasOwnProperty.call(this.topics, topic)) return;
+
+    // Cycle through topics queue, fire!
+    this.topics[topic].forEach(item => {
+      item(info != undefined ? info : {});
+    });
+  }
+  emit(topic, info) {
+    this.trigger(topic, info);
+  }
+  fire(topic, info) {
+    this.trigger(topic, info);
+  }
+  publish(topic, info) {
+    this.trigger(topic, info);
+  }
+  destroy() {
+    Object.keys(this.topics).forEach(topic => {
+      let topics = this.topics[topic];
+      while (topics.length > 0) {
+        topics.pop();
+      }
+    });
+    delete this.topics;
+  }
+}
+
+function process(response) {
+  if (response) return response;
+  if (response.Label === "Prompt" || response.Label === "CF") {
+    //Prompting for input
+    return {
+      type: "prompt",
+      data: response
+    };
+  } else if (response instanceof Array) {
+    //answers are ready
+    return {
+      type: "answers",
+      data: response
+    };
+  } else {
+    return response;
+  }
+}
 function raiseValidationError(code, translator, systemLanguage) {
   const err = CustomErrors(translator, systemLanguage).ValidationError(code);
   return err;
 }
-
 class Rules {
   constructor(systemLanguage, mode = "ace/mode/kbf") {
     this.systemLanguage = systemLanguage;
     this.languageModule = languageModules[systemLanguage];
     this.compiler = ParserFactory.createCompiler(systemLanguage, this.languageModule, mode);
     this.parser = ParserFactory.createParser(systemLanguage, this.languageModule, mode);
-    this.translator = new Translator(systemLanguage, this.languageModule); // InputValidator(systemLanguage, this.translator);
+    this.translator = new Translator(systemLanguage, this.languageModule);
+    // InputValidator(systemLanguage, this.translator);
   }
-
   static registerLanguage(lang, data) {
     if (!arguments) {
       throw new Error("Language name required");
     }
-
     if (typeof lang !== "string") {
       throw new Error("Expected language code as first argument");
     }
-
     if (typeof data !== "object") {
       throw new Error("Expected language data as second argument");
     }
-
     const language = lang.toLocaleLowerCase();
-
     if (arguments.length < 2) {
       throw new Error("Two arguments expected: Language name and data are required");
     }
-
     if (!data) {
       throw new Error("Language data required");
     }
-
     if (typeof language !== "string") {
       throw new Error("Language name should be a String");
     }
-
     if (language.length > 2) {
       throw new Error("Language code should contain only two characters");
     }
-
     if (!language.match(/[a-z][a-z]/)) {
       throw new Error("Unknown character in language code");
     }
-
     if (languageModules[language]) {
       console.info(language + " Language already installed");
       return;
     }
-
     languageModules[language] = data;
   }
-
   static init(installLanguageModules) {
     try {
       installLanguageModules && installLanguageModules.forEach(l => {
         const data = installedLanguagePlugins[l];
-
         if (data) {
           Rules.registerLanguage(l, data);
           console.info("Enabled language: " + l);
@@ -5013,16 +4522,13 @@ class Rules {
       console.log(e);
     }
   }
-
   getKeywords() {
     return this.languageModule.keywords;
   }
-
   async parse(codes) {
     const errors = await this.parser.parse(codes);
     return errors;
   }
-
   async compile(codes) {
     const {
       errors,
@@ -5033,115 +4539,36 @@ class Rules {
       data
     };
   }
-
   run(freshData) {
     if (!freshData) {
       return raiseValidationError(ErrorKeys.KnowledgebaseNotFound, this.translator, this.systemLanguage);
     }
-
     let response = new Engine(freshData).run();
-    return response; // return process(response);
+    return response;
+    // return process(response);
   }
-
   reply(modifiedData, input) {
     if (!modifiedData) {
       return raiseValidationError(ErrorKeys.KnowledgebaseNotFound, this.translator, this.systemLanguage);
     }
-
     if (!input || input.toString().trim().length === 0) {
       return raiseValidationError(ErrorKeys.NoInput, this.translator, this.systemLanguage);
     }
-
     let response = new Engine(modifiedData, this.translator, this.validator).input(input);
     return process(response);
   }
-
   validate(input, prompt) {
     return validator.validate(input, prompt);
   }
-
   choice(input, prompt) {
     return multipleChoice(input, prompt);
   }
-
   translate(code, to) {
     return this.translator.translate(code, to);
   }
-
   translatePlain(text, to, from) {
     return this.translator.translatePlain(text, to, from);
   }
-
-}
-
-class CustomEvent {
-  constructor() {
-    this.topics = {}; // this.hOP = topics.hasOwnProperty
-  }
-
-  on(topic, listener) {
-    // Create the topic's object if not yet created
-    if (!this.topics.hasOwnProperty.call(this.topics, topic)) this.topics[topic] = []; // Add the listener to queue
-
-    let index = this.topics[topic].push(listener) - 1;
-
-    let _this = this; // Provide handle back for removal of topic
-
-
-    return {
-      remove: function () {
-        //delete topics[topic][index]
-        _this.topics[topic].splice(index, 1);
-      }
-    };
-  }
-
-  remove(topic, listener) {
-    // Create the topic's object if not yet created
-    if (this.topics.hasOwnProperty.call(this.topics, topic)) {
-      // Add the listener to queue
-      let index = this.topics[topic]; //delete topics[topic][index]
-
-      this.topics[topic].splice(index, 1);
-    }
-  }
-
-  off(topic, listener) {
-    this.remove(topic, listener);
-  }
-
-  trigger(topic, info) {
-    // If the topic doesn't exist, or there's no listeners in queue, just leave
-    if (!this.topics.hasOwnProperty.call(this.topics, topic)) return; // Cycle through topics queue, fire!
-
-    this.topics[topic].forEach(item => {
-      item(info != undefined ? info : {});
-    });
-  }
-
-  emit(topic, info) {
-    this.trigger(topic, info);
-  }
-
-  fire(topic, info) {
-    this.trigger(topic, info);
-  }
-
-  publish(topic, info) {
-    this.trigger(topic, info);
-  }
-
-  destroy() {
-    Object.keys(this.topics).forEach(topic => {
-      let topics = this.topics[topic];
-
-      while (topics.length > 0) {
-        topics.pop();
-      }
-    });
-    delete this.topics;
-  }
-
 }
 
 function attachCSS(css, id, name, toggle = false) {
@@ -5154,14 +4581,12 @@ function attachCSS(css, id, name, toggle = false) {
       }
     }
   }
-
   if (toggle) {
     if (document.getElementById(id)) {
       document.head.removeChild(document.getElementById(id));
       return;
     }
   }
-
   var head = document.head;
   var link = document.createElement("style");
   link.setAttribute('id', id || Math.random().slice(2).toString(36));
@@ -5172,14 +4597,18 @@ function attachCSS(css, id, name, toggle = false) {
   head.appendChild(link);
   return id;
 }
+
+// Usage
 // var sheet = DynamicStyleSheet()
 // sheet.insertRule("header { float: left; opacity: 0.8; }", 1);
+
 // Replacing default console.log with syntax highlighting substitute 
 // const probe = require('console-probe')
 // let data = {count:100000}
 // const prober = probe.get()
 // console.log = prober
 // prober(data)
+
 // collaboration
 // <script src="https://togetherjs.com/togetherjs-min.js"></script>
 // <button onclick="TogetherJS(this); return false;">Start TogetherJS</button>
@@ -5236,37 +4665,25 @@ class Clipboard {
       }`;
     attachCSS(styles, 'clipboard_css', 'clipboard-css');
   }
-
   copyToClipboard(str) {
     const el = document.createElement('textarea'); // Create a <textarea> element
-
     el.value = str; // Set its value to the string that you want copied
-
     el.setAttribute('readonly', ''); // Make it readonly to be tamper-proof
-
     el.style.position = 'absolute';
     el.style.left = '-9999px'; // Move outside the screen to make it invisible
-
     document.body.appendChild(el); // Append the <textarea> element to the HTML document
-
     const selected = document.getSelection().rangeCount > 0 // Check if there is any content selected previously
     ? document.getSelection().getRangeAt(0) // Store selection if found
     : false; // Mark as false to know no selection existed before
-
     el.select(); // Select the <textarea> content
-
     document.execCommand('copy'); // Copy - only works as a result of a user action (e.g. click events)
-
     document.body.removeChild(el); // Remove the <textarea> element
-
     if (selected) {
       // If a selection existed before copying
       document.getSelection().removeAllRanges(); // Unselect everything on the HTML document
-
       document.getSelection().addRange(selected); // Restore the original selection
     }
   }
-
 }
 
 // import { attachCSS } from './css.js'
@@ -5353,7 +4770,6 @@ class PrintButton {
       this.clipboard.copyToClipboard(this.Text);
     });
   }
-
   createButton(color, html, options = {}) {
     const button = document.createElement('button');
     button.style.width = options.width || '32px';
@@ -5368,15 +4784,12 @@ class PrintButton {
     button.innerHTML = html;
     return button;
   }
-
   get Html() {
     return this.source.innerHTML;
   }
-
   get Text() {
     return this.source.innerText;
   }
-
   openInWindow() {
     try {
       var printWindow = window.open('', '', this.winOptions);
@@ -5402,7 +4815,6 @@ class PrintButton {
       console.error('Error: ' + ex.message);
     }
   }
-
   printToPrinter() {
     try {
       var printWindow = this.openInWindow();
@@ -5413,7 +4825,6 @@ class PrintButton {
       console.error('Error: ' + ex.message);
     }
   }
-
 }
 
 class Viewer {
@@ -5427,12 +4838,10 @@ class Viewer {
       console.error('Invalid Document Viewer Id', view);
       return;
     }
-
     if (!container || !container.tagName && !document.getElementById(container)) {
       console.error('Invalid Container Element Id', contaianer);
       return;
     }
-
     this.div = view.tagName ? view : document.getElementById(view);
     this.container = container.tagName ? container : document.getElementById(container);
     this.id = null;
@@ -5442,19 +4851,16 @@ class Viewer {
     this.printButton = new PrintButton(this.color, this.div);
     this.view();
   }
-
   get Text() {
     return this.getContentBlock().innerText;
   }
-
   get html() {
     return this.getContentBlock().innerHTML;
   }
-
   view() {
     this.text = this.div.innerHTML;
-    this.id = Math.random().toString(36).slice(2); // let btn = new ToggleButton(null, 'ios')
-
+    this.id = Math.random().toString(36).slice(2);
+    // let btn = new ToggleButton(null, 'ios')
     let banner = document.createElement('div');
     banner.setAttribute('id', `banner${this.id}`);
     banner.style.float = 'right';
@@ -5463,20 +4869,19 @@ class Viewer {
     banner.append(this.printButton.PrintButton);
     this.container.append(banner);
   }
-
   getContentBlock() {
     return document.querySelector('.pr-display');
   }
-
 }
 
 /*jshint esversion: 6*/
+// import de from '../plugins/language/de'
 
 class Ux extends CustomEvent {
   constructor(el, options = {}) {
     super();
     this.language = options.language || "en";
-    Rules.init(["fr", "es"]);
+    Rules.init(options.languages || ["fr", "en"]);
     if (!el) throw "Missing Element ID to attach UX";
     let node = el instanceof HTMLElement ? el : typeof el === "string" ? document.getElementById(el) : el;
     if (!node || !node instanceof HTMLElement) throw "ID not a valid Node";
@@ -5494,23 +4899,18 @@ class Ux extends CustomEvent {
     this.rules = new Rules(this.language, "ace/mode/kbf");
     this.init();
   }
-
   get Text() {
     return this.text;
   }
-
   set Text(text) {
     this.text = text;
   }
-
   get URL() {
     return this.url;
   }
-
   set URL(url) {
     this.url = url;
   }
-
   async run(text) {
     try {
       this.text = text;
@@ -5520,11 +4920,9 @@ class Ux extends CustomEvent {
       } = await this.rules.compile(text);
       this.data = data;
       this.errors = errors;
-
       if (errors && errors.length > 0) {
         return this.processParserErrors(errors);
       }
-
       this.start(data);
     } catch (e) {
       console.trace(e);
@@ -5536,53 +4934,45 @@ class Ux extends CustomEvent {
       this.processError(response);
     }
   }
-
   start(data) {
     const response = this.rules.run(data);
     this.process(response);
   }
-
   async repeat() {
-    await this.run(this.text); // this.start()
+    await this.run(this.text);
+    // this.start()
   }
-
   reply(input) {
     const response = this.rules.reply(this.data, input);
     this.process(response);
   }
-
   send() {
     if (!this.data) {
       return console.info("No language defined in kb", console.trace);
     }
-
     let msg = null;
-
     if (this.prompt.Type === "NUMBER" || this.prompt.Type === "TEXT") {
       msg = this.input.value;
     } else {
       msg = this.composeReply();
     }
-
     if (!msg) return;
     this.setMargin();
     this.input.value = "";
     this.reply(msg);
   }
-
-  why() {//ps.publish( 'why' )
+  why() {
+    //ps.publish( 'why' )
   }
-
-  stop() {//ps.publish( 'stop' )
+  stop() {
+    //ps.publish( 'stop' )
   }
-
-  explain() {//ps.publish( 'explain' )
+  explain() {
+    //ps.publish( 'explain' )
   }
-
   cancel() {
     this.display.innerHTML = "";
   }
-
   print() {
     let html = this.display.innerHTML;
     let win = window.open("about:blank", "self", "width=600; height=450;");
@@ -5590,9 +4980,7 @@ class Ux extends CustomEvent {
     win.print();
     win.close();
   }
-
   copy() {}
-
   process(response) {
     // console.log({ response });
     if (response.Label === "Prompt" || response.Label === "CF") {
@@ -5606,19 +4994,15 @@ class Ux extends CustomEvent {
       switch (response.name) {
         case "ValidationError":
           return this.processValidationError(response);
-
         case "SyntaxError":
           return this.processParserErrors(response);
-
         case "ScriptError":
           return this.processError(response);
-
         default:
           return this.processError(response);
       }
     }
   }
-
   attachScripts(scr, id, name) {
     var head = document.body;
     var link = document.createElement("script");
@@ -5628,7 +5012,6 @@ class Ux extends CustomEvent {
     link.append(scr);
     head.appendChild(link);
   }
-
   async init() {
     this.el.classList.add("pr-parent");
     this.theme = "dark";
@@ -5641,7 +5024,8 @@ class Ux extends CustomEvent {
     this.input.focus();
     this.container = document.getElementById("console-container");
     this.attachListeners(this.el, this.toolbar, this.buttons);
-    this.addListeners(); // let doc = document.createDocumentFragment()
+    this.addListeners();
+    // let doc = document.createDocumentFragment()
     // let runpanel = doc.getElementById( container )
     // let input = doc.getElementById( inputId )
     // this.stylePanel( runpanel )
@@ -5650,31 +5034,25 @@ class Ux extends CustomEvent {
     // this.styleLinks( doc )
     // console.log( document.getElementsByClassName( 'gold' )[0].style.background='lavender' )
   }
-
   toggleTheme() {
     this.el.classList.toggle(this.Theme);
   }
-
   get Theme() {
     return this._theme;
   }
-
   set Theme(color) {
     // dark themes: green, blue, red, purple, indigo, orange
     // light themes: white, silver, gold, lavendar
     if (color) {
       color = color.toLowerCase();
     }
-
     if (this.theme === color) {
       this.el.classList.remove(this.theme);
       return;
     }
-
     this.el.classList.add(color);
     this._theme = color;
   }
-
   attachListeners(el, toolbar, buttons) {
     el.addEventListener("keyup", e => {
       if (e.keyCode === 13) {
@@ -5686,7 +5064,6 @@ class Ux extends CustomEvent {
           e.target.click();
         }
       }
-
       e.preventDefault();
       e.stopPropagation();
     });
@@ -5695,12 +5072,10 @@ class Ux extends CustomEvent {
         case "pr-print":
           this.print();
           break;
-
         case "pr-copy":
           this.copy();
           break;
       }
-
       e.stopPropagation();
       e.preventDefault();
     });
@@ -5709,50 +5084,44 @@ class Ux extends CustomEvent {
         case "✓":
           this.send();
           break;
-
         case "?":
           this.why();
           break;
-
         case "!":
           this.explain();
           break;
-
         case "×":
           this.cancel();
           break;
-
         case "‣":
           this.repeat();
           break;
-
         case "⛔":
           this.stop();
           break;
-
         default:
           //do nothing
           return;
       }
-
       this.input.focus();
       e.preventDefault();
       e.stopPropagation();
     });
   }
-
   addListeners() {
     this.on("error", e => {
       this.processError(e);
     });
-    this.on("syntax-error", e => {// this.processParserErrors(e.msg )
+    this.on("syntax-error", e => {
+      // this.processParserErrors(e.msg )
       // this.processError( e )
       // console.log(e)
       // this.processError(e)
     });
     this.on("system-error", e => {
       // this.processError( e )
-      this.processError(e); // console.log(e)
+      this.processError(e);
+      // console.log(e)
     });
     this.on("validation-error", e => {
       this.processValidationError(e);
@@ -5771,13 +5140,11 @@ class Ux extends CustomEvent {
       this.display.innerHTML = "";
     });
   }
-
   processPrompt(prompt) {
     this.prompt = prompt;
     let id = Math.floor(Math.random() * 99999999999999).toString(36);
     this.disableInputs();
     this.appendToContent('<div ><span id = "' + id + '" contentEditable="true">' + prompt.Index + ". " + prompt.Question + "</span></div>", true);
-
     switch (prompt.Type) {
       case "MENU":
       case "CF":
@@ -5786,32 +5153,29 @@ class Ux extends CustomEvent {
         this.showMenu(prompt, false);
         break;
     }
-
-    this.input.focus(); // let el = document.getElementById( id )
+    this.input.focus();
+    // let el = document.getElementById( id )
     // el.scrollIntoView()
   }
-
   processValidationError(error) {
     this.input.value = "";
-    this.input.focus(); // this.appendToContent("<div>" + error + "</div>")
-
+    this.input.focus();
+    // this.appendToContent("<div>" + error + "</div>")
     this.appendToContent("<div>" + error.name + ": " + error.code + ".<br/>Details: " + error.message + ".</div>");
   }
-
   processError(error) {
     // console.log(JSON.stringify(error))
     this.input.value = "";
     this.input.focus();
-    this.appendToContent("<div>" + error.name + ": " + error.code + ".<br/>Details: " + error.message + ".</div>"); // this.display.innerHTML += "<br/>" + ( error.msg || error )
+    this.appendToContent("<div>" + error.name + ": " + error.code + ".<br/>Details: " + error.message + ".</div>");
+    // this.display.innerHTML += "<br/>" + ( error.msg || error )
   }
-
   processParserErrors(errors) {
     if (!errors) {
       this.appendToContent("<div>System error</div>");
       return;
-    } // alert(JSON.stringify(errors))
-
-
+    }
+    // alert(JSON.stringify(errors))
     errors.forEach(e => {
       var x = e.x === undefined ? e.column : e.x;
       var y = e.y === undefined ? e.row : e.y;
@@ -5820,22 +5184,19 @@ class Ux extends CustomEvent {
       this.scrollDown("Error");
     });
   }
-
   processScriptError(error) {
     if (!error) {
       this.appendToContent("<div>System error</div>");
       return;
     }
-
-    var code = error.code; //var lang='en';
-
-    var msg = error.message; //var expr='';
-
+    var code = error.code;
+    //var lang='en';
+    var msg = error.message;
+    //var expr='';
     var line = error.details.line;
     var lineIndex = error.details.index;
     var rIndex = error.details.rIndex;
     var rule = error.details.rule;
-
     try {
       var s = "<br/><strong>" + code + "<br/>Row:&Tab; <a href='javascript:selectLine(" + lineIndex + ")'>" + lineIndex + "</a><br/>Details:&Tab;<strong>" + msg + "</strong>" + "<br/>Code:&Tab;&Tab;<a href ='javascript:selectLine(" + lineIndex + ")'>" + line + "</a>" + "<br/>Rule number:&Tab;<strong>" + rIndex + "</strong>" + "<br/>Rule:&Tab;&Tab;<a href ='javascript:selectLine(" + lineIndex + ")'>" + rule + "</a><br/><hr/><p><p>";
       this.display.append(s);
@@ -5849,7 +5210,6 @@ class Ux extends CustomEvent {
       console.log(ex);
     }
   }
-
   processAnswers(answers) {
     this.disableInputs();
     if (answers.length === 0) return;
@@ -5861,15 +5221,14 @@ class Ux extends CustomEvent {
       display.push(" - confidence: " + (goal.CF === NaN ? 100 : goal.CF) + "%");
     });
     display.push("</div>");
-    this.appendToContent(display.join(" ")); //  this.setMargin()
+    this.appendToContent(display.join(" "));
+    //  this.setMargin()
     // this.scrollDown()
   }
-
   processInfo(data) {
     //content.append("<hr/>");
     var rand2 = Math.random().slice(2).toString(36);
     this.appendToContent("<div><b>" + data.msg + "</b></div>");
-
     if (data.msg.indexOf("Session expired") > -1 || data.msg.indexOf("No session") > -1) {
       var link1 = "<a href='javascript:void (0)'  id='" + rand2 + "' class='active-link opensocket'>Click here to start new session</a>";
       this.appendToContent("<div><b>" + link1 + "</b></div>");
@@ -5878,21 +5237,17 @@ class Ux extends CustomEvent {
       });
     }
   }
-
   addClickListener(fn) {
     let tags = this.el.getElementsByTagName("ul");
     let last = tags[tags.length - 1];
-
     for (let i = 0; i < last.childNodes.length; i++) {
       let node = last.children[i];
-
       if (node && node.children) {
         let el = node.children[0].firstChild;
         el.addEventListener("click", fn);
       }
     }
   }
-
   disableInputs() {
     let tags = this.el.getElementsByTagName("ul");
     let last = tags[tags.length - 1];
@@ -5901,31 +5256,25 @@ class Ux extends CustomEvent {
       w.setAttribute("checked", true);
     });
     this.widgets = [];
-
     for (let i = 0; i < last.childNodes.length; i++) {
       let node = last.children[i];
-
       if (node && node.children) {
         let el = node.children[0].firstChild;
         el.disabled = true;
       }
     }
   }
-
   composeReply() {
     let tags = this.el.getElementsByTagName("ul");
     let last = tags[tags.length - 1];
     if (!last) return null;
     let resp = {};
     let index = 0;
-
     for (let i = 0; i < last.childNodes.length; i++) {
       let node = last.children[i];
-
       if (node && node.children) {
         let el = node.children[0].firstChild;
         index++;
-
         if (el.checked) {
           resp[el.value] = index;
           this.widgets.push(el);
@@ -5934,36 +5283,29 @@ class Ux extends CustomEvent {
         }
       }
     }
-
     return Object.values(resp).join(",");
   }
-
   composeMenuWidget(prompt) {
     let name = Math.floor(Math.random() * 9999999999999).toString(36);
     let array = [];
-
     if (prompt.Max > 1) {
       array = this.composeCheckBoxes(prompt, name);
     } else {
       array = this.composeRadioButtons(prompt, name);
     }
-
     var ol = "<ul>" + array.join(" ") + "</ul>";
     this.appendToContent(ol, true);
   }
-
   composeCheckBoxes(prompt, name) {
     return prompt.Menu.map(m => {
       return '<li><label><input type = "checkbox" name="' + name + '" value="' + m.Name + '"/><span style="margin-left:7px;">' + m.Name + "</span></label></li>";
     });
   }
-
   composeRadioButtons(prompt, name) {
     return prompt.Menu.map(m => {
       return '<li><label><input type = "radio" name="' + name + '" value="' + m.Name + '"/><span style="margin-left:7px;">' + m.Name + "</span></label></li>";
     });
   }
-
   showMenu(prompt, commandline) {
     if (!commandline) return this.composeMenuWidget(prompt);
     let array = prompt.Menu.map(m => {
@@ -5973,41 +5315,34 @@ class Ux extends CustomEvent {
     this.appendToContent(ol, true);
     return null;
   }
-
   appendToContent(node, scroll = true) {
     if (node && node.classList) {
       node.classList.add("pr-console-line");
     }
-
     this.display.innerHTML += node;
     if (scroll) this.scrollDown("content");
   }
-
   setMargin() {
     var el = this.display;
     var child = el.lastChild;
-
     if (child && child.classList) {
-      child.classList.add("pr-margin-bottom"); //child.style.borderBottom = "1px solid #777"
+      child.classList.add("pr-margin-bottom");
+      //child.style.borderBottom = "1px solid #777"
       //child.style.paddingTop = "6px"
       //child.style.marginBottom = "8px"
     }
   }
-
   scroll(direction) {
     var el = this.display;
-
     if (direction === "up") {
       el.scrollTop = 0;
     } else {
       el.scrollTop = el.scrollHeight;
     }
   }
-
   scrollDown() {
     var el = this.display;
     var child = el.lastChild;
-
     try {
       if (child) {
         child.scrollIntoView();
@@ -6017,18 +5352,15 @@ class Ux extends CustomEvent {
     } catch (e) {
     }
   }
-
   scrollUp() {
     var el = this.display;
     var child = el.firstChild;
-
     if (child) {
       child.scrollIntoView();
     } else {
       el.scrollTop = el.scrollHeight;
     }
   }
-
   showInputBar() {
     //var a0="<input type='text' class='input'/><br/> ";
     //var a1=(' <a href=\'javascript:void(0)\' onclick=\'ui.send()\'>Send</a> ');
@@ -6038,7 +5370,6 @@ class Ux extends CustomEvent {
     var ol = " <div id='input-bar'><input type='text' class='input'/>" + a2 + a3 + a4 + "</div></br/>";
     this.appendToContent(ol);
   }
-
   showTaskBar() {
     //ol.append("<input type='text' class='input' onkeyUp='inputKeyup("+event+")'/> ");
     //ol.append(" <a href='javascript:void(0)' onclick='submmitClick'>Send</a> ");
@@ -6048,16 +5379,16 @@ class Ux extends CustomEvent {
     var ol = "<div id='input-bar'>" + a1 + a2 + "</div>";
     this.appendToContent(ol);
   }
-
 }
 
 /*jshint esversion: 6*/
+//import Rule from "../core/Rule";
 
 class Ui extends CustomEvent {
   constructor(el, options = {}) {
     super();
     this.language = options.language || "en";
-    Rules.init(["fr", "es"]);
+    Rules.init(options.languages || ["fr", "en"]);
     if (!el) throw "Missing Element ID to attach UX";
     let node = el instanceof HTMLElement ? el : typeof el === "string" ? document.getElementById(el) : el;
     if (!node || !node instanceof HTMLElement) throw "ID not a valid Node";
@@ -6075,25 +5406,21 @@ class Ui extends CustomEvent {
     this.loadConsolePanel();
     this.attachListeners();
     this.attachCSS();
-    this.addListeners(); // if (this.text) this.start(this.text)
+    this.addListeners();
+    // if (this.text) this.start(this.text)
   }
-
   get Text() {
     return this.text;
   }
-
   set Text(text) {
     this.text = text;
   }
-
   get URL() {
     return this.url;
   }
-
   set URL(url) {
     this.url = url;
   }
-
   async run(codes) {
     this.codes = codes;
     const {
@@ -6104,55 +5431,46 @@ class Ui extends CustomEvent {
     this.errors = errors;
     this.start(data);
   }
-
   start(data) {
     const response = this.rules.run(data);
     this.process(response);
   }
-
   async repeat() {
     // let data = localStorage.getItem('engine-kb-data')
     // this.data = JSON.parse(data)
     await this.run(this.codes);
   }
-
   reply(input) {
     const response = this.rules.reply(this.data, input);
     this.process(response);
   }
-
   send() {
     if (!this.data) {
       return console.info("No language defined in kb", console.trace);
     }
-
     let msg = null;
-
     if (this.prompt.Type === "NUMBER" || this.prompt.Type === "TEXT") {
       msg = this.input.value;
     } else {
       msg = this.composeReply();
     }
-
     if (!msg) return;
     this.setMargin();
     this.input.value = "";
     this.reply(msg);
   }
-
-  why() {//ps.publish( 'why' )
+  why() {
+    //ps.publish( 'why' )
   }
-
-  stop() {//ps.publish( 'stop' )
+  stop() {
+    //ps.publish( 'stop' )
   }
-
-  explain() {//ps.publish( 'explain' )
+  explain() {
+    //ps.publish( 'explain' )
   }
-
   cancel() {
     this.display.innerHTML = "";
   }
-
   print() {
     let html = this.display.innerHTML;
     let win = window.open("about:blank", "self", "width=600; height=450;");
@@ -6160,9 +5478,7 @@ class Ui extends CustomEvent {
     win.print();
     win.close();
   }
-
   copy() {}
-
   process(response) {
     // console.log({ response })
     if (response.Label === "Prompt" || response.Label === "CF") {
@@ -6176,19 +5492,15 @@ class Ui extends CustomEvent {
       switch (response.name) {
         case "ValidationError":
           return this.processValidationError(response);
-
         case "SyntaxError":
           return this.processError(response);
-
         case "ScriptError":
           return this.processError(response);
-
         default:
           return this.processError(response);
       }
     }
   }
-
   attachScripts(scr, id, name) {
     var head = document.body;
     var link = document.createElement("script");
@@ -6198,7 +5510,6 @@ class Ui extends CustomEvent {
     link.append(scr);
     head.appendChild(link);
   }
-
   attachListeners() {
     this.el.addEventListener("keyup", e => {
       if (e.keyCode === 13) {
@@ -6210,7 +5521,6 @@ class Ui extends CustomEvent {
           e.target.click();
         }
       }
-
       e.preventDefault();
       e.stopPropagation();
     });
@@ -6219,12 +5529,10 @@ class Ui extends CustomEvent {
         case "pr-print":
           this.print();
           break;
-
         case "pr-copy":
           this.copy();
           break;
       }
-
       e.stopPropagation();
       e.preventDefault();
     });
@@ -6233,38 +5541,30 @@ class Ui extends CustomEvent {
         case "✓":
           this.send();
           break;
-
         case "?":
           this.why();
           break;
-
         case "!":
           this.explain();
           break;
-
         case "×":
           this.cancel();
           break;
-
         case "‣":
           this.repeat();
           break;
-
         case "⛔":
           this.stop();
           break;
-
         default:
           //do nothing
           return;
       }
-
       this.input.focus();
       e.preventDefault();
       e.stopPropagation();
     });
   }
-
   attachCSS() {
     const head = document.head;
     const link = document.createElement("style");
@@ -6439,15 +5739,14 @@ class Ui extends CustomEvent {
     link.append(css);
     head.appendChild(link);
   }
-
   async loadConsolePanel() {
     const num = Math.random().toString(36).slice(2).toString(36);
     const display_id = `display${num}`,
-          inputId = `text${num}`,
-          btpanel = `btPanel${num}`,
-          container = `container${num}`,
-          toolbar = `tb${num}`,
-          banner = `banner${num}`;
+      inputId = `text${num}`,
+      btpanel = `btPanel${num}`,
+      container = `container${num}`,
+      toolbar = `tb${num}`,
+      banner = `banner${num}`;
     const panel = `
     <div id = '${container}' class ='pr-container'>
       <div id ='${banner}' class ='pr-banner'>
@@ -6477,7 +5776,8 @@ class Ui extends CustomEvent {
     this.toolbar = document.getElementById(toolbar);
     new Viewer(this.display, this.toolbar);
     this.input.focus();
-    this.container = document.getElementById(container); // let doc = document.createDocumentFragment()
+    this.container = document.getElementById(container);
+    // let doc = document.createDocumentFragment()
     // let runpanel = doc.getElementById( container )
     // let input = doc.getElementById( inputId )
     // this.stylePanel( runpanel )
@@ -6486,32 +5786,26 @@ class Ui extends CustomEvent {
     // this.styleLinks( doc )
     // console.log( document.getElementsByClassName( 'gold' )[0].style.background='lavender' )
   }
-
   toggleTheme() {
     // console.log(this.theme, this.el)
     this.el.classList.toggle(this.Theme);
   }
-
   get Theme() {
     return this._theme;
   }
-
   set Theme(color) {
     // dark themes: green, blue, red, purple, indigo, orange
     // light themes: white, silver, gold, lavendar
     if (color) {
       color = color.toLowerCase();
     }
-
     if (this.theme === color) {
       this.el.classList.remove(this.theme);
       return;
     }
-
     this.el.classList.add(color);
     this._theme = color;
   }
-
   stylePanel(runpanel) {
     runpanel.style.position = "absolute";
     runpanel.style.top = "0";
@@ -6522,7 +5816,6 @@ class Ui extends CustomEvent {
     runpanel.style.paddingLeft = runpanel.style.paddingRight = "5px";
     runpanel.style.background = "inherit";
   }
-
   styleDisplay(display) {
     display.style.position = "absolute";
     display.style.top = "4px";
@@ -6532,7 +5825,6 @@ class Ui extends CustomEvent {
     display.style.overflow = "auto";
     display.style.paddingLeft = display.style.paddingRight = "16px";
   }
-
   styleInput(input) {
     input.style.color = "#000";
     input.style.background = "#999";
@@ -6541,10 +5833,8 @@ class Ui extends CustomEvent {
     input.style.borderRadius = "15px";
     input.style.padding = "4px 4px 4px 12px";
   }
-
   styleLinks(doc) {
     let links = doc.getElementsByTagName("a");
-
     for (let i = 0; i < links.length; i++) {
       let link = links[i];
       link.style.padding = "4px 8px 4px 8px";
@@ -6553,18 +5843,14 @@ class Ui extends CustomEvent {
       link.style.margin = "1px";
       link.style.borderRadius = "2px 2px";
     }
-
     let btns = doc.getElementsByClassName("char");
-
     for (let i = 0; i < btns.length; i++) {
       let link = links[i];
       link.style.fontSize = "2em";
       link.style.fontWeight = "bold";
     }
-
     return doc;
   }
-
   addListeners() {
     this.on("error", e => {
       this.processError(e);
@@ -6577,7 +5863,8 @@ class Ui extends CustomEvent {
     });
     this.on("system-error", e => {
       // this.processError( e )
-      this.processError(e); // console.log(e)
+      this.processError(e);
+      // console.log(e)
     });
     this.on("validation-error", e => {
       this.processValidationError(e);
@@ -6596,13 +5883,11 @@ class Ui extends CustomEvent {
       this.display.innerHTML = "";
     });
   }
-
   processPrompt(prompt) {
     this.prompt = prompt;
     let id = Math.floor(Math.random() * 99999999999999).toString(36);
     this.disableInputs();
     this.appendToContent('<div ><span id = "' + id + '" contentEditable="true">' + prompt.Index + ". " + prompt.Question + "</span></div>", true);
-
     switch (prompt.Type) {
       case "MENU":
       case "CF":
@@ -6611,31 +5896,28 @@ class Ui extends CustomEvent {
         this.showMenu(prompt, false);
         break;
     }
-
-    this.input.focus(); // let el = document.getElementById( id )
+    this.input.focus();
+    // let el = document.getElementById( id )
     // el.scrollIntoView()
   }
-
   processValidationError(error) {
     this.input.value = "";
-    this.input.focus(); // this.appendToContent("<div>" + error + "</div>")
-
+    this.input.focus();
+    // this.appendToContent("<div>" + error + "</div>")
     this.appendToContent("<div>" + error.name + ": " + error.code + ".<br/>Details: " + error.message + ".</div>");
   }
-
   processError(error) {
     // console.log(JSON.stringify(error))
     this.input.value = "";
     this.input.focus();
-    this.appendToContent("<div>" + error.name + ": " + error.code + ".<br/>Details: " + error.message + ".</div>"); // this.display.innerHTML += "<br/>" + ( error.msg || error )
+    this.appendToContent("<div>" + error.name + ": " + error.code + ".<br/>Details: " + error.message + ".</div>");
+    // this.display.innerHTML += "<br/>" + ( error.msg || error )
   }
-
   processParserErrors(errors) {
     if (!errors) {
       this.appendToContent("<div>System error</div>");
       return;
     }
-
     errors.forEach(e => {
       var x = e.x === undefined ? e.column : e.x;
       var y = e.y === undefined ? e.row : e.y;
@@ -6644,22 +5926,19 @@ class Ui extends CustomEvent {
       this.scrollDown("Error");
     });
   }
-
   processScriptError(error) {
     if (!error) {
       this.appendToContent("<div>System error</div>");
       return;
     }
-
-    var code = error.code; //var lang='en';
-
-    var msg = error.message; //var expr='';
-
+    var code = error.code;
+    //var lang='en';
+    var msg = error.message;
+    //var expr='';
     var line = error.details.line;
     var lineIndex = error.details.index;
     var rIndex = error.details.rIndex;
     var rule = error.details.rule;
-
     try {
       var s = "<br/><strong>" + code + "<br/>Row:&Tab; <a href='javascript:selectLine(" + lineIndex + ")'>" + lineIndex + "</a><br/>Details:&Tab;<strong>" + msg + "</strong>" + "<br/>Code:&Tab;&Tab;<a href ='javascript:selectLine(" + lineIndex + ")'>" + line + "</a>" + "<br/>Rule number:&Tab;<strong>" + rIndex + "</strong>" + "<br/>Rule:&Tab;&Tab;<a href ='javascript:selectLine(" + lineIndex + ")'>" + rule + "</a><br/><hr/><p><p>";
       this.display.append(s);
@@ -6673,7 +5952,6 @@ class Ui extends CustomEvent {
       console.log(ex);
     }
   }
-
   processAnswers(answers) {
     this.disableInputs();
     if (answers.length === 0) return;
@@ -6685,15 +5963,14 @@ class Ui extends CustomEvent {
       display.push(" - confidence: " + goal.CF + "%");
     });
     display.push("</div>");
-    this.appendToContent(display.join(" ")); //  this.setMargin()
+    this.appendToContent(display.join(" "));
+    //  this.setMargin()
     // this.scrollDown()
   }
-
   processInfo(data) {
     //content.append("<hr/>");
     var rand2 = Math.random().slice(2).toString(36);
     this.appendToContent("<div><b>" + data.msg + "</b></div>");
-
     if (data.msg.indexOf("Session expired") > -1 || data.msg.indexOf("No session") > -1) {
       var link1 = "<a href='javascript:void (0)'  id='" + rand2 + "' class='active-link opensocket'>Click here to start new session</a>";
       this.appendToContent("<div><b>" + link1 + "</b></div>");
@@ -6702,21 +5979,17 @@ class Ui extends CustomEvent {
       });
     }
   }
-
   addClickListener(fn) {
     let tags = this.el.getElementsByTagName("ul");
     let last = tags[tags.length - 1];
-
     for (let i = 0; i < last.childNodes.length; i++) {
       let node = last.children[i];
-
       if (node && node.children) {
         let el = node.children[0].firstChild;
         el.addEventListener("click", fn);
       }
     }
   }
-
   disableInputs() {
     let tags = this.el.getElementsByTagName("ul");
     let last = tags[tags.length - 1];
@@ -6725,31 +5998,25 @@ class Ui extends CustomEvent {
       w.setAttribute("checked", true);
     });
     this.widgets = [];
-
     for (let i = 0; i < last.childNodes.length; i++) {
       let node = last.children[i];
-
       if (node && node.children) {
         let el = node.children[0].firstChild;
         el.disabled = true;
       }
     }
   }
-
   composeReply() {
     let tags = this.el.getElementsByTagName("ul");
     let last = tags[tags.length - 1];
     if (!last) return null;
     let resp = {};
     let index = 0;
-
     for (let i = 0; i < last.childNodes.length; i++) {
       let node = last.children[i];
-
       if (node && node.children) {
         let el = node.children[0].firstChild;
         index++;
-
         if (el.checked) {
           resp[el.value] = index;
           this.widgets.push(el);
@@ -6758,36 +6025,29 @@ class Ui extends CustomEvent {
         }
       }
     }
-
     return Object.values(resp).join(",");
   }
-
   composeMenuWidget(prompt) {
     let name = Math.floor(Math.random() * 9999999999999).toString(36);
     let array = [];
-
     if (prompt.Max > 1) {
       array = this.composeCheckBoxes(prompt, name);
     } else {
       array = this.composeRadioButtons(prompt, name);
     }
-
     var ol = "<ul>" + array.join(" ") + "</ul>";
     this.appendToContent(ol, true);
   }
-
   composeCheckBoxes(prompt, name) {
     return prompt.Menu.map(m => {
       return '<li><label><input type = "checkbox" name="' + name + '" value="' + m.Name + '"/><span style="margin-left:7px;">' + m.Name + "</span></label></li>";
     });
   }
-
   composeRadioButtons(prompt, name) {
     return prompt.Menu.map(m => {
       return '<li><label><input type = "radio" name="' + name + '" value="' + m.Name + '"/><span style="margin-left:7px;">' + m.Name + "</span></label></li>";
     });
   }
-
   showMenu(prompt, commandline) {
     if (!commandline) return this.composeMenuWidget(prompt);
     let array = prompt.Menu.map(m => {
@@ -6797,41 +6057,34 @@ class Ui extends CustomEvent {
     this.appendToContent(ol, true);
     return null;
   }
-
   appendToContent(node, scroll = true) {
     if (node && node.classList) {
       node.classList.add("pr-console-line");
     }
-
     this.display.innerHTML += node;
     if (scroll) this.scrollDown("content");
   }
-
   setMargin() {
     var el = this.display;
     var child = el.lastChild;
-
     if (child && child.classList) {
-      child.classList.add("pr-margin-bottom"); //child.style.borderBottom = "1px solid #777"
+      child.classList.add("pr-margin-bottom");
+      //child.style.borderBottom = "1px solid #777"
       //child.style.paddingTop = "6px"
       //child.style.marginBottom = "8px"
     }
   }
-
   scroll(direction) {
     var el = this.display;
-
     if (direction === "up") {
       el.scrollTop = 0;
     } else {
       el.scrollTop = el.scrollHeight;
     }
   }
-
   scrollDown() {
     var el = this.display;
     var child = el.lastChild;
-
     try {
       if (child) {
         child.scrollIntoView();
@@ -6841,18 +6094,15 @@ class Ui extends CustomEvent {
     } catch (e) {
     }
   }
-
   scrollUp() {
     var el = this.display;
     var child = el.firstChild;
-
     if (child) {
       child.scrollIntoView();
     } else {
       el.scrollTop = el.scrollHeight;
     }
   }
-
   showInputBar() {
     //var a0="<input type='text' class='input'/><br/> ";
     //var a1=(' <a href=\'javascript:void(0)\' onclick=\'ui.send()\'>Send</a> ');
@@ -6862,7 +6112,6 @@ class Ui extends CustomEvent {
     var ol = " <div id='input-bar'><input type='text' class='input'/>" + a2 + a3 + a4 + "</div></br/>";
     this.appendToContent(ol);
   }
-
   showTaskBar() {
     //ol.append("<input type='text' class='input' onkeyUp='inputKeyup("+event+")'/> ");
     //ol.append(" <a href='javascript:void(0)' onclick='submmitClick'>Send</a> ");
@@ -6872,8 +6121,7 @@ class Ui extends CustomEvent {
     var ol = "<div id='input-bar'>" + a1 + a2 + "</div>";
     this.appendToContent(ol);
   }
-
 }
 
-export { Rules, Ui, Ux };
+export { Rules$1 as Rules, Ui, Ux };
 //# sourceMappingURL=rules-engine.modern.js.map
